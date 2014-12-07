@@ -1,0 +1,10 @@
+{
+  "name": "Sprint Planning 2 Workspace",
+  "Description": "Allows to plan the sprint collaboratively.",
+  "htmlFiles": [],
+  "jsFiles": [],
+  "dependencies": [
+    "workspace-layout",
+    "teamview"
+  ]
+}
