@@ -7,15 +7,15 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-single" hidden attributes="resource resourceId onResponse">
+<polymer-element name="ads-rest-single" hidden attributes="resource resourceId response">
     <template>
         <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}/{{resourceId}}" handleAs="json"
-                   auto></core-ajax>
+                   auto on-core-response="{{onLoaded}}"></core-ajax>
     </template>
     <script>
         Polymer({
-            getResponse: function () {
-                return this.$.ajax.response;
+            onLoaded: function () {
+                this.response = this.$.ajax.response;
             },
             save: function (resource) {
                 var ajax = this.$.ajax;
@@ -33,19 +33,11 @@
 </polymer-element>
 
 
-<polymer-element name="ads-project-view">
+<polymer-element name="ads-project-view" noscript>
     <template>
         <h1>Projectname: {{project.name}}</h1>
 
         <h3>Description: {{project.description}}</h3>
-        <ads-rest-single id="rest" resource="projects" resourceId="ATBD"
-                         on-core-response="{{onProjectLoaded}}"></ads-rest-single>
+        <ads-rest-single id="rest" resource="projects" resourceId="ATBD" response="{{project}}"></ads-rest-single>
     </template>
-    <script>
-        Polymer({
-            onProjectLoaded: function () {
-                this.project = this.$.rest.getResponse();
-            }
-        });
-    </script>
 </polymer-element>
