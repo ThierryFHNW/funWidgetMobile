@@ -1,10 +1,16 @@
 {
   "name": "Sprint Planning 2 Workspace",
   "Description": "Allows to plan the sprint collaboratively.",
+  "workspace": "workspace-layout",
   "htmlFiles": [],
   "jsFiles": [],
   "dependencies": [
-    "workspace-layout",
-    "teamview"
+    {
+      "id": "teamview",
+      "viewTarget": "card1"
+    },
+    {
+      "id": "ads-rest"
+    }
   ]
 }

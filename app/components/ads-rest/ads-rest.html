@@ -1,0 +1,51 @@
+<polymer-element name="ads-rest-collection" hidden attributes="resource">
+    <template>
+        <core-ajax url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}" handleAs="json" auto></core-ajax>
+    </template>
+    <script>
+        Polymer();
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-single" hidden attributes="resource resourceId onResponse">
+    <template>
+        <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}/{{resourceId}}" handleAs="json"
+                   auto></core-ajax>
+    </template>
+    <script>
+        Polymer({
+            getResponse: function () {
+                return this.$.ajax.response;
+            },
+            save: function (resource) {
+                var ajax = this.$.ajax;
+                ajax.method = resource.hasOwnProperty('id') ? 'PUT' : 'POST';
+                ajax.body = JSON.stringify(resource);
+                ajax.go();
+            },
+            remove: function (resource) {
+                var ajax = this.$.ajax;
+                ajax.method = 'DELETE';
+                ajax.go();
+            }
+        });
+    </script>
+</polymer-element>
+
+
+<polymer-element name="ads-project-view">
+    <template>
+        <h1>Projectname: {{project.name}}</h1>
+
+        <h3>Description: {{project.description}}</h3>
+        <ads-rest-single id="rest" resource="projects" resourceId="ATBD"
+                         on-core-response="{{onProjectLoaded}}"></ads-rest-single>
+    </template>
+    <script>
+        Polymer({
+            onProjectLoaded: function () {
+                this.project = this.$.rest.getResponse();
+            }
+        });
+    </script>
+</polymer-element>

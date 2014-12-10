@@ -12,6 +12,28 @@
 </head>
 <body>
 
+<polymer-element name="workspace-layout-base">
+    <script>
+        Polymer({
+            created: function () {
+                console.log('created workspace-layout-base is ready');
+            },
+            setContent: function (id, content) {
+                if (this.$.hasOwnProperty(id)) {
+                    console.log('I have the element with id ' + id);
+                    console.dir(this.$[id]);
+                    if(content) {
+                        this.$[id].innerHTML = content.outerHTML;
+                    }
+                } else {
+                    console.log('element not found: ' + id);
+                }
+            }
+        });
+    </script>
+</polymer-element>
+
+
 <!-- bower:js -->
 <script src="bower_components/requirejs/require.js"></script>
 <script src="bower_components/interact/interact.js"></script>

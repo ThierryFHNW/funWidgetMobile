@@ -1,9 +1,0 @@
-{
-  "name": "Workspace Layout",
-  "Description": "A layout for the workspace.",
-  "htmlFiles": [
-    "workspace.html"
-  ],
-  "jsFiles": [],
-  "dependencies": []
-}

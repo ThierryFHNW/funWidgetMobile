@@ -55,10 +55,12 @@ define('core-loader', function () {
         });
     }
 
-    function Component(id, globalConfig, target) {
+    function Component(id, globalConfig, target, parent, workspace) {
         this.id = id;
         this.globalConfig = globalConfig;
         this.target = target;
+        this.parent = parent;
+        this.workspace = workspace;
         this.children = [];
         this.config = null;
         this.document = null;
@@ -72,13 +74,6 @@ define('core-loader', function () {
 
     Component.prototype.load = function () {
         this._getJSON(this.configPath, this._loadComponent.bind(this), this._loadComponentCfgFailed.bind(this));
-    };
-
-    Component.prototype._loadDependency = function (id) {
-        console.log('loading dependency ' + id);
-        var dependency = new Component(id, this.globalConfig, this.target);
-        dependency.load();
-        this.children.push(dependency);
     };
 
     Component.prototype._getJSON = function (url, onSuccessCallback, onErrorCallback) {
@@ -105,6 +100,16 @@ define('core-loader', function () {
         console.log('loading ' + componentCfg.name + ' component');
         this.config = componentCfg;
 
+        // initialize a workspace for the top component
+        if(!this.parent && !this.workspace) {
+            // load workspace
+            if(this.config.hasOwnProperty('workspace')) {
+                this._loadWorkspace(this.config.workspace)
+            } else {
+                console.log('Error, a top component must have a workspace!');
+            }
+        }
+
         // load dependencies
         if (this.config.hasOwnProperty('dependencies')) {
             this.config.dependencies.forEach(this._loadDependency, this);
@@ -114,6 +119,29 @@ define('core-loader', function () {
         if (this.config.hasOwnProperty('htmlFiles')) {
             this.config.htmlFiles.forEach(this._loadHtml, this);
         }
+    };
+
+    Component.prototype._loadWorkspace = function(id) {
+        console.log('loading workspace: ' + id);
+        var link = document.createElement('link');
+        link.rel = 'import';
+        link.href = this.globalConfig.src + '/' + id + '/workspace.html';
+        link.addEventListener('load', this._workspaceLoaded.bind(this));
+        document.head.appendChild(link);
+    };
+
+    Component.prototype._workspaceLoaded = function(e) {
+        var workspace = document.createElement('workspace-layout');
+        workspace.loaded = true;
+        workspace.setContent('widget1', null);
+        this.target.appendChild(workspace);
+    };
+
+    Component.prototype._loadDependency = function (dependencyObj) {
+        console.log('loading dependency ' + dependencyObj.id);
+        var dependency = new Component(dependencyObj.id, this.globalConfig, this.target, this, this.workspace);
+        dependency.load();
+        this.children.push(dependency);
     };
 
     Component.prototype._loadHtml = function (htmlFile) {

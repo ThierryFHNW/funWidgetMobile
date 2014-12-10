@@ -14,7 +14,6 @@ require(['config', 'core-loader'], function (config, loader) {
 
     // load configured components
     config.components.forEach(function (component) {
-        //loader.loadComponent(component, document.body);
         loader.load(component, document.body);
     });
 });
