@@ -5,7 +5,8 @@
     "requirejs": "~2.1.15",
     "interact": "~1.1.3",
     "polymer": "Polymer/polymer#~0.5.1",
-    "core-ajax": "Polymer/core-ajax#~0.5.1"
+    "core-ajax": "Polymer/core-ajax#~0.5.1",
+    "emitter": "~1.5.2"
   },
   "devDependencies": {}
 }

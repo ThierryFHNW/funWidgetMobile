@@ -1,0 +1,12 @@
+{
+  "name": "Sprint Planning 2 Workspace",
+  "description": "Allows to plan the sprint collaboratively.",
+  "path": "/project/:pId/sp2/sprint/:sId",
+  "layout": "touchwall",
+  "main-workspace": "sprintplanning2",
+  "side-workspace-left": "",
+  "side-workspace-right": "",
+  "widgets": {
+    "teamview": "widget1"
+  }
+}

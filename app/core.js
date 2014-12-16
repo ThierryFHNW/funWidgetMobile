@@ -41,6 +41,175 @@ define('core', function () {
 });
 
 
+DEBUG = true;
+log = function (msg) {
+    if (DEBUG) {
+        console.log(msg);
+    }
+};
+
+
+function Cache() {
+    this.objects = {};
+}
+
+Cache.prototype.add = function (objectId, object) {
+    this.objects[objectId] = object;
+};
+
+Cache.prototype.contains = function (objectId) {
+    return this.objects.hasOwnProperty(objectId);
+};
+
+Cache.prototype.get = function (objectId) {
+    return this.objects.hasOwnProperty(objectId) ? this.objects[objectId] : null;
+};
+
+Cache.prototype.remove = function (objectId) {
+    delete this.objects[objectId];
+};
+
+Cache.prototype.clear = function () {
+    this.objects = {};
+};
+
+
+function Loader() {
+
+}
+
+/**
+ * Loads a JSON file.
+ *
+ * @param url The URL of the JSON file to load.
+ * @param onSuccessCallback The function called if the request was successful.
+ *      The first parameter is the parsed JSON as object.
+ * @param onErrorCallback The function called if the request was unsuccessful.
+ *      Parameters: HTTP status code, HTTP status text, response body.
+ */
+Loader.prototype.loadJson = function (url, onSuccessCallback, onErrorCallback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4) {   // DONE
+            if (xhr.status == 200) {  // HTTP OK
+                var data = JSON.parse(xhr.responseText);
+                onSuccessCallback && onSuccessCallback(data);
+            } else {
+                onErrorCallback && onErrorCallback(xhr.status, xhr.statusText, xhr.responseText)
+            }
+        }
+    };
+    xhr.send();
+};
+
+/**
+ * Loads a HTML page via HTML Import and adds the link to the header of the document.
+ *
+ * @param url The URL of the HTML document to load.
+ * @param onSuccessCallback Function called after the HTML document has been loaded. Parameters: Event.
+ */
+Loader.prototype.loadHtml = function (url, onSuccessCallback) {
+    var link = document.createElement('link');
+    link.rel = 'import';
+    link.href = url;
+    link.addEventListener('load', onSuccessCallback);
+    document.head.appendChild(link);
+};
+
+Loader.setUpSubclass = function (className) {
+    className.prototype = Object.create(Loader.prototype);
+    if (!className.cache) {
+        className.cache = new Cache();
+    }
+    if (!className.loading) {
+        className.loading = new Cache();
+    }
+};
+
+
+function ElementLoader() {
+
+}
+Loader.setUpSubclass(ElementLoader);
+
+ElementLoader.prototype.load = function (name, onLoadedCallback) {
+    var url = 'elements/' + name + '.html';
+    if (ElementLoader.cache.contains(url)) {
+        var element = ElementLoader.loading.get(url);
+        onLoadedCallback(element);
+    } else if (ElementLoader.loading.contains(url)) {
+        var loadingElement = ElementLoader.loading.get(url);
+        loadingElement.once('loaded', onLoadedCallback);
+    } else {
+        ElementLoader.loading.add(url, new Element(name));
+        this.loadHtml(url, function () {
+            var element = ElementLoader.loading.get(url);
+            ElementLoader.cache.add(element);
+            onLoadedCallback(element);
+
+            // notify the listeners added while the element was loading
+            element.emit('loaded', element);
+        });
+    }
+};
+
+
+/*
+ BEGIN TESTS
+ */
+var l = new ElementLoader();
+l.loadJson('workspace-configs/sprintplanning2.json', function (data) {
+    console.log('loaded json');
+    console.dir(data);
+    ElementLoader.cache.add("data", data);
+});
+
+setTimeout(function () {
+    var loader = new ElementLoader();
+    var data = ElementLoader.cache.get("data");
+    console.dir(data);
+}, 500);
+
+/*
+ END TESTS
+ */
+
+
+function WorkspaceConfig(name) {
+    this.name = name;
+    this.configFileUrl = 'workspace-configs/' + name + '.json';
+}
+
+function Layout(name) {
+    this.name = name;
+    this.htmlFile = 'layouts/' + name + '.html';
+}
+
+function Widget(name) {
+    this.name = name;
+    this.config = 'widgets/' + name + '/widget.json';
+}
+
+function Element(name) {
+    this.name = name;
+}
+
+// Emitter prototype mixin for the models
+Emitter(WorkspaceConfig.prototype);
+Emitter(Layout.prototype);
+Emitter(Widget.prototype);
+Emitter(Element.prototype);
+
+
+/**
+ * Converts the emitter into a AMD module.
+ */
+define('emitter', function (require, exports, module) {
+    return Emitter;
+});
+
+
 /**
  * core-loader
  *
@@ -64,7 +233,7 @@ define('core-loader', function () {
         this.children = [];
         this.config = null;
         this.document = null;
-        this.configPath = this.globalConfig.src + '/' + this.id + '/' + this.globalConfig.configFile;
+        this.configPath = this.globalConfig.src + '/' + this.id + '/' + this.globalConfig.configFileUrl;
     }
 
     Component.prototype._getPath = function (fileName) {
@@ -101,9 +270,9 @@ define('core-loader', function () {
         this.config = componentCfg;
 
         // initialize a workspace for the top component
-        if(!this.parent && !this.workspace) {
+        if (!this.parent && !this.workspace) {
             // load workspace
-            if(this.config.hasOwnProperty('workspace')) {
+            if (this.config.hasOwnProperty('workspace')) {
                 this._loadWorkspace(this.config.workspace)
             } else {
                 console.log('Error, a top component must have a workspace!');
@@ -121,7 +290,7 @@ define('core-loader', function () {
         }
     };
 
-    Component.prototype._loadWorkspace = function(id) {
+    Component.prototype._loadWorkspace = function (id) {
         console.log('loading workspace: ' + id);
         var link = document.createElement('link');
         link.rel = 'import';
@@ -130,7 +299,7 @@ define('core-loader', function () {
         document.head.appendChild(link);
     };
 
-    Component.prototype._workspaceLoaded = function(e) {
+    Component.prototype._workspaceLoaded = function (e) {
         var workspace = document.createElement('workspace-layout');
         workspace.loaded = true;
         workspace.setContent('widget1', null);

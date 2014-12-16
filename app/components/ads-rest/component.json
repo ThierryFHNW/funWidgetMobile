@@ -1,9 +1,0 @@
-{
-  "name": "Agile Data Services REST API",
-  "Description": "Allows to query the ADS REST API.",
-  "htmlFiles": [
-    "ads-rest.html"
-  ],
-  "jsFiles": [],
-  "dependencies": []
-}

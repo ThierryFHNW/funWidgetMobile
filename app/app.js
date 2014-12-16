@@ -1,20 +1,20 @@
 // configuration of the available components (under components)
 define('config', function () {
     return {
-        src: 'components',
-        configFile: 'component.json',
-        components: [
-            'sprintplanning2-workspace'
-        ]
+        workspaces: {
+            initial: "sprintplanning2",
+            available: [
+
+            ]
+        }
     }
 });
 
 // application starts here
-require(['config', 'core-loader'], function (config, loader) {
+require(['config'], function (config) {
 
-    // load configured components
-    config.components.forEach(function (component) {
-        loader.load(component, document.body);
+    config.workspaces.available.forEach(function(cfgName) {
+        //var wsConfig = new WorkspaceConfig(cfgName);
     });
 });
 
