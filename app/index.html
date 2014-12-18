@@ -23,7 +23,8 @@
                     console.log('I have the element with id ' + id);
                     console.dir(this.$[id]);
                     if(content) {
-                        this.$[id].innerHTML = content.outerHTML;
+                        var root = this.$[id].createShadowRoot();
+                        root.appendChild(content);
                     }
                 } else {
                     console.log('element not found: ' + id);

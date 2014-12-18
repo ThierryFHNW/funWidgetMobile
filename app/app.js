@@ -12,12 +12,7 @@ define('config', function () {
 
 // application starts here
 require(['config', 'core-loader'], function (config, loader) {
-
-    loader.runTests();
-
-    config.workspaces.available.forEach(function(cfgName) {
-        //var wsConfig = new WorkspaceConfig(cfgName);
-    });
+    loader.createWorkspace(config.workspaces.initial);
 });
 
 require.config({

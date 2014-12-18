@@ -56,10 +56,12 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.widgets = [];
     }
 
+
     function Layout(name) {
         this.name = name;
         this.document = {};
     }
+
 
     function Widget(name) {
         this.name = name;
@@ -68,14 +70,33 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.elements = [];
     }
 
+
     function Element(name) {
         this.name = name;
     }
 
-    heir.inherit(Element, EventEmitter);
-    heir.inherit(Widget, EventEmitter);
-    heir.inherit(Layout, EventEmitter);
-    heir.inherit(WorkspaceConfig, EventEmitter);
+
+    heir.inherit(Element, EventEmitter, true);
+    heir.inherit(Widget, EventEmitter, true);
+    heir.inherit(Layout, EventEmitter, true);
+    heir.inherit(WorkspaceConfig, EventEmitter, true);
+
+
+    WorkspaceConfig.prototype.build = function () {
+        var workspace = document.createElement('workspace-layout');
+        this.widgets.forEach(function (widget) {
+            var templates = widget.document.querySelectorAll('template.content');
+            console.log('found templates: ' + templates.length);
+            if (templates.length == 0) {
+                console.log('no templates found in the widget ' + widget.name);
+                return;
+            }
+            var content = document.importNode(templates[0].content, true);
+            console.dir(content);
+            workspace.setContent(widget.viewTarget, content);
+        });
+        document.body.appendChild(workspace);
+    };
 
 
     function Cache() {
@@ -188,6 +209,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
             });
         }
     };
+
 
     function WidgetLoader() {
         this.config = {};
@@ -314,6 +336,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         }
     };
 
+
     function WorkspaceConfigLoader() {
         this.workspaceConfig = {};
         this.layoutLoaded = false;
@@ -389,13 +412,12 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
             widgetsToLoad[this.config.sideWorkspaceRight] = 'sideWorkspaceRight';
         }
 
-
         if (this.config.hasOwnProperty('widgets') && Object.keys(this.config.widgets).length > 0) {
             log(this.config.name + ' has free widgets');
-            var freeWidgets = 0;
+            var viewTargetWidget = 1;
             for (var widgetName in this.config.widgets) {
                 if (this.config.widgets.hasOwnProperty(widgetName)) {
-                    widgetsToLoad[widgetName] = 'widget' + (freeWidgets++);
+                    widgetsToLoad[widgetName] = 'widget' + (viewTargetWidget++);
                 }
             }
         }
@@ -414,7 +436,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
     };
 
-
     WorkspaceConfigLoader.prototype._checkIfLoadingComplete = function () {
         if (this.layoutLoaded && this.numberOfWidgets == this.numberOfWidgetsLoaded) {
             log('WorkspaceConfig ' + this.workspaceConfig.name + ' has been loaded');
@@ -427,172 +448,15 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
 
     return {
-        runTests: function () {
-            /*
-             BEGIN TESTS
-             */
-
+        createWorkspace: function (name) {
             var wcl = new WorkspaceConfigLoader();
-            wcl.load('sprintplanning2', function (wConfig) {
-                console.log('%%% loaded workspaceConfig');
-                console.dir(wConfig);
+            wcl.load(name, function (wConfig) {
+                console.log('*** loaded workspaceConfig ' + name);
+                wConfig.build();
             });
-
-            //var wl = new WidgetLoader();
-            //wl.load('sprintplanning2', function (widget) {
-            //    log('## widget has been loaded');
-            //    console.dir(widget);
-            //});
-            //
-            //var ll = new LayoutLoader();
-            //ll.load('workspace', function (layout) {
-            //    log('## layout loaded');
-            //    console.dir(layout);
-            //});
-
-            /*
-             END TESTS
-             */
         }
     }
 
-});
-
-
-/**
- * core-loader
- *
- * Loads components.
- */
-define('core-loader-obsolete', function () {
-
-    function _dispatchLoad(componentName, target) {
-        require(['config'], function (config) {
-            var loader = new Component(componentName, config, target);
-            loader.load();
-        });
-    }
-
-    function Component(id, globalConfig, target, parent, workspace) {
-        this.id = id;
-        this.globalConfig = globalConfig;
-        this.target = target;
-        this.parent = parent;
-        this.workspace = workspace;
-        this.children = [];
-        this.config = null;
-        this.document = null;
-        this.configPath = this.globalConfig.src + '/' + this.id + '/' + this.globalConfig.configFileUrl;
-    }
-
-    Component.prototype._getPath = function (fileName) {
-        return this.globalConfig.src + '/' + this.id + '/' + fileName;
-    };
-
-
-    Component.prototype.load = function () {
-        this._getJSON(this.configPath, this._loadComponent.bind(this), this._loadComponentCfgFailed.bind(this));
-    };
-
-    Component.prototype._getJSON = function (url, onSuccessCallback, onErrorCallback) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4) {   // DONE
-                if (xhr.status == 200) {  // HTTP OK
-                    var data = JSON.parse(xhr.responseText);
-                    onSuccessCallback && onSuccessCallback(data);
-                } else {
-                    onErrorCallback && onErrorCallback(xhr.status, xhr.statusText, xhr.responseText)
-                }
-            }
-        };
-        xhr.send();
-    };
-
-    Component.prototype._loadComponentCfgFailed = function (status, statusMsg, response) {
-        console.log('Error: ' + status + ' ' + statusMsg + ', ' + response);
-    };
-
-    Component.prototype._loadComponent = function (componentCfg) {
-        console.log('loading ' + componentCfg.name + ' component');
-        this.config = componentCfg;
-
-        // initialize a workspace for the top component
-        if (!this.parent && !this.workspace) {
-            // load workspace
-            if (this.config.hasOwnProperty('workspace')) {
-                this._loadWorkspace(this.config.workspace)
-            } else {
-                console.log('Error, a top component must have a workspace!');
-            }
-        }
-
-        // load dependencies
-        if (this.config.hasOwnProperty('dependencies')) {
-            this.config.dependencies.forEach(this._loadDependency, this);
-        }
-
-        // load the html and js files
-        if (this.config.hasOwnProperty('htmlFiles')) {
-            this.config.htmlFiles.forEach(this._loadHtml, this);
-        }
-    };
-
-    Component.prototype._loadWorkspace = function (id) {
-        console.log('loading workspace: ' + id);
-        var link = document.createElement('link');
-        link.rel = 'import';
-        link.href = this.globalConfig.src + '/' + id + '/workspace.html';
-        link.addEventListener('load', this._workspaceLoaded.bind(this));
-        document.head.appendChild(link);
-    };
-
-    Component.prototype._workspaceLoaded = function (e) {
-        var workspace = document.createElement('workspace-layout');
-        workspace.loaded = true;
-        workspace.setContent('widget1', null);
-        this.target.appendChild(workspace);
-    };
-
-    Component.prototype._loadDependency = function (dependencyObj) {
-        console.log('loading dependency ' + dependencyObj.id);
-        var dependency = new Component(dependencyObj.id, this.globalConfig, this.target, this, this.workspace);
-        dependency.load();
-        this.children.push(dependency);
-    };
-
-    Component.prototype._loadHtml = function (htmlFile) {
-        var link = document.createElement('link');
-        link.rel = 'import';
-        link.href = this._getPath(htmlFile);
-        link.addEventListener('load', this._htmlLoaded.bind(this));
-
-        document.head.appendChild(link);
-    };
-
-    Component.prototype._htmlLoaded = function (e) {
-        console.log('Loaded import: ' + e.target.href);
-
-        // add to document after loaded
-        var div = document.createElement('div');
-        var root = div.createShadowRoot();
-        this.document = root;
-
-        // add templates to document in a shadow root
-        var templates = e.target.import.querySelectorAll('template.content');
-        console.log('found templates: ' + templates.length);
-        for (var i = 0; i < templates.length; i++) {
-            // add content of template
-            var content = document.importNode(templates[i].content, true);
-            root.appendChild(content);
-        }
-        this.target.appendChild(div);
-    };
-
-    return {
-        load: _dispatchLoad
-    }
 });
 
 
