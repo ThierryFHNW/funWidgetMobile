@@ -399,12 +399,13 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 }
             }
         }
+
         this.numberOfWidgets = Object.keys(widgetsToLoad).length;
         log(this.config.name + ' has ' + this.numberOfWidgets + ' widgets');
         for (var widgetName in widgetsToLoad) {
             var widgetLoader = new WidgetLoader();
             widgetLoader.load(widgetName, function (widget) {
-                widget.viewTarget = widgetsToLoad[widgetName];
+                widget.viewTarget = widgetsToLoad[widget.name];
                 this.workspaceConfig.widgets.push(widget);
                 this.numberOfWidgetsLoaded += 1;
                 this._checkIfLoadingComplete();
