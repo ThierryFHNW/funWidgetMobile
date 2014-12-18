@@ -11,11 +11,20 @@ define('config', function () {
 });
 
 // application starts here
-require(['config'], function (config) {
+require(['config', 'core-loader'], function (config, loader) {
+
+    loader.runTests();
 
     config.workspaces.available.forEach(function(cfgName) {
         //var wsConfig = new WorkspaceConfig(cfgName);
     });
+});
+
+require.config({
+    paths: {
+        'heir': 'bower_components/heir/heir',
+        'eventEmitter': 'bower_components/eventEmitter/EventEmitter'
+    }
 });
 
 

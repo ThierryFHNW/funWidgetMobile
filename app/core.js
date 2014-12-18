@@ -48,165 +48,256 @@ log = function (msg) {
     }
 };
 
+define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
-function Cache() {
-    this.objects = {};
-}
+    function WorkspaceConfig(name) {
+        this.name = name;
+        this.configFileUrl = 'workspace-configs/' + name + '.json';
+    }
 
-Cache.prototype.add = function (objectId, object) {
-    this.objects[objectId] = object;
-};
+    function Layout(name) {
+        this.name = name;
+        this.htmlFile = 'layouts/' + name + '.html';
+    }
 
-Cache.prototype.contains = function (objectId) {
-    return this.objects.hasOwnProperty(objectId);
-};
+    function Widget(name) {
+        this.name = name;
+        this.document = {};
+        this.elements = [];
+    }
 
-Cache.prototype.get = function (objectId) {
-    return this.objects.hasOwnProperty(objectId) ? this.objects[objectId] : null;
-};
+    function Element(name) {
+        this.name = name;
+    }
 
-Cache.prototype.remove = function (objectId) {
-    delete this.objects[objectId];
-};
-
-Cache.prototype.clear = function () {
-    this.objects = {};
-};
+    heir.inherit(Element, EventEmitter);
+    heir.inherit(Widget, EventEmitter);
+    heir.inherit(Layout, EventEmitter);
 
 
-function Loader() {
+    function Cache() {
+        this.objects = {};
+    }
 
-}
+    Cache.prototype.add = function (objectId, object) {
+        this.objects[objectId] = object;
+    };
 
-/**
- * Loads a JSON file.
- *
- * @param url The URL of the JSON file to load.
- * @param onSuccessCallback The function called if the request was successful.
- *      The first parameter is the parsed JSON as object.
- * @param onErrorCallback The function called if the request was unsuccessful.
- *      Parameters: HTTP status code, HTTP status text, response body.
- */
-Loader.prototype.loadJson = function (url, onSuccessCallback, onErrorCallback) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {   // DONE
-            if (xhr.status == 200) {  // HTTP OK
-                var data = JSON.parse(xhr.responseText);
-                onSuccessCallback && onSuccessCallback(data);
-            } else {
-                onErrorCallback && onErrorCallback(xhr.status, xhr.statusText, xhr.responseText)
+    Cache.prototype.contains = function (objectId) {
+        return this.objects.hasOwnProperty(objectId);
+    };
+
+    Cache.prototype.get = function (objectId) {
+        return this.objects.hasOwnProperty(objectId) ? this.objects[objectId] : null;
+    };
+
+    Cache.prototype.remove = function (objectId) {
+        delete this.objects[objectId];
+    };
+
+    Cache.prototype.clear = function () {
+        this.objects = {};
+    };
+
+
+    function Loader() {
+
+    }
+
+    /**
+     * Loads a JSON file.
+     *
+     * @param url The URL of the JSON file to load.
+     * @param onSuccessCallback The function called if the request was successful.
+     *      The first parameter is the parsed JSON as object.
+     * @param onErrorCallback The function called if the request was unsuccessful.
+     *      Parameters: HTTP status code, HTTP status text, response body.
+     */
+    Loader.prototype.loadJson = function (url, onSuccessCallback, onErrorCallback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4) {   // DONE
+                if (xhr.status == 200) {  // HTTP OK
+                    var data = JSON.parse(xhr.responseText);
+                    onSuccessCallback && onSuccessCallback(data);
+                } else {
+                    onErrorCallback && onErrorCallback(xhr.status, xhr.statusText, xhr.responseText)
+                }
             }
+        };
+        xhr.send();
+    };
+
+    /**
+     * Loads a HTML page via HTML Import and adds the link to the header of the document.
+     *
+     * @param url The URL of the HTML document to load.
+     * @param onSuccessCallback Function called after the HTML document has been loaded. Parameters: Event.
+     */
+    Loader.prototype.loadHtml = function (url, onSuccessCallback) {
+        var link = document.createElement('link');
+        link.rel = 'import';
+        link.href = url;
+        link.addEventListener('load', onSuccessCallback);
+        document.head.appendChild(link);
+    };
+
+    Loader.setUpSubclass = function (className) {
+        className.prototype = Object.create(Loader.prototype);
+        if (!className.cache) {
+            className.cache = new Cache();
+        }
+        if (!className.loading) {
+            className.loading = new Cache();
         }
     };
-    xhr.send();
-};
 
-/**
- * Loads a HTML page via HTML Import and adds the link to the header of the document.
- *
- * @param url The URL of the HTML document to load.
- * @param onSuccessCallback Function called after the HTML document has been loaded. Parameters: Event.
- */
-Loader.prototype.loadHtml = function (url, onSuccessCallback) {
-    var link = document.createElement('link');
-    link.rel = 'import';
-    link.href = url;
-    link.addEventListener('load', onSuccessCallback);
-    document.head.appendChild(link);
-};
 
-Loader.setUpSubclass = function (className) {
-    className.prototype = Object.create(Loader.prototype);
-    if (!className.cache) {
-        className.cache = new Cache();
+    function ElementLoader() {
+
     }
-    if (!className.loading) {
-        className.loading = new Cache();
-    }
-};
 
+    Loader.setUpSubclass(ElementLoader);
 
-function ElementLoader() {
-
-}
-Loader.setUpSubclass(ElementLoader);
-
-ElementLoader.prototype.load = function (name, onLoadedCallback) {
-    var url = 'elements/' + name + '.html';
-    if (ElementLoader.cache.contains(url)) {
-        var element = ElementLoader.loading.get(url);
-        onLoadedCallback(element);
-    } else if (ElementLoader.loading.contains(url)) {
-        var loadingElement = ElementLoader.loading.get(url);
-        loadingElement.once('loaded', onLoadedCallback);
-    } else {
-        ElementLoader.loading.add(url, new Element(name));
-        this.loadHtml(url, function () {
+    ElementLoader.prototype.load = function (name, onLoadedCallback) {
+        var url = 'elements/' + name + '.html';
+        if (ElementLoader.cache.contains(url)) {
+            log('Element ' + name + ' already in cache');
             var element = ElementLoader.loading.get(url);
-            ElementLoader.cache.add(element);
             onLoadedCallback(element);
+        } else if (ElementLoader.loading.contains(url)) {
+            log('Element ' + name + ' is loading');
+            var loadingElement = ElementLoader.loading.get(url);
+            loadingElement.addOnceListener('loaded', onLoadedCallback);
+        } else {
+            log('Element ' + name + ' is new');
+            ElementLoader.loading.add(url, new Element(name));
+            this.loadHtml(url, function () {
+                var element = ElementLoader.loading.get(url);
+                ElementLoader.cache.add(element);
+                ElementLoader.loading.remove(url);
+                onLoadedCallback(element);
 
-            // notify the listeners added while the element was loading
-            element.emit('loaded', element);
-        });
+                // notify the listeners added while the element was loading
+                element.emitEvent('loaded', element);
+            });
+        }
+    };
+
+    function WidgetLoader() {
+        this.config = {};
+        this.numberOfElements = null;
+        this.numberOfElementsLoaded = 0;
+        this.indexHtmlLoaded = false;
+        this.widget = null;
+        this.onLoadedCallback = function () {
+        };
     }
-};
+
+    Loader.setUpSubclass(WidgetLoader);
+
+    WidgetLoader.prototype.load = function (name, onLoadedCallback) {
+        this.onLoadedCallback = onLoadedCallback;
+        var configUrl = 'widgets/' + name + '/widget.json';
+
+        if (WidgetLoader.cache.contains(configUrl)) {
+            log('Widget ' + name + ' already in cache');
+            var widget = WidgetLoader.cache.get(configUrl);
+            onLoadedCallback(widget);
+        } else if (WidgetLoader.loading.contains(configUrl)) {
+            log('Widget ' + name + ' is loading');
+            var loadingWidget = WidgetLoader.loading.get(configUrl);
+            loadingWidget.addOnceListener('loaded', onLoadedCallback);
+        } else {
+            log('Widget ' + name + ' is new');
+            this.widget = new Widget(name);
+            WidgetLoader.loading.add(configUrl, this.widget);
+            this.loadJson(configUrl, function (config) {
+                this.config = config;
+                var widget = WidgetLoader.loading.get(configUrl);
+                if (widget !== this.widget) {
+                    log('Error, something is wrong. The widget from the loading cache does not match the widget created in the class.');
+                    return;
+                }
+                WidgetLoader.cache.add(configUrl, widget);
+                WidgetLoader.loading.remove(configUrl);
+
+                // load dependencies (elements)
+                if (config.hasOwnProperty('elements')) {
+                    this._loadElements(config.elements);
+                } else {
+                    log('Widget ' + name + ' has no elements');
+                }
+
+                // load index.html
+                this._loadIndexHtml();
+
+            }.bind(this));
+        }
+    };
+
+    WidgetLoader.prototype._loadElements = function (elementArray) {
+        this.numberOfElements = elementArray.length;
+        log('Widget ' + name + ' has ' + this.numberOfElements + ' elements');
+        elementArray.forEach(function (elementName) {
+            var loader = new ElementLoader();
+            loader.load(elementName, function (element) {
+                this.widget.elements.push(element);
+                this.numberOfElementsLoaded += 1;
+                this._checkIfLoadingComplete();
+            }.bind(this));
+        }.bind(this));
+    };
+
+    WidgetLoader.prototype._checkIfLoadingComplete = function () {
+        if (this.numberOfElements == this.numberOfElementsLoaded && this.indexHtmlLoaded) {
+            log('Widget ' + this.widget.name + ' has been loaded');
+            this.widget.emitEvent('loaded', this.widget);
+            this.onLoadedCallback(this.widget);
+        }
+    };
+
+    WidgetLoader.prototype._loadIndexHtml = function () {
+        var htmlUrl = 'widgets/' + this.widget.name + '/index.html';
+        this.loadHtml(htmlUrl, function (e) {
+            console.log('Loaded widget html: ' + e.target.href);
+            this.indexHtmlLoaded = true;
+            this.widget.document = e.target.import;
+            this._checkIfLoadingComplete();
+        }.bind(this));
+    };
 
 
-/*
- BEGIN TESTS
- */
-var l = new ElementLoader();
-l.loadJson('workspace-configs/sprintplanning2.json', function (data) {
-    console.log('loaded json');
-    console.dir(data);
-    ElementLoader.cache.add("data", data);
-});
+    function LayoutLoader() {
 
-setTimeout(function () {
-    var loader = new ElementLoader();
-    var data = ElementLoader.cache.get("data");
-    console.dir(data);
-}, 500);
+    }
 
-/*
- END TESTS
- */
+    Loader.setUpSubclass(LayoutLoader);
+
+    LayoutLoader.prototype.load = function (name, onLoadedCallback) {
+
+    };
 
 
-function WorkspaceConfig(name) {
-    this.name = name;
-    this.configFileUrl = 'workspace-configs/' + name + '.json';
-}
+    return {
+        runTests: function () {
+            /*
+             BEGIN TESTS
+             */
 
-function Layout(name) {
-    this.name = name;
-    this.htmlFile = 'layouts/' + name + '.html';
-}
+            var wl = new WidgetLoader();
+            wl.load('sprintplanning2', function (widget) {
+                log('## widget has been loaded');
+                console.dir(widget);
+            });
 
-function Widget(name) {
-    this.name = name;
-    this.config = 'widgets/' + name + '/widget.json';
-}
+            /*
+             END TESTS
+             */
+        }
+    }
 
-function Element(name) {
-    this.name = name;
-}
-
-// Emitter prototype mixin for the models
-Emitter(WorkspaceConfig.prototype);
-Emitter(Layout.prototype);
-Emitter(Widget.prototype);
-Emitter(Element.prototype);
-
-
-/**
- * Converts the emitter into a AMD module.
- */
-define('emitter', function (require, exports, module) {
-    return Emitter;
 });
 
 
@@ -215,7 +306,7 @@ define('emitter', function (require, exports, module) {
  *
  * Loads components.
  */
-define('core-loader', function () {
+define('core-loader-obsolete', function () {
 
     function _dispatchLoad(componentName, target) {
         require(['config'], function (config) {

@@ -1,6 +1,6 @@
 {
-  "name": "Team View",
-  "Description": "Shows the members of the project.",
+  "name": "Team widget",
+  "description": "Shows the members of the project.",
   "elements": [
     "ads-rest"
   ]
