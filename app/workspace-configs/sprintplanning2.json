@@ -3,9 +3,9 @@
   "description": "Allows to plan the sprint collaboratively.",
   "path": "/project/:pId/sp2/sprint/:sId",
   "layout": "touchwall",
-  "main-workspace": "sprintplanning2",
-  "side-workspace-left": "",
-  "side-workspace-right": "",
+  "mainWorkspace": "sprintplanning2",
+  "sideWorkspaceLeft": "",
+  "sideWorkspaceRight": "",
   "widgets": {
     "teamview": "widget1"
   }
