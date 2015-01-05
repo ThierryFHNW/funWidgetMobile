@@ -71,7 +71,7 @@ define('core-routing', function () {
                 routes.push(route);
             }
 
-            window.addEventListener('hashchange', function () {
+            function routeChanged() {
                 for (var i = 0; i < routes.length; i++) {
                     var route = routes[i];
                     var result = route.parse(location.hash);
@@ -82,6 +82,11 @@ define('core-routing', function () {
                         break;
                     }
                 }
+            }
+            routeChanged();
+
+            window.addEventListener('hashchange', function () {
+                routeChanged()
             });
         }
     }

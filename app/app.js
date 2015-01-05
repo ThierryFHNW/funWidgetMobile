@@ -2,8 +2,8 @@
 define('config', function () {
     return {
         workspaces: {
-            initial: "projectselect",
             available: [
+                'projectselect',
                 'sprintselect',
                 'sprintplanning2'
             ]
@@ -16,16 +16,8 @@ require(['config', 'core-loader', 'core-routing'], function (config, loader, rou
 
     // Map k: url path, v: workspaceConfig
     var urlPathToWorkspaceConfig = Object.create(null);
-    var numberOfWorkspaceConfigs = config.workspaces.available.length + 1;
+    var numberOfWorkspaceConfigs = config.workspaces.available.length;
     var numberOfWorkspaceConfigsLoaded = 0;
-
-    var initialWorkspaceConfigLoader = loader.createWorkspaceConfigLoader();
-    initialWorkspaceConfigLoader.load(config.workspaces.initial, function (wConfig) {
-        console.log('*** loaded initial workspaceConfig ' + config.workspaces.initial);
-        urlPathToWorkspaceConfig[wConfig.path] = wConfig;
-        onConfigLoaded();
-        wConfig.show();
-    });
 
     config.workspaces.available.forEach(function (wConfigName) {
         var wcLoader = loader.createWorkspaceConfigLoader();

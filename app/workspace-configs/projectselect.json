@@ -1,7 +1,7 @@
 {
   "name": "Project selection",
   "description": "Allows to select the project.",
-  "path": "/",
+  "path": ".*",
   "layout": "single",
   "mainWorkspace": "projectselect",
   "sideWorkspaceLeft": "",
