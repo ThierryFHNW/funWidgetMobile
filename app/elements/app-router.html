@@ -1,0 +1,43 @@
+<polymer-element name="app-router">
+    <script>
+        function Route(urlPath, workspaceConfig) {
+            console.log('+++ Adding route: ' + urlPath);
+            this.workspaceConfig = workspaceConfig;
+            this.matcher = routeMatcher(urlPath);
+        }
+
+        Route.prototype.parse = function (hashLocation) {
+            if (hashLocation.indexOf('#') == 0) {
+                hashLocation = hashLocation.substring(1);
+            }
+            return this.matcher.parse(hashLocation);
+        };
+
+        Polymer({
+            setRoutes: function (urlPathToWorkspaceConfig) {
+                for (var urlPath in urlPathToWorkspaceConfig) {
+                    var route = new Route(urlPath, urlPathToWorkspaceConfig[urlPath]);
+                    this.routes.push(route);
+                }
+            },
+            routeChanged: function () {
+                for (var i = 0; i < this.routes.length; i++) {
+                    var route = this.routes[i];
+                    var result = route.parse(location.hash);
+                    if (result != null) {
+                        console.log('found a route for ' + location.hash);
+                        console.dir(route.workspaceConfig);
+                        route.workspaceConfig.show();
+                        break;
+                    }
+                }
+            },
+            ready: function () {
+                this.routes = [];
+                window.addEventListener('hashchange', function () {
+                    this.routeChanged();
+                }.bind(this));
+            }
+        });
+    </script>
+</polymer-element>

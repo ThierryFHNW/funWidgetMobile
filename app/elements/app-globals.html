@@ -1,0 +1,22 @@
+<polymer-element name="app-globals">
+    <script>
+        (function () {
+            // these variables are shared by all instances
+            var project = null;
+
+            Polymer({
+                ready: function () {
+                    this.copyGlobalValuesIntoInstance();
+                },
+                copyGlobalValuesIntoInstance: function () {
+                    // copy global values into instance properties
+                    this.project = project;
+                },
+                setProject: function (newProject) {
+                    project = newProject;
+                    this.copyGlobalValuesIntoInstance();
+                }
+            });
+        })();
+    </script>
+</polymer-element>

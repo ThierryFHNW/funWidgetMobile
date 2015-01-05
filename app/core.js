@@ -49,45 +49,16 @@ log = function (msg) {
 
 define('core-routing', function () {
 
-    function Route(urlPath, workspaceConfig) {
-        console.log('+++ Adding route: ' + urlPath);
-        this.urlPath = urlPath;
-        this.workspaceConfig = workspaceConfig;
-        this.matcher = routeMatcher(urlPath);
-    }
-
-    Route.prototype.parse = function (hashLocation) {
-        if (hashLocation.indexOf('#') == 0) {
-            hashLocation = hashLocation.substring(1);
-        }
-        return this.matcher.parse(hashLocation);
-    };
-
     return {
         enable: function (urlPathToWorkspaceConfig) {
-            var routes = [];
-            for (var urlPath in urlPathToWorkspaceConfig) {
-                var route = new Route(urlPath, urlPathToWorkspaceConfig[urlPath]);
-                routes.push(route);
+            var routers = document.getElementsByTagName('app-router');
+            if (routers.length != 1) {
+                console.error('Error, none or more app-router elements. Exactly one is needed!');
+                return;
             }
-
-            function routeChanged() {
-                for (var i = 0; i < routes.length; i++) {
-                    var route = routes[i];
-                    var result = route.parse(location.hash);
-                    if (result != null) {
-                        console.log('found a route for ' + location.hash);
-                        console.dir(route.workspaceConfig);
-                        route.workspaceConfig.show();
-                        break;
-                    }
-                }
-            }
-            routeChanged();
-
-            window.addEventListener('hashchange', function () {
-                routeChanged()
-            });
+            var router = routers[0];
+            router.setRoutes(urlPathToWorkspaceConfig);
+            router.routeChanged();
         }
     }
 });

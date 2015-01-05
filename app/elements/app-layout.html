@@ -1,0 +1,16 @@
+<polymer-element name="app-layout">
+    <script>
+        Polymer({
+            setContent: function (id, content) {
+                if (this.$.hasOwnProperty(id)) {
+                    if (content) {
+                        var root = this.$[id].createShadowRoot();
+                        root.appendChild(content);
+                    }
+                } else {
+                    console.error('Element not found: ' + id);
+                }
+            }
+        });
+    </script>
+</polymer-element>
