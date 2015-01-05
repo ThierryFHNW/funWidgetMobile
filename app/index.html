@@ -9,25 +9,45 @@
 
     <link rel="stylesheet" href="main.css">
     <link rel="import" href="bower_components/core-ajax/core-ajax.html">
+    <script src="bower_components/javascript-route-matcher/dist/ba-routematcher.js"></script>
 </head>
 <body>
+
+<polymer-element name="app-globals">
+    <script>
+        (function () {
+            // these variables are shared by all instances
+            var project = null;
+
+            Polymer({
+                ready: function () {
+                    this.copyGlobalValuesIntoInstance();
+                },
+                copyGlobalValuesIntoInstance: function () {
+                    // copy global values into instance properties
+                    this.project = project;
+                },
+                setProject: function (newProject) {
+                    project = newProject;
+                    this.copyGlobalValuesIntoInstance();
+                }
+            });
+        })();
+    </script>
+</polymer-element>
+
 
 <polymer-element name="workspace-layout-base">
     <script>
         Polymer({
-            created: function () {
-                console.log('created workspace-layout-base is ready');
-            },
             setContent: function (id, content) {
                 if (this.$.hasOwnProperty(id)) {
-                    console.log('I have the element with id ' + id);
-                    console.dir(this.$[id]);
-                    if(content) {
+                    if (content) {
                         var root = this.$[id].createShadowRoot();
                         root.appendChild(content);
                     }
                 } else {
-                    console.log('element not found: ' + id);
+                    console.log('Element not found: ' + id);
                 }
             }
         });

@@ -1,0 +1,11 @@
+{
+  "name": "Sprint selection",
+  "description": "Allows to select the sprint.",
+  "path": "/project/:projectId",
+  "layout": "single",
+  "mainWorkspace": "sprintselect",
+  "sideWorkspaceLeft": "",
+  "sideWorkspaceRight": "",
+  "widgets": {
+  }
+}

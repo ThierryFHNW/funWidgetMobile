@@ -14,7 +14,6 @@ if (!HTMLElement.prototype.data) {
     }
 }
 
-
 define('core', function () {
 
     var subscribers = Object.create(null);
@@ -48,10 +47,52 @@ log = function (msg) {
     }
 };
 
+define('core-routing', function () {
+
+    function Route(urlPath, workspaceConfig) {
+        console.log('+++ Adding route: ' + urlPath);
+        this.urlPath = urlPath;
+        this.workspaceConfig = workspaceConfig;
+        this.matcher = routeMatcher(urlPath);
+    }
+
+    Route.prototype.parse = function (hashLocation) {
+        if (hashLocation.indexOf('#') == 0) {
+            hashLocation = hashLocation.substring(1);
+        }
+        return this.matcher.parse(hashLocation);
+    };
+
+    return {
+        enable: function (urlPathToWorkspaceConfig) {
+            var routes = [];
+            for (var urlPath in urlPathToWorkspaceConfig) {
+                var route = new Route(urlPath, urlPathToWorkspaceConfig[urlPath]);
+                routes.push(route);
+            }
+
+            window.addEventListener('hashchange', function () {
+                for (var i = 0; i < routes.length; i++) {
+                    var route = routes[i];
+                    var result = route.parse(location.hash);
+                    if (result != null) {
+                        console.log('found a route for ' + location.hash);
+                        console.dir(route.workspaceConfig);
+                        route.workspaceConfig.show();
+                        break;
+                    }
+                }
+            });
+        }
+    }
+});
+
+
 define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
     function WorkspaceConfig(name) {
         this.name = name;
+        this.path = null;
         this.layout = {};
         this.widgets = [];
     }
@@ -82,8 +123,19 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     heir.inherit(WorkspaceConfig, EventEmitter, true);
 
 
+    WorkspaceConfig.prototype.show = function () {
+        var workspace = this.build();
+        var WORKSPACE_ID = 'workspace';
+        workspace.setAttribute('id', WORKSPACE_ID);
+        var currentWorkspace = document.getElementById(WORKSPACE_ID);
+        if (currentWorkspace != null) {
+            document.body.removeChild(currentWorkspace);
+        }
+        document.body.appendChild(workspace);
+    };
+
     WorkspaceConfig.prototype.build = function () {
-        var workspace = document.createElement('workspace-layout');
+        var workspace = document.createElement('workspace-layout-' + this.layout.name);
         this.widgets.forEach(function (widget) {
             var templates = widget.document.querySelectorAll('template.content');
             console.log('found templates: ' + templates.length);
@@ -92,10 +144,9 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 return;
             }
             var content = document.importNode(templates[0].content, true);
-            console.dir(content);
             workspace.setContent(widget.viewTarget, content);
         });
-        document.body.appendChild(workspace);
+        return workspace;
     };
 
 
@@ -193,7 +244,9 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         } else if (ElementLoader.loading.contains(url)) {
             log('Element ' + name + ' is loading');
             var loadingElement = ElementLoader.loading.get(url);
-            loadingElement.addOnceListener('loaded', onLoadedCallback);
+            loadingElement.addOnceListener('loaded', function () {
+                onLoadedCallback(loadingElement);
+            });
         } else {
             log('Element ' + name + ' is new');
             ElementLoader.loading.add(url, new Element(name));
@@ -235,7 +288,9 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         } else if (WidgetLoader.loading.contains(this.configUrl)) {
             log('Widget ' + name + ' is loading');
             var loadingWidget = WidgetLoader.loading.get(this.configUrl);
-            loadingWidget.addOnceListener('loaded', onLoadedCallback);
+            loadingWidget.addOnceListener('loaded', function () {
+                onLoadedCallback(loadingWidget);
+            });
         } else {
             log('Widget ' + name + ' is new');
             this.widget = new Widget(name);
@@ -311,7 +366,9 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         } else if (LayoutLoader.loading.contains(url)) {
             log('Layout ' + name + ' is loading');
             var loadingLayout = LayoutLoader.loading.get(url);
-            loadingLayout.addOnceListener('loaded', onLoadedCallback);
+            loadingLayout.addOnceListener('loaded', function () {
+                onLoadedCallback(loadingLayout);
+            });
         } else {
             log('Layout ' + name + ' is new');
             this.layout = new Layout(name);
@@ -359,7 +416,9 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         } else if (WorkspaceConfigLoader.loading.contains(configUrl)) {
             log('WorkspaceConfig ' + name + ' is loading');
             var loadingWorkspaceConfig = WorkspaceConfigLoader.loading.get(configUrl);
-            loadingWorkspaceConfig.addOnceListener('loaded', onLoadedCallback);
+            loadingWorkspaceConfig.addOnceListener('loaded', function () {
+                onLoadedCallback(loadingWorkspaceConfig);
+            });
         } else {
             log('WorkspaceConfig ' + name + ' is new');
             this.workspaceConfig = new WorkspaceConfig(name);
@@ -371,6 +430,13 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                     log('Error, something is wrong. The config from the loading cache does not match the config created in the class.');
                     return;
                 }
+
+                // set the URL path
+                if (!config.hasOwnProperty('path')) {
+                    console.log('Error, the workspace config has no path attribute!');
+                    return;
+                }
+                this.workspaceConfig.path = config.path;
 
                 // load layout
                 if (!this.config.hasOwnProperty('layout')) {
@@ -448,12 +514,8 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
 
     return {
-        createWorkspace: function (name) {
-            var wcl = new WorkspaceConfigLoader();
-            wcl.load(name, function (wConfig) {
-                console.log('*** loaded workspaceConfig ' + name);
-                wConfig.build();
-            });
+        createWorkspaceConfigLoader: function () {
+            return new WorkspaceConfigLoader();
         }
     }
 

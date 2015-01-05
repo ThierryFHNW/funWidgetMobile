@@ -1,3 +1,16 @@
 <template class="content">
-    <h2>Hello from Teamview</h2>
+
+    <polymer-element name="ads-teamview" noscript>
+        <template>
+            <app-globals id="globals"></app-globals>
+
+            <h2>Hello from Teamview</h2>
+            <template repeat="{{person in $.globals.project.people}}">
+                <avatar-card user="{{person}}"></avatar-card>
+            </template>
+        </template>
+
+    </polymer-element>
+
+    <ads-teamview></ads-teamview>
 </template>
