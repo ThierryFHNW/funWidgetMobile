@@ -40,7 +40,7 @@ define('core', function () {
 });
 
 
-DEBUG = true;
+DEBUG = false;
 log = function (msg) {
     if (DEBUG) {
         console.log(msg);

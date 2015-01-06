@@ -1,4 +1,7 @@
 <polymer-element name="app-router">
+    <template>
+        <app-globals id="globals"></app-globals>
+    </template>
     <script>
         function Route(urlPath, workspaceConfig) {
             console.log('+++ Adding route: ' + urlPath);
@@ -23,10 +26,10 @@
             routeChanged: function () {
                 for (var i = 0; i < this.routes.length; i++) {
                     var route = this.routes[i];
-                    var result = route.parse(location.hash);
-                    if (result != null) {
+                    this.routeParams = route.parse(location.hash);
+                    if (this.routeParams != null) {
                         console.log('found a route for ' + location.hash);
-                        console.dir(route.workspaceConfig);
+                        this.$.globals.setRouteParams(this.routeParams);
                         route.workspaceConfig.show();
                         break;
                     }

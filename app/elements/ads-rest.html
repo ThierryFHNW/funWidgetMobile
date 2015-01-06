@@ -1,26 +1,34 @@
-<polymer-element name="ads-rest-collection" hidden attributes="resource response">
+<polymer-element name="ads-rest-collection" hidden attributes="resource response params auto">
     <template>
-        <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}" handleAs="json" auto
-                   auto on-core-response="{{onLoaded}}"></core-ajax>
+        <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}" handleAs="json"
+                   auto="{{auto != undefined}}" params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
+    </template>
+    <script>
+        Polymer({
+            onLoaded: function () {
+                this.response = this.$.ajax.response.items;
+            },
+            go: function () {
+                this.$.ajax.go();
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-single" hidden attributes="resource resourceId response expand auto">
+    <template>
+        <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}/{{resourceId}}" handleAs="json"
+                   params='{ "expand": "{{expand}}" }' auto="{{auto != undefined}}"
+                   on-core-response="{{onLoaded}}"></core-ajax>
     </template>
     <script>
         Polymer({
             onLoaded: function () {
                 this.response = this.$.ajax.response;
             }
-        });
-    </script>
-</polymer-element>
-
-<polymer-element name="ads-rest-single" hidden attributes="resource resourceId response expand">
-    <template>
-        <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}/{{resourceId}}" handleAs="json"
-                   params='{ "expand": "{{expand}}" }' auto on-core-response="{{onLoaded}}"></core-ajax>
-    </template>
-    <script>
-        Polymer({
-            onLoaded: function () {
-                this.response = this.$.ajax.response;
+            ,
+            go: function () {
+                this.$.ajax.go();
             },
             save: function (resource) {
                 var ajax = this.$.ajax;
@@ -37,40 +45,9 @@
     </script>
 </polymer-element>
 
-
-<polymer-element name="ads-project-view" noscript>
+<polymer-element name="ads-project" hidden attributes="resourceId auto expand response" noscript>
     <template>
-        <h1>Projectname: {{project.name}}</h1>
-
-        <p>Description: {{project.description}}</p>
-
-        <h2>Sprints</h2>
-        <template repeat="{{sprint in project.sprints}}">
-            <ads-sprint-card sprint="{{sprint}}"></ads-sprint-card>
-        </template>
-
-        <h2>People:</h2>
-        <template repeat="{{person in project.people}}">
-            <ads-person-card person="{{person}}"></ads-person-card>
-        </template>
-
-        <ads-rest-single id="rest" resource="projects" expand="all" resourceId="ATBD"
-                         response="{{project}}"></ads-rest-single>
-    </template>
-</polymer-element>
-
-<polymer-element name="ads-sprint-card" attributes="sprint" noscript>
-    <template>
-        <p>
-            <b>{{sprint.name}}</b>: {{sprint.description}}
-        </p>
-    </template>
-</polymer-element>
-
-<polymer-element name="ads-person-card" attributes="person" noscript>
-    <template>
-        <p>
-            <b>{{person.name}}</b>: {{person.email}}
-        </p>
+        <ads-rest-single resource="project" resourceId="{{resourceId}}" expand="{{expand}}"
+                         auto="{{auto}}}"></ads-rest-single>
     </template>
 </polymer-element>

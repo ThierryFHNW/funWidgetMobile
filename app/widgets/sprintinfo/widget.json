@@ -1,0 +1,12 @@
+{
+  "name": "Sprint Info",
+  "description": "Shows information about the current sprint.",
+  "elements": [
+    "ads-rest"
+  ]
+}
+
+
+
+
+

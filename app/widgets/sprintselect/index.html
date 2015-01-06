@@ -1,11 +1,32 @@
 <template class="content">
-    <h1>Select a sprint</h1>
-    <ul>
-        <li>
-            <a href="/#/project/ATBD/sprint/2/sp2">Sprint2</a>
-        </li>
-        <li>
-            <a href="/#/project/ATBD/sprint/3/sp2">Sprint3</a>
-        </li>
-    </ul>
+
+    <polymer-element name="ads-sprintselect">
+        <template>
+            <app-globals id="globals"></app-globals>
+            <ads-rest-collection id="rest" resource="sprints" response="{{sprints}}"
+                                 params='{ "project": "{{projectId}}" }'></ads-rest-collection>
+            <h1>Select a sprint</h1>
+            <ul>
+                <template repeat="{{sprint in sprints}}">
+                    <li>
+                        <a href="/#/project/{{projectId}}/sprint/{{sprint.id}}/sp2">{{sprint.name}}
+                            {{sprint.description | notNull}}</a>
+                    </li>
+                </template>
+            </ul>
+        </template>
+        <script>
+            Polymer({
+                ready: function () {
+                    this.projectId = this.$.globals.routeParams.projectId;
+                    this.$.rest.go();
+                },
+                notNull: function(value) {
+                    return value == null ? '' : value;
+                }
+            });
+        </script>
+    </polymer-element>
+
+    <ads-sprintselect></ads-sprintselect>
 </template>

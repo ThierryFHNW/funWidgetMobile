@@ -2,7 +2,7 @@
     <script>
         (function () {
             // these variables are shared by all instances
-            var project = null;
+            var routeParams = null;
 
             Polymer({
                 ready: function () {
@@ -10,10 +10,10 @@
                 },
                 copyGlobalValuesIntoInstance: function () {
                     // copy global values into instance properties
-                    this.project = project;
+                    this.routeParams = routeParams;
                 },
-                setProject: function (newProject) {
-                    project = newProject;
+                setRouteParams: function (newRouteParams) {
+                    routeParams = newRouteParams;
                     this.copyGlobalValuesIntoInstance();
                 }
             });

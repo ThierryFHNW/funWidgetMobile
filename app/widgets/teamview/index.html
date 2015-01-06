@@ -1,16 +1,27 @@
 <template class="content">
 
-    <polymer-element name="ads-teamview" noscript>
+    <polymer-element name="ads-teamview">
         <template>
             <app-globals id="globals"></app-globals>
+            <ads-rest-collection id="rest" resource="people" response="{{people}}"
+                                 params='{ "project": "{{projectId}}" }'></ads-rest-collection>
 
-            <h2>Hello from Teamview</h2>
-            <template repeat="{{person in $.globals.project.people}}">
+            <h2>Team</h2>
+            <template repeat="{{person in people}}">
                 <avatar-card user="{{person}}"></avatar-card>
             </template>
         </template>
-
+        <script>
+            Polymer({
+                ready: function () {
+                    this.projectId = this.$.globals.routeParams.projectId;
+                    this.$.rest.go();
+                }
+            });
+        </script>
     </polymer-element>
 
     <ads-teamview></ads-teamview>
+
+
 </template>
