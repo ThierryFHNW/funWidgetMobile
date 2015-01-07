@@ -71,6 +71,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.path = null;
         this.layout = {};
         this.widgets = [];
+        this.workspace = null;
     }
 
 
@@ -100,14 +101,19 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
 
     WorkspaceConfig.prototype.show = function () {
-        var workspace = this.build();
         var WORKSPACE_ID = 'workspace';
-        workspace.setAttribute('id', WORKSPACE_ID);
+
+        if (this.workspace == null) {
+            this.workspace = this.build();
+            this.workspace.setAttribute('id', WORKSPACE_ID);
+        }
+
         var currentWorkspace = document.getElementById(WORKSPACE_ID);
         if (currentWorkspace != null) {
             document.body.removeChild(currentWorkspace);
         }
-        document.body.appendChild(workspace);
+
+        document.body.appendChild(this.workspace);
     };
 
     WorkspaceConfig.prototype.build = function () {
