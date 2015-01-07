@@ -2,14 +2,23 @@
 
     <polymer-element name="ads-teamview">
         <template>
+            <style>
+                #content {
+                    padding: 10px;
+                    background-color: #f2f2f2;
+                    height: 100%;
+                    box-sizing: border-box;
+                }
+            </style>
             <app-globals id="globals"></app-globals>
             <ads-rest-collection id="rest" resource="people" response="{{people}}"
                                  params='{ "project": "{{projectId}}" }'></ads-rest-collection>
-
-            <h2>Team</h2>
-            <template repeat="{{person in people}}">
-                <avatar-card user="{{person}}"></avatar-card>
-            </template>
+            <div id="content">
+                <h2>Team</h2>
+                <template repeat="{{person in people}}">
+                    <avatar-card user="{{person}}"></avatar-card>
+                </template>
+                <div>
         </template>
         <script>
             Polymer({

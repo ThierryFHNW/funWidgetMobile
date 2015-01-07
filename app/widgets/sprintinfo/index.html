@@ -2,13 +2,23 @@
 
     <polymer-element name="ads-sprintinfo">
         <template>
+            <style>
+                #content {
+                    padding: 10px;
+                    background-color: #f2f2f2;
+                    height: 100%;
+                    box-sizing: border-box;
+                }
+            </style>
+
             <app-globals id="globals"></app-globals>
             <ads-rest-single id="rest" resource="sprints" resourceId="{{sprintId}}"
                              response="{{sprint}}"></ads-rest-single>
 
-            <h2>{{sprint.name}}</h2>
-            From {{sprint.startTime | dateFmt}} to {{sprint.endTime | dateFmt}}
-
+            <div id="content" class="content">
+                <h2>{{sprint.name}}</h2>
+                From {{sprint.startTime | dateFmt}} to {{sprint.endTime | dateFmt}}
+            </div>
         </template>
         <script>
             Polymer({

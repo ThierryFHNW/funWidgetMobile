@@ -2,30 +2,31 @@
     <template>
         <app-globals id="globals"></app-globals>
         <style>
+            #container {
+                margin: 5px;
+            }
             .widget {
                 float: left;
                 margin: 5px;
-                padding: 5px;
                 width: 350px;
                 height: 200px;
-                border: 2px dotted black;
             }
 
             #mainWorkspace {
-                float: left;
-                width: 100%;
+                width: calc(100% - 10px);
                 height: 600px;
                 margin: 5px;
-                padding: 5px;
-                border: 2px dotted black;
+                overflow: hidden;
             }
         </style>
-        <div id="header"></div>
-        <div class="widget" id="widget1"></div>
-        <div class="widget" id="widget2"></div>
-        <div class="widget" id="widget3"></div>
-        <div id="mainWorkspace"></div>
-        <div id="footer"></div>
+        <div id="container">
+            <div id="header"></div>
+            <div class="widget" id="widget1"></div>
+            <div class="widget" id="widget2"></div>
+            <div class="widget" id="widget3"></div>
+            <div id="mainWorkspace"></div>
+            <div id="footer"></div>
+        </div>
     </template>
     <script>
         Polymer({

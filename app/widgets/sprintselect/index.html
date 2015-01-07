@@ -2,30 +2,73 @@
 
     <polymer-element name="ads-sprintselect">
         <template>
-            <app-globals id="globals"></app-globals>
-            <ads-rest-collection id="rest" resource="sprints" response="{{sprints}}"
-                                 params='{ "project": "{{projectId}}" }'></ads-rest-collection>
-            <h1>Select a sprint</h1>
-            <ul>
+            <style>
+                #content {
+                    padding: 50px;
+                    background-color: #f2f2f2;
+                    overflow: hidden
+                }
+            </style>
+            <div id="content">
+                <h1>Sprints for {{project.name}}</h1>
                 <template repeat="{{sprint in sprints}}">
-                    <li>
-                        <a href="/#/project/{{projectId}}/sprint/{{sprint.id}}/sp2">{{sprint.name}}
-                            {{sprint.description | notNull}}</a>
-                    </li>
+                    <ads-sprintselect-item sprint="{{sprint}}" projectId="{{projectId}}"></ads-sprintselect-item>
                 </template>
-            </ul>
+            </div>
+
+            <app-globals id="globals"></app-globals>
+            <ads-rest-single id="projectsEndpoint" resource="projects" resourceId="{{projectId}}"
+                             response="{{project}}"></ads-rest-single>
+            <ads-rest-collection id="sprintsEndpoint" resource="sprints" response="{{sprints}}"
+                                 params='{ "project": "{{projectId}}" }'></ads-rest-collection>
         </template>
         <script>
             Polymer({
                 ready: function () {
                     this.projectId = this.$.globals.routeParams.projectId;
-                    this.$.rest.go();
-                },
-                notNull: function(value) {
-                    return value == null ? '' : value;
+                    this.$.projectsEndpoint.go();
+                    this.$.sprintsEndpoint.go();
                 }
             });
         </script>
+    </polymer-element>
+
+    <polymer-element name="ads-sprintselect-item" attributes="sprint projectId" noscript>
+        <template>
+            <style>
+                a {
+                    display: flex;
+                    justify-content: center; /* align horizontal */
+                    align-items: center; /* align vertical */
+                    float: left;
+                    margin: 1px;
+                    width: 150px;
+                    min-height: 50px;
+                    font-size: 1.5em;
+                }
+
+                a:link {
+                    text-decoration: none;
+                }
+
+                a:visited {
+                    text-decoration: none;
+                }
+
+                a:hover {
+                    text-decoration: none;
+                    font-weight: bold;
+                    background-color: #ff5621;
+                }
+
+                a:active {
+                    text-decoration: none;
+                }
+            </style>
+            <div class="box">
+                <a href="/#/project/{{projectId}}/sprint/{{sprint.id}}/sp2">{{sprint.name}}</a>
+            </div>
+        </template>
     </polymer-element>
 
     <ads-sprintselect></ads-sprintselect>

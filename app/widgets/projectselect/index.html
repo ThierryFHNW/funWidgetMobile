@@ -1,11 +1,26 @@
 <template class="content">
-    <h1>Select a project</h1>
-    <ul>
-        <li>
-            <a href="/#/project/ATBD">ATBD</a>
-        </li>
-        <li>
-            <a href="/#/project/AMTTB">AMTTB</a>
-        </li>
-    </ul>
+    <polymer-element name="ads-projectselect" noscript>
+        <template>
+            <style>
+                #content {
+                    padding: 50px;
+                    background-color: #f2f2f2;
+                }
+            </style>
+            <div id="content">
+                <h1>Projects</h1>
+                <ul>
+                    <li>
+                        <a href="/#/project/ATBD">ATBD</a>
+                    </li>
+                    <li>
+                        <a href="/#/project/AMTTB">AMTTB</a>
+                    </li>
+                </ul>
+            </div>
+        </template>
+    </polymer-element>
+
+    <ads-projectselect></ads-projectselect>
+
 </template>
