@@ -17,10 +17,10 @@
             </div>
 
             <app-globals id="globals"></app-globals>
-            <ads-rest-single id="projectsEndpoint" resource="projects" resourceId="{{projectId}}"
-                             response="{{project}}"></ads-rest-single>
-            <ads-rest-collection id="sprintsEndpoint" resource="sprints" response="{{sprints}}"
-                                 params='{ "project": "{{projectId}}" }'></ads-rest-collection>
+            <ads-rest-project id="projectsEndpoint" resourceId="{{projectId}}"
+                              response="{{project}}"></ads-rest-project>
+            <ads-rest-sprints id="sprintsEndpoint" response="{{sprints}}"
+                              params='{ "project": "{{projectId}}" }'></ads-rest-sprints>
         </template>
         <script>
             Polymer({

@@ -15,6 +15,42 @@
     </script>
 </polymer-element>
 
+<polymer-element name="ads-rest-people" extends="ads-rest-collection" attributes="response auto projectId">
+    <script>
+        Polymer({
+            go: function() {
+                this.params = '{ "project": "' + this.projectId + '" }'
+                this.super();
+            },
+            resource: "people"
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-sprints" extends="ads-rest-collection" attributes="response auto">
+    <script>
+        Polymer({
+            resource: "sprints"
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-userstories" extends="ads-rest-collection" attributes="response auto">
+    <script>
+        Polymer({
+            resource: "userstories"
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-tasks" extends="ads-rest-collection" attributes="response auto">
+    <script>
+        Polymer({
+            resource: "tasks"
+        });
+    </script>
+</polymer-element>
+
 <polymer-element name="ads-rest-single" hidden attributes="resource resourceId response expand auto">
     <template>
         <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}/{{resourceId}}" handleAs="json"
@@ -25,8 +61,7 @@
         Polymer({
             onLoaded: function () {
                 this.response = this.$.ajax.response;
-            }
-            ,
+            },
             go: function () {
                 this.$.ajax.go();
             },
@@ -45,9 +80,42 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-project" hidden attributes="resourceId auto expand response" noscript>
-    <template>
-        <ads-rest-single resource="project" resourceId="{{resourceId}}" expand="{{expand}}"
-                         auto="{{auto}}}"></ads-rest-single>
-    </template>
+<polymer-element name="ads-rest-project" extends="ads-rest-single" attributes="resourceId response expand auto">
+    <script>
+        Polymer({
+            resource: "projects"
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-sprint" extends="ads-rest-single" attributes="resourceId response expand auto">
+    <script>
+        Polymer({
+            resource: "sprints"
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-person" extends="ads-rest-single" attributes="resourceId response expand auto">
+    <script>
+        Polymer({
+            resource: "people"
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-userstory" extends="ads-rest-single" attributes="resourceId response expand auto">
+    <script>
+        Polymer({
+            resource: "userstories"
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-task" extends="ads-rest-single" attributes="resourceId response expand auto">
+    <script>
+        Polymer({
+            resource: "tasks"
+        });
+    </script>
 </polymer-element>

@@ -12,8 +12,7 @@
             </style>
 
             <app-globals id="globals"></app-globals>
-            <ads-rest-single id="rest" resource="sprints" resourceId="{{sprintId}}"
-                             response="{{sprint}}"></ads-rest-single>
+            <ads-rest-sprint id="rest" resourceId="{{sprintId}}" response="{{sprint}}"></ads-rest-sprint>
 
             <div id="content" class="content">
                 <h2>{{sprint.name}}</h2>
@@ -40,6 +39,5 @@
     </polymer-element>
 
     <ads-sprintinfo></ads-sprintinfo>
-
 
 </template>
