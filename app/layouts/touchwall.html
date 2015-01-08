@@ -5,11 +5,18 @@
             #container {
                 margin: 5px;
             }
+
             .widget {
+                width: 100%;
+                height: 100%;
+            }
+
+            .widgetDropzone {
                 float: left;
                 margin: 5px;
                 width: 350px;
                 height: 200px;
+                border: dashed 1px darkgray;
             }
 
             #mainWorkspace {
@@ -21,9 +28,15 @@
         </style>
         <div id="container">
             <div id="header"></div>
-            <div class="widget" id="widget1"></div>
-            <div class="widget" id="widget2"></div>
-            <div class="widget" id="widget3"></div>
+            <div class="widgetDropzone">
+                <div class="widget" id="widget1"></div>
+            </div>
+            <div class="widgetDropzone">
+                <div class="widget" id="widget2"></div>
+            </div>
+            <div class="widgetDropzone">
+                <div class="widget" id="widget3"></div>
+            </div>
             <div id="mainWorkspace"></div>
             <div id="footer"></div>
         </div>
@@ -32,6 +45,23 @@
         Polymer({
             ready: function () {
                 console.log('workspace-layout touchwall is ready.');
+
+                var thisDocument = this.shadowRoot;
+                var dropzones = thisDocument.querySelectorAll('.widgetDropzone');
+                var draggables = thisDocument.querySelectorAll('.widget');
+
+                require(['core-dnd'], function (dnd) {
+                    [].forEach.call(dropzones, function (dropzone) {
+                        console.log('Activating dropzone');
+                        dnd.makeDropZone(dropzone, '.widget');
+                    });
+
+                    [].forEach.call(draggables, function (draggable) {
+                        console.log('Activating draggable');
+                        dnd.makeDraggable(draggable);
+                    });
+                });
+
             }
         });
     </script>
