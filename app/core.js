@@ -1,19 +1,3 @@
-// extend default HTML elements with a data function to save and retrieve data
-if (!HTMLElement.prototype.data) {
-    HTMLElement.prototype.data = function (key, value) {
-        if (arguments.length == 1) {
-            if (key in this.data.values) {
-                return this.data.values[key];
-            }
-        } else if (arguments.length > 1) {
-            this.data.values[key] = value;
-        }
-    };
-    if (!HTMLElement.prototype.data.values) {
-        HTMLElement.prototype.data.values = Object.create(null);
-    }
-}
-
 define('core', function () {
 
     var subscribers = Object.create(null);
@@ -93,7 +77,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.name = name;
     }
 
-
     heir.inherit(Element, EventEmitter, true);
     heir.inherit(Widget, EventEmitter, true);
     heir.inherit(Layout, EventEmitter, true);
@@ -158,8 +141,15 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
 
     function Loader() {
-
     }
+
+    Loader.cache = new Cache();
+    Loader.loading = new Cache();
+
+    heir.inherit(WorkspaceConfigLoader, Loader, true);
+    heir.inherit(LayoutLoader, Loader, true);
+    heir.inherit(ElementLoader, Loader, true);
+    heir.inherit(WidgetLoader, Loader, true);
 
     /**
      * Loads a JSON file.
@@ -200,13 +190,38 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         document.head.appendChild(link);
     };
 
-    Loader.setUpSubclass = function (className) {
-        className.prototype = Object.create(Loader.prototype);
-        if (!className.cache) {
-            className.cache = new Cache();
-        }
-        if (!className.loading) {
-            className.loading = new Cache();
+    /**
+     * Generic loader to fetch resources.
+     * @param url The URL of the resource to fetch.
+     * @param emptyObject An instance of the specific Resource.
+     * @param onLoadedCallback The function called when the resource has been completely loaded.
+     * @param loadResource The function to execute if the resource has not been loaded yet or is currently loading.
+     *
+     */
+    Loader.prototype.load = function (url, emptyObject, onLoadedCallback, loadResource) {
+        if (Loader.cache.contains(url)) {
+            log('Resource ' + url + ' is cached.');
+            var resource = Loader.cache.get(url);
+            onLoadedCallback(resource);
+        } else if (Loader.loading.contains(url)) {
+            log('Resource ' + url + ' is loading.');
+            var loadingResource = Loader.loading.get(url);
+            loadingResource.addOnceListener('loaded', function () {
+                onLoadedCallback(loadingResource);
+            });
+        } else {
+            log('Resource ' + url + ' is new.');
+            Loader.loading.add(url, emptyObject);
+            loadResource(url, function () {
+                var resource = Loader.loading.get(url);
+                Loader.cache.add(resource);
+                Loader.loading.remove(url);
+
+                log('Resource ' + url + ' has been loaded');
+                onLoadedCallback(resource);
+                // notify the listeners added while the element was loading
+                resource.emitEvent('loaded', resource);
+            }.bind(this));
         }
     };
 
@@ -215,34 +230,9 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
     }
 
-    Loader.setUpSubclass(ElementLoader);
-
     ElementLoader.prototype.load = function (name, onLoadedCallback) {
         var url = 'elements/' + name + '.html';
-        if (ElementLoader.cache.contains(url)) {
-            log('Element ' + name + ' already in cache');
-            var element = ElementLoader.loading.get(url);
-            onLoadedCallback(element);
-        } else if (ElementLoader.loading.contains(url)) {
-            log('Element ' + name + ' is loading');
-            var loadingElement = ElementLoader.loading.get(url);
-            loadingElement.addOnceListener('loaded', function () {
-                onLoadedCallback(loadingElement);
-            });
-        } else {
-            log('Element ' + name + ' is new');
-            ElementLoader.loading.add(url, new Element(name));
-            this.loadHtml(url, function () {
-                var element = ElementLoader.loading.get(url);
-                ElementLoader.cache.add(element);
-                ElementLoader.loading.remove(url);
-                log('Element ' + name + ' has been loaded');
-                onLoadedCallback(element);
-
-                // notify the listeners added while the element was loading
-                element.emitEvent('loaded', element);
-            });
-        }
+        Loader.prototype.load.call(this, url, new Element(name), onLoadedCallback, this.loadHtml);
     };
 
 
@@ -253,50 +243,32 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.indexHtmlLoaded = false;
         this.widget = null;
         this.configUrl = null;
-        this.onLoadedCallback = function () {
+        this.onResourceLoadedCallback = function () {
         };
     }
 
-    Loader.setUpSubclass(WidgetLoader);
-
     WidgetLoader.prototype.load = function (name, onLoadedCallback) {
-        this.onLoadedCallback = onLoadedCallback;
         this.configUrl = 'widgets/' + name + '/widget.json';
+        this.widget = new Widget(name);
+        Loader.prototype.load.call(this, this.configUrl, this.widget, onLoadedCallback, this.loadWidget.bind(this));
+    };
 
-        if (WidgetLoader.cache.contains(this.configUrl)) {
-            log('Widget ' + name + ' already in cache');
-            var widget = WidgetLoader.cache.get(this.configUrl);
-            onLoadedCallback(widget);
-        } else if (WidgetLoader.loading.contains(this.configUrl)) {
-            log('Widget ' + name + ' is loading');
-            var loadingWidget = WidgetLoader.loading.get(this.configUrl);
-            loadingWidget.addOnceListener('loaded', function () {
-                onLoadedCallback(loadingWidget);
-            });
-        } else {
-            log('Widget ' + name + ' is new');
-            this.widget = new Widget(name);
-            WidgetLoader.loading.add(this.configUrl, this.widget);
-            this.loadJson(this.configUrl, function (config) {
-                this.config = config;
-                var widget = WidgetLoader.loading.get(this.configUrl);
-                if (widget !== this.widget) {
-                    log('Error, something is wrong. The widget from the loading cache does not match the widget created in the class.');
-                    return;
-                }
+    WidgetLoader.prototype.loadWidget = function (url, onResourceLoadedCallback) {
+        this.onResourceLoadedCallback = onResourceLoadedCallback;
 
-                // load dependencies (elements)
-                if (config.hasOwnProperty('elements')) {
-                    this._loadElements(config.elements);
-                } else {
-                    log('Widget ' + name + ' has no elements');
-                }
+        this.loadJson(url, function (config) {
+            this.config = config;
 
-                // load index.html
-                this._loadIndexHtml();
+            // load dependencies (elements)
+            if (config.hasOwnProperty('elements')) {
+                this._loadElements(config.elements);
+            } else {
+                log('Widget ' + name + ' has no elements');
+            }
 
-            }.bind(this));
-        }
+            // load index.html
+            this._loadIndexHtml();
+        }.bind(this));
     };
 
     WidgetLoader.prototype._loadElements = function (elementArray) {
@@ -315,10 +287,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     WidgetLoader.prototype._checkIfLoadingComplete = function () {
         if (this.numberOfElements == this.numberOfElementsLoaded && this.indexHtmlLoaded) {
             log('Widget ' + this.widget.name + ' has been loaded');
-            WidgetLoader.cache.add(this.configUrl, this.widget);
-            WidgetLoader.loading.remove(this.configUrl);
-            this.widget.emitEvent('loaded', this.widget);
-            this.onLoadedCallback(this.widget);
+            this.onResourceLoadedCallback();
         }
     };
 
@@ -337,42 +306,10 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.layout = null;
     }
 
-    Loader.setUpSubclass(LayoutLoader);
-
     LayoutLoader.prototype.load = function (name, onLoadedCallback) {
         var url = 'layouts/' + name + '.html';
-        if (LayoutLoader.cache.contains(url)) {
-            log('Layout ' + name + ' already in cache');
-            var layout = WidgetLoader.cache.get(url);
-            onLoadedCallback(layout);
-        } else if (LayoutLoader.loading.contains(url)) {
-            log('Layout ' + name + ' is loading');
-            var loadingLayout = LayoutLoader.loading.get(url);
-            loadingLayout.addOnceListener('loaded', function () {
-                onLoadedCallback(loadingLayout);
-            });
-        } else {
-            log('Layout ' + name + ' is new');
-            this.layout = new Layout(name);
-            LayoutLoader.loading.add(url, this.layout);
-
-
-            this.loadHtml(url, function (e) {
-                console.log('Loaded layout html: ' + e.target.href);
-
-                var layout = LayoutLoader.loading.get(url);
-                if (layout !== this.layout) {
-                    log('Error, something is wrong. The layout from the loading cache does not match the layout created in the class.');
-                    return;
-                }
-                LayoutLoader.cache.add(url, layout);
-                LayoutLoader.loading.remove(url);
-
-                this.layout.document = e.target.import;
-                onLoadedCallback(this.layout);
-                this.layout.emitEvent('loaded', this.layout);
-            }.bind(this));
-        }
+        this.layout = new Layout(name);
+        Loader.prototype.load.call(this, url, this.layout, onLoadedCallback, this.loadHtml);
     };
 
 
@@ -381,64 +318,46 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.layoutLoaded = false;
         this.numberOfWidgets = null;
         this.numberOfWidgetsLoaded = 0;
-        this.onLoadedCallback = function () {
+        this.onResourceLoadedCallback = function () {
         };
     }
 
-    Loader.setUpSubclass(WorkspaceConfigLoader);
-
     WorkspaceConfigLoader.prototype.load = function (name, onLoadedCallback) {
-        this.onLoadedCallback = onLoadedCallback;
         var configUrl = 'workspace-configs/' + name + '.json';
+        this.workspaceConfig = new WorkspaceConfig(name);
 
-        if (WorkspaceConfigLoader.cache.contains(configUrl)) {
-            log('WorkspaceConfig ' + name + ' already in cache');
-            var workspaceConfig = WorkspaceConfigLoader.cache.get(configUrl);
-            onLoadedCallback(workspaceConfig);
-        } else if (WorkspaceConfigLoader.loading.contains(configUrl)) {
-            log('WorkspaceConfig ' + name + ' is loading');
-            var loadingWorkspaceConfig = WorkspaceConfigLoader.loading.get(configUrl);
-            loadingWorkspaceConfig.addOnceListener('loaded', function () {
-                onLoadedCallback(loadingWorkspaceConfig);
-            });
-        } else {
-            log('WorkspaceConfig ' + name + ' is new');
-            this.workspaceConfig = new WorkspaceConfig(name);
-            WorkspaceConfigLoader.loading.add(configUrl, this.workspaceConfig);
-            this.loadJson(configUrl, function (config) {
-                this.config = config;
-                var workspaceConfig = WorkspaceConfigLoader.loading.get(configUrl);
-                if (workspaceConfig !== this.workspaceConfig) {
-                    log('Error, something is wrong. The config from the loading cache does not match the config created in the class.');
-                    return;
-                }
+        Loader.prototype.load.call(this, configUrl, this.workspaceConfig, onLoadedCallback, this.loadWorkspaceConfig.bind(this))
+    };
 
-                // set the URL path
-                if (!config.hasOwnProperty('path')) {
-                    console.log('Error, the workspace config has no path attribute!');
-                    return;
-                }
-                this.workspaceConfig.path = config.path;
+    WorkspaceConfigLoader.prototype.loadWorkspaceConfig = function (url, onResourceLoadedCallback) {
+        this.onResourceLoadedCallback = onResourceLoadedCallback;
+        this.loadJson(url, function (config) {
+            this.config = config;
 
-                // load layout
-                if (!this.config.hasOwnProperty('layout')) {
-                    log('Loading failed: WorkspaceConfig has no layout!');
-                    return;
-                }
-                var layoutLoader = new LayoutLoader();
-                layoutLoader.load(this.config.layout, function (layout) {
-                    this.layoutLoaded = true;
-                    this.workspaceConfig.layout = layout;
-                    this._checkIfLoadingComplete();
-                }.bind(this));
+            // set the URL path
+            if (!config.hasOwnProperty('path')) {
+                console.log('Error, the workspace config has no path attribute!');
+                return;
+            }
+            this.workspaceConfig.path = config.path;
 
-
-                // load widgets
-                this._loadWidgets();
-
-
+            // load layout
+            if (!this.config.hasOwnProperty('layout')) {
+                log('Loading failed: WorkspaceConfig has no layout!');
+                return;
+            }
+            var layoutLoader = new LayoutLoader();
+            layoutLoader.load(this.config.layout, function (layout) {
+                this.layoutLoaded = true;
+                this.workspaceConfig.layout = layout;
+                this._checkIfLoadingComplete();
             }.bind(this));
-        }
+
+
+            // load widgets
+            this._loadWidgets();
+
+        }.bind(this));
     };
 
     WorkspaceConfigLoader.prototype._loadWidgets = function () {
@@ -487,10 +406,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     WorkspaceConfigLoader.prototype._checkIfLoadingComplete = function () {
         if (this.layoutLoaded && this.numberOfWidgets == this.numberOfWidgetsLoaded) {
             log('WorkspaceConfig ' + this.workspaceConfig.name + ' has been loaded');
-            WorkspaceConfigLoader.cache.add(this.configUrl, this.widget);
-            WorkspaceConfigLoader.loading.remove(this.configUrl);
-            this.workspaceConfig.emitEvent('loaded', this.workspaceConfig);
-            this.onLoadedCallback(this.workspaceConfig);
+            this.onResourceLoadedCallback();
         }
     };
 
