@@ -1,29 +1,3 @@
-define('core', function () {
-
-    var subscribers = Object.create(null);
-
-    function _subscribe(callback) {
-        subscribers[callback] = callback;
-    }
-
-    function _unsubscribe(callback) {
-        delete subscribers[callback]
-    }
-
-    function _publish(message) {
-        for (var subscriberId in subscribers) {
-            subscribers[subscriberId](message);
-        }
-    }
-
-    return {
-        subscribe: _subscribe,
-        unsubscribe: _unsubscribe,
-        publish: _publish
-    }
-});
-
-
 DEBUG = false;
 log = function (msg) {
     if (DEBUG) {
@@ -31,9 +5,17 @@ log = function (msg) {
     }
 };
 
+/**
+ * Handles the URLs and the routing.
+ */
 define('core-routing', function () {
 
     return {
+        /**
+         * Enable routing for the application.
+         *
+         * @param urlPathToWorkspaceConfig Map of URLs to WorkspaceConfig objects.
+         */
         enable: function (urlPathToWorkspaceConfig) {
             var routers = document.getElementsByTagName('app-router');
             if (routers.length != 1) {
@@ -47,9 +29,17 @@ define('core-routing', function () {
     }
 });
 
-
+/**
+ * Loads the workspace configs and the dependent resources.
+ */
 define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
+    /**
+     * Represents a workspace-configuration.
+     *
+     * @param name The name of the workspace-config.
+     * @constructor
+     */
     function WorkspaceConfig(name) {
         this.name = name;
         this.path = null;
@@ -58,13 +48,23 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.workspace = null;
     }
 
-
+    /**
+     * Represents a layout.
+     *
+     * @param name The name of the layout.
+     * @constructor
+     */
     function Layout(name) {
         this.name = name;
         this.document = {};
     }
 
-
+    /**
+     * Represents a widget.
+     *
+     * @param name The name of the widget.
+     * @constructor
+     */
     function Widget(name) {
         this.name = name;
         this.viewTarget = null;
@@ -72,17 +72,26 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.elements = [];
     }
 
-
+    /**
+     * Represents an element.
+     *
+     * @param name The name of the element.
+     * @constructor
+     */
     function Element(name) {
         this.name = name;
     }
 
+    // All resource representations inherit from EventEmitter. Gives them addEventListener and emitEvent.
     heir.inherit(Element, EventEmitter, true);
     heir.inherit(Widget, EventEmitter, true);
     heir.inherit(Layout, EventEmitter, true);
     heir.inherit(WorkspaceConfig, EventEmitter, true);
 
 
+    /**
+     * Shows the workspace. Builds it if necessary.
+     */
     WorkspaceConfig.prototype.show = function () {
         var WORKSPACE_ID = 'workspace';
 
@@ -99,6 +108,11 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         document.body.appendChild(this.workspace);
     };
 
+    /**
+     * Builds and loads the workspace.
+     *
+     * @returns {HTMLElement} The root node of the workspace.
+     */
     WorkspaceConfig.prototype.build = function () {
         var workspace = document.createElement('workspace-layout-' + this.layout.name);
         this.widgets.forEach(function (widget) {
@@ -114,38 +128,82 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         return workspace;
     };
 
-
+    /**
+     * Simple cache class to hold other objects.
+     *
+     * @constructor
+     */
     function Cache() {
         this.objects = {};
     }
 
+    /**
+     * Add an object to the cache.
+     *
+     * @param objectId The id to store the object under.
+     * @param object The actual object to cache.
+     */
     Cache.prototype.add = function (objectId, object) {
         this.objects[objectId] = object;
     };
 
+    /**
+     * Checks if the cache contains an object under the given id.
+     *
+     * @param objectId The id to check.
+     * @returns {boolean} true, if the cache contains the object, false otherwise.
+     */
     Cache.prototype.contains = function (objectId) {
         return this.objects.hasOwnProperty(objectId);
     };
 
+    /**
+     * Retrieves the object under the given key.
+     *
+     * @param objectId The id of the obejct to retrieve.
+     * @returns {*} The object saved under the given id or null.
+     */
     Cache.prototype.get = function (objectId) {
         return this.objects.hasOwnProperty(objectId) ? this.objects[objectId] : null;
     };
 
+    /**
+     * Removes an object saved under the given id.
+     *
+     * @param objectId The id of the object to remove.
+     */
     Cache.prototype.remove = function (objectId) {
         delete this.objects[objectId];
     };
 
+    /**
+     * Removes all objects stored in the cache.
+     */
     Cache.prototype.clear = function () {
         this.objects = {};
     };
 
 
+    /**
+     * Base class of all resource loaders.
+     * @constructor
+     */
     function Loader() {
     }
 
+    /**
+     * Cache of loaded resources.
+     * @type {Cache}
+     */
     Loader.cache = new Cache();
+
+    /**
+     * Cache of currently loading resources.
+     * @type {Cache}
+     */
     Loader.loading = new Cache();
 
+    // All Loaders inherit from Loader
     heir.inherit(WorkspaceConfigLoader, Loader, true);
     heir.inherit(LayoutLoader, Loader, true);
     heir.inherit(ElementLoader, Loader, true);
@@ -191,14 +249,16 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     };
 
     /**
-     * Generic loader to fetch resources.
+     * Generic loader to fetch resources. Handles which resources have been loaded and which are being loaded.
+     * So that no resource is loaded more than once.
+     *
      * @param url The URL of the resource to fetch.
      * @param emptyObject An instance of the specific Resource.
      * @param onLoadedCallback The function called when the resource has been completely loaded.
-     * @param loadResource The function to execute if the resource has not been loaded yet or is currently loading.
+     * @param loadActualResource The function to execute if the resource has not been loaded yet or is currently loading.
      *
      */
-    Loader.prototype.load = function (url, emptyObject, onLoadedCallback, loadResource) {
+    Loader.prototype.loadResource = function (url, emptyObject, onLoadedCallback, loadActualResource) {
         if (Loader.cache.contains(url)) {
             log('Resource ' + url + ' is cached.');
             var resource = Loader.cache.get(url);
@@ -212,30 +272,46 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         } else {
             log('Resource ' + url + ' is new.');
             Loader.loading.add(url, emptyObject);
-            loadResource(url, function () {
+            loadActualResource.call(this, url, function () {
                 var resource = Loader.loading.get(url);
-                Loader.cache.add(resource);
+                Loader.cache.add(url, resource);
                 Loader.loading.remove(url);
 
                 log('Resource ' + url + ' has been loaded');
                 onLoadedCallback(resource);
                 // notify the listeners added while the element was loading
                 resource.emitEvent('loaded', resource);
-            }.bind(this));
+            });
         }
     };
 
 
+    /**
+     * Loader for elements.
+     *
+     * @constructor
+     */
     function ElementLoader() {
 
     }
 
+    /**
+     * Loads an element by name.
+     *
+     * @param name The name of the element.
+     * @param onLoadedCallback The function to be called if the element has been loaded.
+     */
     ElementLoader.prototype.load = function (name, onLoadedCallback) {
         var url = 'elements/' + name + '.html';
-        Loader.prototype.load.call(this, url, new Element(name), onLoadedCallback, this.loadHtml);
+        Loader.prototype.loadResource(url, new Element(name), onLoadedCallback, this.loadHtml);
     };
 
 
+    /**
+     * Loader for widgets.
+     *
+     * @constructor
+     */
     function WidgetLoader() {
         this.config = {};
         this.numberOfElements = null;
@@ -247,72 +323,97 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         };
     }
 
+    /**
+     * Loads the widget by name.
+     *
+     * @param name The name of the widget.
+     * @param onLoadedCallback The function called if the widget has been loaded.
+     */
     WidgetLoader.prototype.load = function (name, onLoadedCallback) {
         this.configUrl = 'widgets/' + name + '/widget.json';
         this.widget = new Widget(name);
-        Loader.prototype.load.call(this, this.configUrl, this.widget, onLoadedCallback, this.loadWidget.bind(this));
-    };
 
-    WidgetLoader.prototype.loadWidget = function (url, onResourceLoadedCallback) {
-        this.onResourceLoadedCallback = onResourceLoadedCallback;
 
-        this.loadJson(url, function (config) {
-            this.config = config;
+        function loadWidget(url, onResourceLoadedCallback) {
+            this.onResourceLoadedCallback = onResourceLoadedCallback;
 
-            // load dependencies (elements)
-            if (config.hasOwnProperty('elements')) {
-                this._loadElements(config.elements);
-            } else {
-                log('Widget ' + name + ' has no elements');
-            }
+            this.loadJson(url, function (config) {
+                this.config = config;
 
-            // load index.html
-            this._loadIndexHtml();
-        }.bind(this));
-    };
+                // load dependencies (elements)
+                if (config.hasOwnProperty('elements')) {
+                    loadElements.call(this, config.elements);
+                } else {
+                    log('Widget ' + name + ' has no elements');
+                }
 
-    WidgetLoader.prototype._loadElements = function (elementArray) {
-        this.numberOfElements = elementArray.length;
-        log('Widget ' + name + ' has ' + this.numberOfElements + ' elements');
-        elementArray.forEach(function (elementName) {
-            var loader = new ElementLoader();
-            loader.load(elementName, function (element) {
-                this.widget.elements.push(element);
-                this.numberOfElementsLoaded += 1;
-                this._checkIfLoadingComplete();
+                // load index.html
+                loadIndexHtml.call(this);
             }.bind(this));
-        }.bind(this));
-    };
-
-    WidgetLoader.prototype._checkIfLoadingComplete = function () {
-        if (this.numberOfElements == this.numberOfElementsLoaded && this.indexHtmlLoaded) {
-            log('Widget ' + this.widget.name + ' has been loaded');
-            this.onResourceLoadedCallback();
         }
+
+        function loadElements(elementArray) {
+            this.numberOfElements = elementArray.length;
+            log('Widget ' + name + ' has ' + this.numberOfElements + ' elements');
+            elementArray.forEach(function (elementName) {
+                var loader = new ElementLoader();
+                loader.load(elementName, function (element) {
+                    this.widget.elements.push(element);
+                    this.numberOfElementsLoaded += 1;
+                    onDependencyLoaded.call(this);
+                }.bind(this));
+            }.bind(this));
+        }
+
+        function loadIndexHtml() {
+            var htmlUrl = 'widgets/' + this.widget.name + '/index.html';
+            this.loadHtml(htmlUrl, function (e) {
+                console.log('Loaded widget html: ' + e.target.href);
+                this.indexHtmlLoaded = true;
+                this.widget.document = e.target.import;
+                onDependencyLoaded.call(this);
+            }.bind(this));
+        }
+
+        function onDependencyLoaded() {
+            if (this.numberOfElements == this.numberOfElementsLoaded && this.indexHtmlLoaded) {
+                log('Widget ' + this.widget.name + ' has been loaded');
+                this.onResourceLoadedCallback();
+            }
+        }
+
+
+        Loader.prototype.loadResource(this.configUrl, this.widget, onLoadedCallback, loadWidget.bind(this));
     };
 
-    WidgetLoader.prototype._loadIndexHtml = function () {
-        var htmlUrl = 'widgets/' + this.widget.name + '/index.html';
-        this.loadHtml(htmlUrl, function (e) {
-            console.log('Loaded widget html: ' + e.target.href);
-            this.indexHtmlLoaded = true;
-            this.widget.document = e.target.import;
-            this._checkIfLoadingComplete();
-        }.bind(this));
-    };
 
-
+    /**
+     * Loader for layouts.
+     *
+     * @constructor
+     */
     function LayoutLoader() {
         this.layout = null;
     }
 
+    /**
+     * Loads a layout by name.
+     *
+     * @param name The name of the layout.
+     * @param onLoadedCallback The function called if the layout has been loaded.
+     */
     LayoutLoader.prototype.load = function (name, onLoadedCallback) {
         var url = 'layouts/' + name + '.html';
         this.layout = new Layout(name);
-        Loader.prototype.load.call(this, url, this.layout, onLoadedCallback, this.loadHtml);
+        Loader.prototype.loadResource(url, this.layout, onLoadedCallback, this.loadHtml);
     };
 
 
+    /**
+     * Workspace-config loader.
+     *
+     * @constructor
+     */
     function WorkspaceConfigLoader() {
         this.workspaceConfig = {};
         this.layoutLoaded = false;
@@ -322,16 +423,22 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         };
     }
 
+    /**
+     * Loads workspace-configs by name.
+     *
+     * @param name The name of the workspace-config.
+     * @param onLoadedCallback The function called if the workspace-config has been loaded.
+     */
     WorkspaceConfigLoader.prototype.load = function (name, onLoadedCallback) {
         var configUrl = 'workspace-configs/' + name + '.json';
         this.workspaceConfig = new WorkspaceConfig(name);
 
-        Loader.prototype.load.call(this, configUrl, this.workspaceConfig, onLoadedCallback, this.loadWorkspaceConfig.bind(this))
-    };
+        function loadWorkspaceConfig(url, onResourceLoadedCallback) {
+            this.onResourceLoadedCallback = onResourceLoadedCallback;
+            this.loadJson(url, configLoaded.bind(this));
+        }
 
-    WorkspaceConfigLoader.prototype.loadWorkspaceConfig = function (url, onResourceLoadedCallback) {
-        this.onResourceLoadedCallback = onResourceLoadedCallback;
-        this.loadJson(url, function (config) {
+        function configLoaded(config) {
             this.config = config;
 
             // set the URL path
@@ -347,71 +454,79 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 return;
             }
             var layoutLoader = new LayoutLoader();
-            layoutLoader.load(this.config.layout, function (layout) {
-                this.layoutLoaded = true;
-                this.workspaceConfig.layout = layout;
-                this._checkIfLoadingComplete();
-            }.bind(this));
-
+            layoutLoader.load(this.config.layout, layoutLoaded.bind(this));
 
             // load widgets
-            this._loadWidgets();
-
-        }.bind(this));
-    };
-
-    WorkspaceConfigLoader.prototype._loadWidgets = function () {
-        // k: widgetname, v: viewTarget
-        var widgetsToLoad = Object.create(null);
-        if (!this.config.hasOwnProperty('mainWorkspace') || !this.config.mainWorkspace) {
-            log(this.config.name + ' does not have a main workspace!');
-            return;
-        }
-        widgetsToLoad[this.config.mainWorkspace] = 'mainWorkspace';
-
-        if (this.config.hasOwnProperty('sideWorkspaceLeft') && this.config.sideWorkspaceLeft) {
-            log(this.config.name + ' has a side workspace left');
-            widgetsToLoad[this.config.sideWorkspaceLeft] = 'sideWorkspaceLeft';
+            loadWidgets.call(this);
         }
 
-        if (this.config.hasOwnProperty('sideWorkspaceRight') && this.config.sideWorkspaceRight) {
-            log(this.config.name + ' has a side workspace right');
-            widgetsToLoad[this.config.sideWorkspaceRight] = 'sideWorkspaceRight';
+        function layoutLoaded(layout) {
+            this.layoutLoaded = true;
+            this.workspaceConfig.layout = layout;
+            onDependencyLoaded.call(this);
         }
 
-        if (this.config.hasOwnProperty('widgets') && Object.keys(this.config.widgets).length > 0) {
-            log(this.config.name + ' has free widgets');
-            var viewTargetWidget = 1;
-            for (var widgetName in this.config.widgets) {
-                if (this.config.widgets.hasOwnProperty(widgetName)) {
-                    widgetsToLoad[widgetName] = 'widget' + (viewTargetWidget++);
+        function loadWidgets() {
+            // k: widgetname, v: viewTarget
+            var widgetsToLoad = Object.create(null);
+            if (!this.config.hasOwnProperty('mainWorkspace') || !this.config.mainWorkspace) {
+                log(this.config.name + ' does not have a main workspace!');
+                return;
+            }
+            widgetsToLoad[this.config.mainWorkspace] = 'mainWorkspace';
+
+            if (this.config.hasOwnProperty('sideWorkspaceLeft') && this.config.sideWorkspaceLeft) {
+                log(this.config.name + ' has a side workspace left');
+                widgetsToLoad[this.config.sideWorkspaceLeft] = 'sideWorkspaceLeft';
+            }
+
+            if (this.config.hasOwnProperty('sideWorkspaceRight') && this.config.sideWorkspaceRight) {
+                log(this.config.name + ' has a side workspace right');
+                widgetsToLoad[this.config.sideWorkspaceRight] = 'sideWorkspaceRight';
+            }
+
+            if (this.config.hasOwnProperty('widgets') && Object.keys(this.config.widgets).length > 0) {
+                log(this.config.name + ' has free widgets');
+                var viewTargetWidget = 1;
+                for (var widgetName in this.config.widgets) {
+                    if (this.config.widgets.hasOwnProperty(widgetName)) {
+                        widgetsToLoad[widgetName] = 'widget' + (viewTargetWidget++);
+                    }
                 }
+            }
+
+            this.numberOfWidgets = Object.keys(widgetsToLoad).length;
+            log(this.config.name + ' has ' + this.numberOfWidgets + ' widgets');
+            for (var widgetName in widgetsToLoad) {
+                var widgetLoader = new WidgetLoader();
+                widgetLoader.load(widgetName, function (widget) {
+                    widget.viewTarget = widgetsToLoad[widget.name];
+                    this.workspaceConfig.widgets.push(widget);
+                    this.numberOfWidgetsLoaded += 1;
+                    onDependencyLoaded.call(this);
+                }.bind(this));
+            }
+
+        }
+
+        function onDependencyLoaded() {
+            if (this.layoutLoaded && this.numberOfWidgets == this.numberOfWidgetsLoaded) {
+                log('WorkspaceConfig ' + this.workspaceConfig.name + ' has been loaded');
+                this.onResourceLoadedCallback();
             }
         }
 
-        this.numberOfWidgets = Object.keys(widgetsToLoad).length;
-        log(this.config.name + ' has ' + this.numberOfWidgets + ' widgets');
-        for (var widgetName in widgetsToLoad) {
-            var widgetLoader = new WidgetLoader();
-            widgetLoader.load(widgetName, function (widget) {
-                widget.viewTarget = widgetsToLoad[widget.name];
-                this.workspaceConfig.widgets.push(widget);
-                this.numberOfWidgetsLoaded += 1;
-                this._checkIfLoadingComplete();
-            }.bind(this));
-        }
 
-    };
-
-    WorkspaceConfigLoader.prototype._checkIfLoadingComplete = function () {
-        if (this.layoutLoaded && this.numberOfWidgets == this.numberOfWidgetsLoaded) {
-            log('WorkspaceConfig ' + this.workspaceConfig.name + ' has been loaded');
-            this.onResourceLoadedCallback();
-        }
+        Loader.prototype.loadResource(configUrl, this.workspaceConfig, onLoadedCallback, loadWorkspaceConfig.bind(this))
     };
 
 
     return {
+        /**
+         * Creates a workspace-config loader.
+         *
+         * @returns {WorkspaceConfigLoader}
+         */
         createWorkspaceConfigLoader: function () {
             return new WorkspaceConfigLoader();
         }
@@ -423,7 +538,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 /**
  * core-dnd
  *
- * Provide drag and drop support provided by interact.js.
+ * Provides drag and drop support provided by interact.js.
  */
 require(['interact'], function (interact) {
     define('core-dnd', function () {
