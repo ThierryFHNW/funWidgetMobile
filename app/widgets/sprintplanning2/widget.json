@@ -2,6 +2,7 @@
   "name": "Sprint Planning 2 widget",
   "description": "",
   "elements": [
-    "ads-rest"
+    "ads-rest",
+    "ads-taskcard"
   ]
 }
