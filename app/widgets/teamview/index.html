@@ -10,14 +10,15 @@
                     box-sizing: border-box;
                 }
             </style>
-            <app-globals id="globals"></app-globals>
-            <ads-rest-people id="rest" response="{{people}}" projectId="{{projectId}}"></ads-rest-people>
             <div id="content">
                 <h2>Team</h2>
                 <template repeat="{{person in people}}">
                     <avatar-card user="{{person}}"></avatar-card>
                 </template>
-                <div>
+            </div>
+
+            <app-globals id="globals"></app-globals>
+            <ads-rest-people id="rest" response="{{people}}" projectId="{{projectId}}"></ads-rest-people>
         </template>
         <script>
             Polymer({

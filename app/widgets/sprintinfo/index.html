@@ -23,7 +23,6 @@
             Polymer({
                 ready: function () {
                     this.sprintId = this.$.globals.routeParams.sprintId;
-                    console.log('sprintId: ' + this.sprintId);
                     this.$.rest.go();
                 },
                 dateFmt: function (value) {

@@ -4,22 +4,78 @@
                    auto="{{auto != undefined}}" params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
     </template>
     <script>
-        Polymer({
-            onLoaded: function () {
-                this.response = this.$.ajax.response.items;
-            },
-            go: function () {
-                this.$.ajax.go();
+        (function () {
+            // these variables are shared by all instances
+//            var wsEventsUrl = 'ws://windows92.cs.technik.fhnw.ch/api/wsevents';
+            var wsEventsUrl = 'ws://localhost:8001';
+
+            var wsEvents = new WebSocket(wsEventsUrl);
+
+            console.log("GLOBAL CODE");
+
+            wsEvents.onopen = function () {
+                console.log('connected');
+            };
+            wsEvents.onmessage = function (evt) {
+                console.log(evt.data);
+                observers.forEach(function (observer) {
+                    observer(evt.data);
+                });
+            };
+            wsEvents.onerror = function (evt) {
+                console.log(evt.message);
+            };
+            wsEvents.onclose = function () {
+                console.log('disconnected');
+            };
+
+            function send(message) {
+                if (wsEvents.readyState == WebSocket.OPEN) {
+                    wsEvents.send(message);
+                } else {
+                    console.log('Connection is closed');
+                }
             }
-        });
+
+            var observers = [];
+
+            function registerObserver(observer) {
+                if (!(observer in observers)) {
+                    observers.push(observer);
+                }
+            }
+
+            Polymer({
+                onLoaded: function () {
+                    if ('onDataChanged' in this) {
+                        registerObserver(this.onDataChanged);
+                    }
+                    this.response = this.$.ajax.response.items;
+                },
+                go: function () {
+                    this.$.ajax.go();
+                },
+                /**
+                 *  Sets the parameters for the query.
+                 * @param params Map of parameter name and value
+                 */
+                setParams: function (params) {
+                    this.params = JSON.stringify(params);
+                    console.log(this.params);
+                }
+            });
+        })();
     </script>
 </polymer-element>
 
 <polymer-element name="ads-rest-people" extends="ads-rest-collection" attributes="response auto projectId">
     <script>
         Polymer({
-            go: function() {
-                this.params = '{ "project": "' + this.projectId + '" }'
+            onDataChanged: function (msg) {
+                console.log('received message in ads-rest-people: ' + msg);
+            },
+            go: function () {
+                this.setParams({project: this.projectId});
                 this.super();
             },
             resource: "people"

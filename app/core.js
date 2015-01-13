@@ -117,7 +117,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         var workspace = document.createElement('workspace-layout-' + this.layout.name);
         this.widgets.forEach(function (widget) {
             var templates = widget.document.querySelectorAll('template.content');
-            console.log('found templates: ' + templates.length);
+            console.log('widget ' + widget.name + ' has ' + templates.length + ' template(s)');
             if (templates.length == 0) {
                 console.log('no templates found in the widget ' + widget.name);
                 return;
