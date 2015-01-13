@@ -19,8 +19,7 @@
             <app-globals id="globals"></app-globals>
             <ads-rest-project id="projectsEndpoint" resourceId="{{projectId}}"
                               response="{{project}}"></ads-rest-project>
-            <ads-rest-sprints id="sprintsEndpoint" response="{{sprints}}"
-                              params='{ "project": "{{projectId}}" }'></ads-rest-sprints>
+            <ads-rest-sprints id="sprintsEndpoint" response="{{sprints}}" projectId="{{projectId}}"></ads-rest-sprints>
         </template>
         <script>
             Polymer({

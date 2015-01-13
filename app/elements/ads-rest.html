@@ -1,4 +1,4 @@
-<polymer-element name="ads-rest-collection" hidden attributes="resource response params auto">
+<polymer-element name="ads-rest-collection" hidden attributes="resource expand response auto">
     <template>
         <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}" handleAs="json"
                    auto="{{auto != undefined}}" params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
@@ -8,10 +8,8 @@
             // these variables are shared by all instances
 //            var wsEventsUrl = 'ws://windows92.cs.technik.fhnw.ch/api/wsevents';
             var wsEventsUrl = 'ws://localhost:8001';
-
             var wsEvents = new WebSocket(wsEventsUrl);
 
-            console.log("GLOBAL CODE");
 
             wsEvents.onopen = function () {
                 console.log('connected');
@@ -60,6 +58,9 @@
                  * @param params Map of parameter name and value
                  */
                 setParams: function (params) {
+                    if (this.expand !== undefined) {
+                        params.expand = this.expand;
+                    }
                     this.params = JSON.stringify(params);
                     console.log(this.params);
                 }
@@ -68,7 +69,7 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-people" extends="ads-rest-collection" attributes="response auto projectId">
+<polymer-element name="ads-rest-people" extends="ads-rest-collection" attributes="response auto expand projectId">
     <script>
         Polymer({
             onDataChanged: function (msg) {
@@ -83,26 +84,81 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-sprints" extends="ads-rest-collection" attributes="response auto">
+<polymer-element name="ads-rest-sprints" extends="ads-rest-collection" attributes="response auto expand projectId">
     <script>
         Polymer({
+            go: function () {
+                this.setParams({project: this.projectId});
+                this.super();
+            },
             resource: "sprints"
         });
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-userstories" extends="ads-rest-collection" attributes="response auto">
+<polymer-element name="ads-rest-userstories" extends="ads-rest-collection"
+                 attributes="response auto expand authorId ownerId sprintId stateId">
     <script>
         Polymer({
+            go: function () {
+                this.setParams({
+                    author: this.authorId,
+                    owner: this.ownerId,
+                    sprint: this.sprintId,
+                    state: this.stateId
+                });
+                this.super();
+            },
             resource: "userstories"
         });
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-tasks" extends="ads-rest-collection" attributes="response auto">
+<polymer-element name="ads-rest-tasks" extends="ads-rest-collection"
+                 attributes="response auto expand authorId assigneeId userStoryId stateId">
     <script>
         Polymer({
+            go: function () {
+                this.setParams({
+                    author: this.authorId,
+                    assignee: this.assigneeId,
+                    userStory: this.userStoryId,
+                    state: this.stateId
+                });
+                this.super();
+            },
             resource: "tasks"
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-taskstates" extends="ads-rest-collection" attributes="response auto projectId taskId">
+    <script>
+        Polymer({
+            go: function () {
+                this.setParams({
+                    project: this.projectId,
+                    task: this.taskId
+                });
+                this.super();
+            },
+            resource: "taskStates"
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-userstorystates" extends="ads-rest-collection"
+                 attributes="response auto projectId userStoryId">
+    <script>
+        Polymer({
+            go: function () {
+                this.setParams({
+                    project: this.projectId,
+                    userStory: this.userStoryId
+                });
+                this.super();
+            },
+            resource: "userStoryStates"
         });
     </script>
 </polymer-element>
@@ -110,7 +166,7 @@
 <polymer-element name="ads-rest-single" hidden attributes="resource resourceId response expand auto">
     <template>
         <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}/{{resourceId}}" handleAs="json"
-                   params='{ "expand": "{{expand}}" }' auto="{{auto != undefined}}"
+                   params="{{expand}}" auto="{{auto != undefined}}"
                    on-core-response="{{onLoaded}}"></core-ajax>
     </template>
     <script>
@@ -131,6 +187,17 @@
                 var ajax = this.$.ajax;
                 ajax.method = 'DELETE';
                 ajax.go();
+            },
+            /**
+             *  Sets the parameters for the query.
+             * @param params Map of parameter name and value
+             */
+            setParams: function (params) {
+                if (this.expand !== undefined) {
+                    params.expand = this.expand;
+                }
+                this.params = JSON.stringify(params);
+                console.log(this.params);
             }
         });
     </script>
@@ -172,6 +239,22 @@
     <script>
         Polymer({
             resource: "tasks"
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-taskstate" extends="ads-rest-single" attributes="resourceId response auto">
+    <script>
+        Polymer({
+            resource: "taskStates"
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-userstorystate" extends="ads-rest-single" attributes="resourceId response auto">
+    <script>
+        Polymer({
+            resource: "userStoryStates"
         });
     </script>
 </polymer-element>
