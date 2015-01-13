@@ -3,7 +3,8 @@
   "description": "Shows the members of the project.",
   "elements": [
     "avatar-card",
-    "ads-rest"
+    "ads-rest",
+    "ads-widget"
   ]
 }
 
