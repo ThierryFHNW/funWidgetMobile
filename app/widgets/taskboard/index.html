@@ -1,14 +1,9 @@
-<polymer-element name="ads-sp2">
+<polymer-element name="ads-taskboard">
     <template>
         <ads-widget>
-            <h2>Sprintplanning 2</h2>
+            <h2>Taskboard</h2>
             <template repeat="{{story in userstories}}">
                 <ads-userstorycard userstory="{{story}}"></ads-userstorycard>
-            </template>
-
-            <ads-rest-tasks userStoryId="{{story.id}}" response="{{tasks}}" auto></ads-rest-tasks>
-            <template repeat="{{task in tasks}}">
-                <ads-taskcard task="{{task}}"></ads-taskcard>
             </template>
 
 
@@ -28,5 +23,5 @@
 </polymer-element>
 
 <template class="content">
-    <ads-sp2></ads-sp2>
+    <ads-taskboard></ads-taskboard>
 </template>

@@ -5,7 +5,9 @@ define('config', function () {
             available: [
                 'projectselect',
                 'sprintselect',
-                'sprintplanning2'
+                'workspaceselect',
+                'sprintplanning2',
+                'taskboard'
             ]
         }
     }

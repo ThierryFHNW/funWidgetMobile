@@ -1,7 +1,7 @@
 <polymer-element name="ads-rest-collection" hidden attributes="resource expand response auto">
     <template>
         <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}" handleAs="json"
-                   auto="{{auto != undefined}}" params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
+                   params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
     </template>
     <script>
         (function () {
@@ -50,6 +50,11 @@
                     }
                     this.response = this.$.ajax.response.items;
                 },
+                ready: function () {
+                    if (this.auto === true) {
+                        this.go();
+                    }
+                },
                 go: function () {
                     this.$.ajax.go();
                 },
@@ -58,7 +63,10 @@
                  * @param params Map of parameter name and value
                  */
                 setParams: function (params) {
-                    if (this.expand !== undefined) {
+                    if (params == undefined) {
+                        params = Object.create(null);
+                    }
+                    if (this.expand != undefined) {
                         params.expand = this.expand;
                     }
                     this.params = JSON.stringify(params);
@@ -166,15 +174,20 @@
 <polymer-element name="ads-rest-single" hidden attributes="resource resourceId response expand auto">
     <template>
         <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}/{{resourceId}}" handleAs="json"
-                   params="{{expand}}" auto="{{auto != undefined}}"
-                   on-core-response="{{onLoaded}}"></core-ajax>
+                   params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
     </template>
     <script>
         Polymer({
             onLoaded: function () {
                 this.response = this.$.ajax.response;
             },
+            ready: function () {
+                if (this.auto === true) {
+                    this.go();
+                }
+            },
             go: function () {
+                this.setParams();
                 this.$.ajax.go();
             },
             save: function (resource) {
@@ -193,7 +206,10 @@
              * @param params Map of parameter name and value
              */
             setParams: function (params) {
-                if (this.expand !== undefined) {
+                if (params == undefined) {
+                    params = Object.create(null);
+                }
+                if (this.expand != undefined) {
                     params.expand = this.expand;
                 }
                 this.params = JSON.stringify(params);

@@ -1,0 +1,42 @@
+<polymer-element name="ads-workspaceselect">
+    <template>
+        <style>
+            #content {
+                padding: 50px;
+                background-color: #f2f2f2;
+                overflow: hidden;
+            }
+
+            a {
+                font-size: 1.7em;
+            }
+
+            li {
+                margin-bottom: 5px;
+            }
+        </style>
+        <div id="content">
+            <h1>Select workspace for {{sprint.name}}</h1>
+            <ul>
+                <li><a href="/#/project/{{projectId}}/sprint/{{sprint.id}}/taskboard">Taskboard for daily stand-up</a></li>
+                <li><a href="/#/project/{{projectId}}/sprint/{{sprint.id}}/sp2">Sprint Planning 2</a></li>
+            </ul>
+        </div>
+
+        <app-globals id="globals"></app-globals>
+        <ads-rest-sprint id="rest" resourceId="{{sprintId}}" response="{{sprint}}"></ads-rest-sprint>
+    </template>
+    <script>
+        Polymer({
+            ready: function () {
+                this.projectId = this.$.globals.routeParams.projectId;
+                this.sprintId = this.$.globals.routeParams.sprintId;
+                this.$.rest.go();
+            }
+        });
+    </script>
+</polymer-element>
+
+<template class="content">
+    <ads-workspaceselect></ads-workspaceselect>
+</template>

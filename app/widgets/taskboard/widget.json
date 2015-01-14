@@ -1,0 +1,9 @@
+{
+  "name": "Taskboard widget",
+  "description": "",
+  "elements": [
+    "ads-rest",
+    "ads-taskcard",
+    "ads-userstorycard"
+  ]
+}

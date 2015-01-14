@@ -1,0 +1,13 @@
+{
+  "name": "Taskboard Workspace",
+  "description": "",
+  "path": "/project/:projectId/sprint/:sprintId/taskboard",
+  "layout": "touchwall",
+  "mainWorkspace": "taskboard",
+  "sideWorkspaceLeft": "",
+  "sideWorkspaceRight": "",
+  "widgets": {
+    "teamview": "widget1",
+    "sprintinfo": "widget2"
+  }
+}

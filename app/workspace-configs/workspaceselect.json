@@ -1,0 +1,11 @@
+{
+  "name": "Workspace selector",
+  "description": "Allows to select the workspace.",
+  "path": "/project/:projectId/sprint/:sprintId",
+  "layout": "single",
+  "mainWorkspace": "workspaceselect",
+  "sideWorkspaceLeft": "",
+  "sideWorkspaceRight": "",
+  "widgets": {
+  }
+}
