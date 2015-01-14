@@ -3,6 +3,7 @@
   "description": "",
   "elements": [
     "ads-rest",
-    "ads-taskcard"
+    "ads-taskcard",
+    "ads-userstorycard"
   ]
 }

@@ -6,12 +6,15 @@
 
                 <h2>Sprintplanning 2</h2>
                 <template repeat="{{story in userstories}}">
-                    <h3>{{story.name}}</h3>
-                    <ads-rest-tasks userStoryId="{{story.id}}" response="{{tasks}}" auto></ads-rest-tasks>
-                    <template repeat="{{task in tasks}}">
-                        <ads-taskcard task="{{task}}"></ads-taskcard>
-                    </template>
+                    <ads-userstorycard userstory="{{story}}"></ads-userstorycard>
+
                 </template>
+
+                <ads-rest-tasks userStoryId="{{story.id}}" response="{{tasks}}" auto></ads-rest-tasks>
+                <template repeat="{{task in tasks}}">
+                    <ads-taskcard task="{{task}}"></ads-taskcard>
+                </template>
+
 
             </ads-widget>
             <app-globals id="globals"></app-globals>

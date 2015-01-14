@@ -1,16 +1,15 @@
-<polymer-element name="ads-taskcard" attributes="task" noscript>
+<polymer-element name="ads-userstorycard" attributes="userstory" noscript>
     <template>
         <style>
             :host {
                 float: left;
                 overflow: hidden;
-                height: 60px;
-                width: 200px;
+                height: 75px;
                 min-height: 50px;
                 min-width: 175px;
                 padding: 5px;
-                margin: 5px;
-                background-color: #ffffff;
+                margin: 3px 15px 3px 15px;
+                background-color: #ffc473;
                 border: 2px solid;
                 box-shadow: 3px 3px 3px #888, 3px 3px 3px #888;
             }
@@ -22,9 +21,9 @@
             }
         </style>
         <ul>
-            <li><b>{{task.name}}</b></li>
+            <li><b>{{userstory.name}}</b></li>
             <li>
-                <small>{{task.description}}</small>
+                <small>{{userstory.description}}</small>
             </li>
         </ul>
     </template>
