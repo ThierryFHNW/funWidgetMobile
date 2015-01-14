@@ -1,27 +1,96 @@
+<template class="content">
+    <ads-taskboard></ads-taskboard>
+</template>
+
 <polymer-element name="ads-taskboard">
     <template>
+        <style>
+            table {
+                border-collapse: collapse;
+                box-sizing: border-box;
+                margin-bottom: 10px;
+                max-width: 100%;
+            }
+
+            tr:nth-child(even) {
+                background-color: rgba(255, 255, 255, 0.5);
+            }
+
+            th {
+                border-bottom: 2px solid rgb(221, 221, 221);
+                border-collapse: collapse;
+                text-align: left;
+            }
+
+            td {
+                border-top: 1px solid rgb(221, 221, 221);
+                vertical-align: top;
+            }
+
+            td:nth-child(1) {
+                padding: 8px;
+                text-align: left;
+                width: 250px;
+            }
+
+            h3 {
+                font-size: 1.75em;
+                font-weight: normal;
+            }
+        </style>
         <ads-widget>
             <h2>Taskboard</h2>
-            <template repeat="{{story in userstories}}">
-                <ads-userstorycard userstory="{{story}}"></ads-userstorycard>
-            </template>
 
 
+            <table class="table table-striped table-equal-width">
+                <thead>
+                <tr>
+                    <th class="story-column"></th>
+                    <template repeat="{{state in taskstates}}">
+                        <th><h3>{{state.name}}</h3></th>
+                    </template>
+                </tr>
+                </thead>
+                <tbody>
+                <template repeat="{{userstory in userstories}}">
+                    <tr>
+                        <td class="story-column">
+                            <ads-userstorycard userstory="{{userstory}}"></ads-userstorycard>
+                        </td>
+                        <template repeat="{{state in taskstates}}">
+                            <td>
+                                <ads-tb-tasks taskstate="{{state}}" userstoryId="{{userstory.id}}"></ads-tb-tasks>
+                            </td>
+                        </template>
+                    </tr>
+                </template>
+                </tbody>
+            </table>
         </ads-widget>
         <app-globals id="globals"></app-globals>
-        <ads-rest-userstories id="usEndpoint" sprintId="{{sprintId}}"
+        <ads-rest-userstories id="usRest" sprintId="{{sprintId}}"
                               response="{{userstories}}"></ads-rest-userstories>
+        <ads-rest-taskstates id="statesRest" projectId="{{projectId}}" response="{{taskstates}}"></ads-rest-taskstates>
     </template>
     <script>
         Polymer({
             ready: function () {
+                this.projectId = this.$.globals.routeParams.projectId;
                 this.sprintId = this.$.globals.routeParams.sprintId;
-                this.$.usEndpoint.go();
+                this.$.usRest.go();
+                this.$.statesRest.go();
             }
         });
     </script>
 </polymer-element>
 
-<template class="content">
-    <ads-taskboard></ads-taskboard>
-</template>
+<polymer-element name="ads-tb-tasks" attributes="taskstate userstoryId" noscript>
+    <template>
+        <template repeat="{{task in tasks}}">
+            <ads-taskcard task="{{task}}"></ads-taskcard>
+        </template>
+
+        <ads-rest-tasks userStoryId="{{userstoryId}}" stateId="{{taskstate.id}}" response="{{tasks}}"
+                        auto></ads-rest-tasks>
+    </template>
+</polymer-element>
