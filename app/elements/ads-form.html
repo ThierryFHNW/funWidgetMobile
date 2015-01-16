@@ -1,0 +1,109 @@
+<polymer-element name="ads-form">
+    <template>
+        <style>
+            :host {
+                width: 500px;
+                box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                overflow: hidden;
+                background: white;
+                padding: 30px 42px;
+                outline: 1px solid rgba(0, 0, 0, 0.2);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            }
+
+            a.close {
+                float: right;
+                margin-top: -26px;
+                margin-right: -38px;
+                cursor: pointer;
+                color: #333;
+                text-decoration: none;
+                font-size: 50px;
+                line-height: 0;
+                padding: 15px 3px;
+            }
+
+            .close:before {
+                content: "×";
+            }
+        </style>
+        <a class="close" on-tap="{{onClose}}"></a>
+        <core-overlay id="overlay" backdrop></core-overlay>
+        <content></content>
+    </template>
+    <script>
+        Polymer({
+            ready: function () {
+                this.$.overlay.target = this;
+            },
+            toggle: function () {
+                this.$.overlay.toggle();
+            },
+            onClose: function () {
+                this.$.overlay.toggle();
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-form-userstory" attributes="userstory">
+    <template>
+        <ads-form id="form">
+            <h1>{{action}} User-Story</h1>
+
+            <app-field-text label="Name" placeholder="Name of the user-story"
+                            value="{{userstory.name}}"></app-field-text>
+            <app-field-textarea label="Description" placeholder="Describe the user-story"
+                                value="{{userstory.description}}"></app-field-textarea>
+            <app-field-textarea label="Acceptance Citeria" placeholder="When is the user-story done?"
+                                value="{{userstory.acceptanceCriteria}}"></app-field-textarea>
+            <app-field-text type="number" label="Story points" value="{{userstory.storyPpoints}}"></app-field-text>
+            <app-field-text type="number" label="Priority" value="{{userstory.priority}}"></app-field-text>
+            <app-field-select label="Author">
+                <template repeat="{{person in people}}">
+                    <option value="{{person.name}}">{{person.name}}</option>
+                </template>
+            </app-field-select>
+            <app-field-select label="Owner">
+                <template repeat="{{person in people}}">
+                    <option value="{{person.name}}">{{person.name}}</option>
+                </template>
+            </app-field-select>
+            <app-field-select label="State">
+                <template repeat="{{state in states}}">
+                    <option value="{{state.name}}">{{state.name}}</option>
+                </template>
+            </app-field-select>
+            <button id="save" on-tap="{{onSave}}">Save</button>
+            <button id="delete" on-tap="{{onDelete}}" hidden="{{userstory == undefined}}">Delete</button>
+        </ads-form>
+        <app-globals id="globals"></app-globals>
+        <ads-rest-people id="restPeople" projectId="{{projectId}}" response="{{people}}"></ads-rest-people>
+        <ads-rest-userstorystates id="restStates" projectId="{{projectId}}"
+                                  response="{{states}}"></ads-rest-userstorystates>
+    </template>
+    <script>
+        Polymer({
+            ready: function () {
+                this.projectId = this.$.globals.routeParams.projectId;
+                this.$.restPeople.go();
+                this.$.restStates.go();
+            },
+            open: function () {
+                this.action = this.userstory === undefined ? 'Create' : 'Edit';
+                this.$.form.toggle();
+            },
+            onSave: function () {
+                console.log('Save us');
+                this.$.form.toggle();
+            },
+            onDelete: function () {
+                console.log('Deleting the us');
+                this.$.form.toggle();
+            }
+        });
+    </script>
+</polymer-element>

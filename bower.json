@@ -8,7 +8,11 @@
     "core-ajax": "Polymer/core-ajax#~0.5.2",
     "heir": "3.0.0",
     "eventEmitter": "4.2.11",
-    "javascript-route-matcher": "0.1.0"
+    "javascript-route-matcher": "0.1.0",
+    "core-overlay": "Polymer/core-overlay#~0.5.2",
+    "core-field": "Polymer/core-field#~0.5.0",
+    "core-icon": "Polymer/core-icon#~0.5.2",
+    "core-icon-button": "Polymer/core-icon-button#~0.5.2"
   },
   "devDependencies": {}
 }

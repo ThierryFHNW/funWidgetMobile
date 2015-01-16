@@ -41,6 +41,9 @@
         <ads-widget>
             <h2>Taskboard</h2>
 
+            <core-icon-button icon="add" on-tap="{{addUserStoryTabHandler}}">Add User Story</core-icon-button>
+            <ads-form-userstory id="usForm"></ads-form-userstory>
+
 
             <table class="table table-striped table-equal-width">
                 <thead>
@@ -55,7 +58,8 @@
                 <template repeat="{{userstory in userstories}}">
                     <tr>
                         <td class="story-column">
-                            <ads-userstorycard userstory="{{userstory}}"></ads-userstorycard>
+                            <ads-userstorycard userstory="{{userstory}}"
+                                               on-dblclick="{{usCardDblClickHandler}}"></ads-userstorycard>
                         </td>
                         <template repeat="{{state in taskstates}}">
                             <td>
@@ -79,6 +83,14 @@
                 this.sprintId = this.$.globals.routeParams.sprintId;
                 this.$.usRest.go();
                 this.$.statesRest.go();
+            },
+            addUserStoryTabHandler: function () {
+                this.$.usForm.userstory = undefined;
+                this.$.usForm.open();
+            },
+            usCardDblClickHandler: function (evt, detail, target) {
+                this.$.usForm.userstory = target.userstory_;
+                this.$.usForm.open();
             }
         });
     </script>

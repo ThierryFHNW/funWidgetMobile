@@ -4,6 +4,7 @@
   "elements": [
     "ads-rest",
     "ads-taskcard",
-    "ads-userstorycard"
+    "ads-userstorycard",
+    "ads-form"
   ]
 }

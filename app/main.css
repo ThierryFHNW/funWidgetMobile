@@ -8,3 +8,79 @@ body {
     min-height: 100%;
     background-color: #1f497d;
 }
+
+html /deep/ core-field {
+    border: 1px solid #ddd;
+    margin: 10px 0 10px 0;
+}
+
+html /deep/ input {
+    font-size: 1.2em !important;
+    margin: 0;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+html /deep/ textarea {
+    font-family: sans-serif;
+    margin: 5px 5px 5px 0;
+    border: none;
+    height: 3em;
+    font-size: 1.2em;
+    padding: 5px 0;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+html /deep/ select {
+    font-size: 1.2em;
+    background: none;
+    padding: 5px 0;
+    width: 100%;
+    border: none;
+    margin-right: 5px;
+}
+
+html /deep/ label {
+    box-sizing: border-box;
+    text-align: right;
+    padding: 0 15px 0 10px;;
+    width: 150px;
+    margin: 10px 0 10px 0;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+html /deep/ core-icon-button {
+    background: #fff;
+    padding-right: 15px;
+    border-radius: 2px;
+}
+
+html /deep/ button {
+    float: right;
+    margin-left: 10px;
+    background-color: #333;
+    opacity: 0.4;
+    transition: opacity 420ms ease-in-out;
+    border-radius: 2px;
+    color: #fff;
+    font-size: 1.5em;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    padding: 5px 20px 5px 20px;
+    box-shadow: 0 0 1px #777;
+}
+
+html /deep/ button:hover {
+    border: none;
+    opacity: 1;
+}
+
+html /deep/ button:active {
+    border: none;
+    background: #000;
+}

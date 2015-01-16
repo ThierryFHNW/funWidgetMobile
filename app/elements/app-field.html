@@ -1,0 +1,41 @@
+<polymer-element name="app-field-select" attributes="label">
+    <template>
+        <core-field>
+            <label for="input">{{label}}</label>
+            <select id="input"></select>
+            <content id="options"></content>
+        </core-field>
+    </template>
+    <script>
+        Polymer({
+            ready: function () {
+                // append the option tags to the select element
+                var options = this.$.options.getDistributedNodes();
+                for (var i = 0; i < options.length; i++) {
+                    var option = options[i];
+                    this.$.input.appendChild(option);
+                }
+            }
+        });
+    </script>
+</polymer-element>
+
+
+<polymer-element name="app-field-textarea" attributes="label placeholder value" noscript>
+    <template>
+        <core-field>
+            <label for="input">{{label}}</label>
+            <textarea id="input" placeholder="{{placeholder}}">{{value}}</textarea>
+        </core-field>
+    </template>
+</polymer-element>
+
+
+<polymer-element name="app-field-text" attributes="label placeholder value type" noscript>
+    <template>
+        <core-field>
+            <label for="input">{{label}}</label>
+            <input id="input" type="{{type}}" placeholder="{{placeholder}}" value="{{value}}"/>.
+        </core-field>
+    </template>
+</polymer-element>
