@@ -84,6 +84,8 @@
         <ads-rest-people id="restPeople" projectId="{{projectId}}" response="{{people}}"></ads-rest-people>
         <ads-rest-userstorystates id="restStates" projectId="{{projectId}}"
                                   response="{{states}}"></ads-rest-userstorystates>
+        <ads-rest-userstory id="restSave"></ads-rest-userstory>
+        <ads-rest-userstories id="restCreate"></ads-rest-userstories>
     </template>
     <script>
         Polymer({
@@ -93,15 +95,26 @@
                 this.$.restStates.go();
             },
             open: function () {
-                this.action = this.userstory === undefined ? 'Create' : 'Edit';
+                if (this.userstory === undefined) {
+                    this.action = 'Create';
+                    this.userstory = {};
+                } else {
+                    this.action = 'Edit';
+                }
                 this.$.form.toggle();
             },
             onSave: function () {
-                console.log('Save us');
+                console.dir(this.userstory);
+                if (this.userstory.id === undefined) {
+                    this.$.restCreate.create(this.userstory);
+                } else {
+                    this.$.restSave.save(this.userstory);
+                }
                 this.$.form.toggle();
             },
             onDelete: function () {
                 console.log('Deleting the us');
+                this.$.rest.remove(this.userstory);
                 this.$.form.toggle();
             }
         });

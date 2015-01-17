@@ -70,6 +70,21 @@
                         params.expand = this.expand;
                     }
                     this.params = JSON.stringify(params);
+                },
+                /**
+                 * Creates a resource on the server with an POST request.
+                 * @param resource The resource to create.
+                 */
+                create: function (resource) {
+                    if (resource.id !== undefined) {
+                        console.error("Can't create a resource that already has an ID.");
+                        return;
+                    }
+                    var ajax = this.$.ajax;
+                    ajax.method = 'POST';
+                    ajax.contentType = 'application/json;charset=UTF-8';
+                    ajax.body = JSON.stringify(resource);
+                    ajax.go();
                 }
             });
         })();
@@ -189,13 +204,47 @@
                 this.setParams();
                 this.$.ajax.go();
             },
+            /**
+             *  Saves a resource with a PUT request
+             *  @param resource The resource to update.
+             */
             save: function (resource) {
+                if (resource.id === undefined) {
+                    console.error("Can't update a resource without an ID!");
+                    return;
+                }
+
+                // set ID because it may not be set yet if called by JS
+                this.resourceId = resource.id;
+
+                /*
+                 * Set all arrays to null, because 1:n relationships cannot be updated this way
+                 * and the request will fail.
+                 */
+                for (var attribute in resource) {
+                    if (resource[attribute] instanceof Array) {
+                        resource[attribute] = null;
+                    }
+                }
+
                 var ajax = this.$.ajax;
-                ajax.method = resource.hasOwnProperty('id') ? 'PUT' : 'POST';
+                ajax.method = 'PUT';
+                ajax.contentType = 'application/json;charset=UTF-8';
                 ajax.body = JSON.stringify(resource);
                 ajax.go();
             },
+            /**
+             * Delete a resource on the server.
+             * @param resource The resource to delete.
+             */
             remove: function (resource) {
+                if (resource.id === undefined) {
+                    console.error("Can't delete a resource without an ID!");
+                    return;
+                }
+                // set ID because it may not be set yet if called by JS
+                this.resourceId = resource.id;
+
                 var ajax = this.$.ajax;
                 ajax.method = 'DELETE';
                 ajax.go();
