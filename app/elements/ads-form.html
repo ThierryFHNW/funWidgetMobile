@@ -68,9 +68,11 @@
                               selected="{{userstory.owner}}"></app-field-select>
             <app-field-select label="State" placeholder="Select state" values="{{states}}"
                               selected="{{userstory.state}}"></app-field-select>
+
             <button id="save" on-tap="{{onSave}}">Save</button>
             <button id="delete" on-tap="{{onDelete}}" hidden="{{userstory == undefined}}">Delete</button>
         </ads-form>
+
         <app-globals id="globals"></app-globals>
         <ads-rest-people id="restPeople" projectId="{{projectId}}" response="{{people}}"></ads-rest-people>
         <ads-rest-userstorystates id="restStates" projectId="{{projectId}}"
@@ -106,6 +108,78 @@
             onDelete: function () {
                 console.log('Deleting the us');
                 this.$.rest.remove(this.userstory);
+                this.$.form.toggle();
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-form-task" attributes="task userstory">
+    <template>
+        <ads-form id="form">
+            <h1>{{action}} Task</h1>
+
+            <app-field-text label="Name" placeholder="Name of the task" value="{{task.name}}"></app-field-text>
+            <app-field-textarea label="Description" placeholder="Describe the user-story"
+                                value="{{task.description}}"></app-field-textarea>
+            <app-field-text type="number" label="Estimate" placeholder="Estimated work"
+                            value="{{task.estimate}}"></app-field-text>
+            <app-field-text type="number" label="Time spent" placeholder="Time spent on this task"
+                            value="{{task.timeSpent}}"></app-field-text>
+            <app-field-select label="Author" placeholder="Author of the task" selected="{{task.author}}"
+                              values="{{people}}"></app-field-select>
+            <app-field-select label="Assignee" placeholder="Assigned person" selected="{{task.assignee}}"
+                              values="{{people}}"></app-field-select>
+            <app-field-select label="State" placeholder="State of the task" selected="{{task.state}}"
+                              values="{{states}}"></app-field-select>
+            <app-field-select label="User-Story" placeholder="Assign to user-story" selected="{{task.userStory}}"
+                              values="{{userstories}}"></app-field-select>
+
+            <button id="save" on-tap="{{onSave}}">Save</button>
+            <button id="delete" on-tap="{{onDelete}}" hidden="{{task == undefined}}">Delete</button>
+        </ads-form>
+
+        <app-globals id="globals"></app-globals>
+        <ads-rest-people id="restPeople" projectId="{{projectId}}" response="{{people}}"></ads-rest-people>
+        <ads-rest-taskstates id="restStates" projectId="{{projectId}}"
+                             response="{{states}}"></ads-rest-taskstates>
+        <ads-rest-userstories id="restUs" sprintId="{{sprintId}}" response="{{userstories}}"></ads-rest-userstories>
+        <ads-rest-task id="restSave"></ads-rest-task>
+        <ads-rest-tasks id="restCreate"></ads-rest-tasks>
+    </template>
+    <script>
+        Polymer({
+            ready: function () {
+                this.projectId = this.$.globals.routeParams.projectId;
+                this.sprintId = this.$.globals.routeParams.sprintId;
+                this.$.restPeople.go();
+                this.$.restStates.go();
+                this.$.restUs.go();
+            },
+            open: function () {
+                if (this.task === undefined) {
+                    this.action = 'Create';
+                    this.task = {};
+                } else {
+                    this.action = 'Edit';
+                }
+                if (this.userstory !== undefined) {
+                    this.task.userstory = this.userstory
+                }
+                this.$.form.toggle();
+            },
+            onSave: function () {
+                console.dir(this.task);
+                if (this.task.id === undefined) {
+                    this.$.restCreate.create(this.task);
+                } else {
+                    this.$.restSave.save(this.task);
+                }
+                this.$.form.toggle();
+            },
+            onDelete: function () {
+                console.log('Deleting the task');
+                this.$.rest.remove(this.task);
                 this.$.form.toggle();
             }
         });

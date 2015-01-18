@@ -34,13 +34,26 @@ html /deep/ textarea {
     width: 100%;
 }
 
-html /deep/ select {
+html /deep/ core-dropdown-menu {
     font-size: 1.2em;
     background: none;
     padding: 5px 0;
     width: 100%;
     border: none;
     margin-right: 5px;
+}
+
+html /deep/ core-dropdown {
+    box-sizing: border-box;
+    min-width: 200px;
+    color: #000;
+    border: 1px solid #ccc;
+}
+
+core-item {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 html /deep/ label {
