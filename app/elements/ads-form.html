@@ -62,21 +62,12 @@
                                 value="{{userstory.acceptanceCriteria}}"></app-field-textarea>
             <app-field-text type="number" label="Story points" value="{{userstory.storyPpoints}}"></app-field-text>
             <app-field-text type="number" label="Priority" value="{{userstory.priority}}"></app-field-text>
-            <app-field-select label="Author">
-                <template repeat="{{person in people}}">
-                    <option value="{{person.name}}">{{person.name}}</option>
-                </template>
-            </app-field-select>
-            <app-field-select label="Owner">
-                <template repeat="{{person in people}}">
-                    <option value="{{person.name}}">{{person.name}}</option>
-                </template>
-            </app-field-select>
-            <app-field-select label="State">
-                <template repeat="{{state in states}}">
-                    <option value="{{state.name}}">{{state.name}}</option>
-                </template>
-            </app-field-select>
+            <app-field-select label="Author" placeholder="Select author" values="{{people}}"
+                              selected="{{userstory.author}}"></app-field-select>
+            <app-field-select label="Owner" placeholder="Select owner" values="{{people}}"
+                              selected="{{userstory.owner}}"></app-field-select>
+            <app-field-select label="State" placeholder="Select state" values="{{states}}"
+                              selected="{{userstory.state}}"></app-field-select>
             <button id="save" on-tap="{{onSave}}">Save</button>
             <button id="delete" on-tap="{{onDelete}}" hidden="{{userstory == undefined}}">Delete</button>
         </ads-form>

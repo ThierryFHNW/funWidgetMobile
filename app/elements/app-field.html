@@ -1,20 +1,69 @@
-<polymer-element name="app-field-select" attributes="label">
+<polymer-element name="app-field-select">
     <template>
         <core-field>
             <label for="input">{{label}}</label>
-            <select id="input"></select>
-            <content id="options"></content>
+            <core-dropdown-menu label="{{placeholder}}">
+                <core-dropdown class="dropdown">
+                    <core-menu id="menu" on-core-select="{{selectAction}}">
+                        <template repeat="{{value in values}}">
+                            <core-item label="{{value.name}}"></core-item>
+                        </template>
+                    </core-menu>
+                </core-dropdown>
+            </core-dropdown-menu>
         </core-field>
     </template>
     <script>
         Polymer({
+            publish: {
+                /**
+                 * Label displayed beneath the actual select element.
+                 *
+                 * @attribute label
+                 * @type string
+                 * @default ''
+                 */
+                label: '',
+                /**
+                 * Placeholder text displayed in the select element, if nothing has been selected.
+                 *
+                 * @attribute placeholder
+                 * @type string
+                 * @default 'Select an item'
+                 */
+                placeholder: 'Select an item',
+                /**
+                 * The objects backing the select.
+                 *
+                 * @attribute values
+                 * @type Array
+                 * @default []
+                 */
+                values: [],
+                /**
+                 * The selected item.
+                 *
+                 * @attribute selected
+                 * @type Object
+                 * @default {}
+                 */
+                selected: {}
+            },
             ready: function () {
-                // append the option tags to the select element
-                var options = this.$.options.getDistributedNodes();
-                for (var i = 0; i < options.length; i++) {
-                    var option = options[i];
-                    this.$.input.appendChild(option);
+                function getSelectedItemIndex() {
+                    for (var i = 0; i < this.values.length; i++) {
+                        if (this.values[i] === this.selected) {
+                            return i;
+                        }
+                    }
+                    return -1;
                 }
+
+                // set selected as index on core-menu
+                this.$.menu.selected = getSelectedItemIndex.call(this);
+            },
+            selectAction: function (e, detail) {
+                this.selected = this.values[this.$.menu.selected];
             }
         });
     </script>
