@@ -123,7 +123,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 return;
             }
             var content = document.importNode(templates[0].content, true);
-            workspace.setContent(widget.viewTarget, content);
+            workspace.addWidget(widget.viewTarget, content);
         });
         return workspace;
     };

@@ -26,18 +26,27 @@
                 height: 100%;
                 overflow: auto;
             }
-            
+
+            .hidden {
+                display: none;
+            }
+
         </style>
         <div id="container">
             <div id="header"></div>
-            <div class="widgetDropzone">
-                <div class="widget" id="widget1"></div>
-            </div>
-            <div class="widgetDropzone">
-                <div class="widget" id="widget2"></div>
-            </div>
-            <div class="widgetDropzone">
-                <div class="widget" id="widget3"></div>
+            <div id="widgets">
+                <div class="widgetDropzone hidden" id="widget1-dropzone">
+                    <div class="widget" id="widget1"></div>
+                </div>
+                <div class="widgetDropzone hidden" id="widget2-dropzone">
+                    <div class="widget" id="widget2"></div>
+                </div>
+                <div class="widgetDropzone hidden" id="widget3-dropzone">
+                    <div class="widget" id="widget3"></div>
+                </div>
+                <div class="widgetDropzone hidden" id="widget4-dropzone">
+                    <div class="widget" id="widget4"></div>
+                </div>
             </div>
             <div id="mainWorkspace"></div>
             <div id="footer"></div>
@@ -45,25 +54,37 @@
     </template>
     <script>
         Polymer({
+            addWidget: function (targetId, content) {
+                if (targetId.substr(0, 6) == 'widget') {
+                    console.log('is widget ');
+
+                    var targetDropzone = this.$[targetId + '-dropzone'];
+                    if (targetDropzone == null) {
+                        console.error('Parent dropzone for ' + targetId + ' not found');
+                        return;
+                    }
+                    // show the dropzone if a widget is present
+                    targetDropzone.classList.remove('hidden');
+
+                    var targets = targetDropzone.getElementsByClassName('widget');
+                    if (targets.length != 1) {
+                        console.error('The dropzone of ' + targetId + ' must only contain a single div for the widget itself.');
+                        return;
+                    }
+                    var target = targets[0];
+                    console.dir(target);
+
+                    // activate draggable and dropzones
+                    require(['core-dnd'], function (dnd) {
+                        dnd.makeDraggable(target);
+                        dnd.makeDropZone(targetDropzone);
+                    });
+                }
+
+                this.setContent(targetId, content);
+            },
             ready: function () {
                 console.log('workspace-layout touchwall is ready.');
-
-                var thisDocument = this.shadowRoot;
-                var dropzones = thisDocument.querySelectorAll('.widgetDropzone');
-                var draggables = thisDocument.querySelectorAll('.widget');
-
-                require(['core-dnd'], function (dnd) {
-                    [].forEach.call(dropzones, function (dropzone) {
-                        console.log('Activating dropzone');
-                        dnd.makeDropZone(dropzone, '.widget');
-                    });
-
-                    [].forEach.call(draggables, function (draggable) {
-                        console.log('Activating draggable');
-                        dnd.makeDraggable(draggable);
-                    });
-                });
-
             }
         });
     </script>
