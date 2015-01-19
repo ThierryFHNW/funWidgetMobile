@@ -547,12 +547,14 @@ require(['interact'], function (interact) {
 
         function _draggableEnableSnapping(element) {
             // snap to drag zone
-            interact(element).snap({
-                mode: 'anchor',
-                anchors: [],
-                range: Infinity,
-                elementOrigin: {x: 0.5, y: 0.5},
-                endOnly: true
+            interact(element).draggable({
+                snap: {
+                    mode: 'anchor',
+                    targets: [],
+                    range: Infinity,
+                    relativePoints: [{x: 0.5, y: 0.5}],
+                    endOnly: true
+                }
             });
             // revert back to starting point if not dropped in another drop zone
             interact(element).on('dragstart', function (event) {
@@ -564,7 +566,11 @@ require(['interact'], function (interact) {
                     y: rect.top + rect.height / 2
                 };
                 // snap to the start position
-                event.interactable.snap({anchors: [startPos]});
+                event.interactable.draggable({
+                    snap: {
+                        targets: [startPos]
+                    }
+                });
             });
         }
 
@@ -577,13 +583,19 @@ require(['interact'], function (interact) {
                         y: dropRect.top + dropRect.height / 2
                     };
 
-                event.draggable.snap({
-                    anchors: [dropCenter]
+                event.draggable.draggable({
+                    snap: {
+                        targets: [dropCenter]
+                    }
                 });
             });
             interact(element).on('dragleave', function (event) {
                 // snap to the start position
-                event.interactable.snap({anchors: [startPos]});
+                event.draggable.draggable({
+                    snap: {
+                        targets: [startPos]
+                    }
+                });
             });
         }
 
