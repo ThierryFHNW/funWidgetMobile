@@ -603,8 +603,6 @@ require(['interact'], function (interact) {
             interact(element).dropzone({
                 // only accept elements matching this CSS selector
                 accept: acceptSelector,
-                // Require a 50% element overlap for a drop to be possible
-                overlap: 0.5,
 
                 // listen for drop related events:
                 ondropactivate: function (event) {
@@ -658,10 +656,12 @@ require(['interact'], function (interact) {
                 onend: function (event) {
                     // reset z-index to the default value
                     event.target.style.zIndex = '';
+                    event.target.classList.remove('dragging');
                 },
                 onstart: function (event) {
                     // make sure the draggable is always over the other elements
                     event.target.style.zIndex = '100';
+                    event.target.classList.add('dragging');
                 }
             }).inertia(true);
 
