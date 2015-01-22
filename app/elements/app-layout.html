@@ -1,7 +1,7 @@
 <polymer-element name="app-layout">
     <script>
         Polymer({
-            setContent: function (targetId, content) {
+            addWidget: function (targetId, content) {
                 var target = this.shadowRoot.getElementById(targetId);
                 if (target) {
                     if (content) {
