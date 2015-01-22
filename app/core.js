@@ -599,6 +599,11 @@ require(['interact'], function (interact) {
             });
         }
 
+        /**
+         * Makes an element a drop-zone for a draggable.
+         * @param element The element to make a drop zone.
+         * @param acceptSelector The CSS selector a draggable needs to have in order to be accepted by this drop-zone.
+         */
         function _makeDropZone(element, acceptSelector) {
             interact(element).dropzone({
                 // only accept elements matching this CSS selector
@@ -635,8 +640,18 @@ require(['interact'], function (interact) {
             _dropZoneEnableSnapping(element);
         }
 
+        /**
+         * Makes an element a draggable.
+         * @param element The element to make draggable.
+         */
         function _makeDraggable(element) {
             interact(element).draggable({
+                inertia: {
+                    resistance: 30,
+                    minSpeed: 200,
+                    endSpeed: 100
+                },
+                enabled: false,
                 // call this function on every dragmove event
                 onmove: function (event) {
                     var target = event.target,
@@ -663,35 +678,42 @@ require(['interact'], function (interact) {
                     event.target.style.zIndex = '100';
                     event.target.classList.add('dragging');
                 }
-            }).inertia(true);
+            });
 
             _draggableEnableSnapping(element);
         }
 
+        /**
+         * Adds an event listener to the draggable or the drop-zone.
+         * See the interact.js documentation for a list of events.
+         * @param element The element to register the listener on.
+         * @param event The name of the event.
+         * @param callback The function that is called on the event.
+         */
         function _addInteractEventListener(element, event, callback) {
             interact(element).on(event, callback);
         }
 
+        /**
+         * reset the postion of the element.
+         * @param target The element to reposition
+         */
+        function _resetPosition(target) {
+                // translate the element
+                target.style.webkitTransform =
+                    target.style.transform =
+                        'translate(' + 0 + 'px, ' + 0 + 'px)';
+
+                // update the position attributes
+                target.setAttribute('data-x', 0);
+                target.setAttribute('data-y', 0);
+        }
+
         return {
-            /**
-             * Makes an element a draggable.
-             * @param element The element to make draggable.
-             */
             makeDraggable: _makeDraggable,
-            /**
-             * Makes an element a drop-zone for a draggable.
-             * @param element The element to make a drop zone.
-             * @param acceptSelector The CSS selector a draggable needs to have in order to be accepted by this drop-zone.
-             */
             makeDropZone: _makeDropZone,
-            /**
-             * Adds an event listener to the draggable or the drop-zone.
-             * See the interact.js documentation for a list of events.
-             * @param element The element to register the listener on.
-             * @param event The name of the event.
-             * @param callback The function that is called on the event.
-             */
-            addInteractEventListener: _addInteractEventListener
+            addInteractEventListener: _addInteractEventListener,
+            resetPosition: _resetPosition
         }
     });
 

@@ -92,25 +92,35 @@
     <script>
         (function () {
 
-            var draggableContent = null;
+            function switchWidgets(shadowRootA, shadowRootB) {
+                var rootAContent = [];
+                [].forEach.call(shadowRootA.children, function (e) {
+                    rootAContent.push(e);
+                });
+
+                var rootBContent = [];
+                [].forEach.call(shadowRootB.children, function (e) {
+                    rootBContent.push(e);
+                });
+
+                [].forEach.call(rootBContent, function (e) {
+                    shadowRootA.appendChild(e);
+                });
+
+                [].forEach.call(rootAContent, function (e) {
+                    shadowRootB.appendChild(e);
+                });
+            }
 
             function enableDropzone(dropzoneElement) {
                 require(['core-dnd'], function (dnd) {
                     dnd.makeDropZone(dropzoneElement, '.widget');
-                    dnd.addInteractEventListener(dropzoneElement, 'dragleave', function (event) {
-                        console.log('dragleave');
-                    });
-                    dnd.addInteractEventListener(dropzoneElement, 'dragenter', function (event) {
-                        console.log('drageneter');
-                        console.dir(event);
-                    });
                     dnd.addInteractEventListener(dropzoneElement, 'drop', function (event) {
-                        console.log('drop');
                         console.dir(event);
-                    });
-                    dnd.addInteractEventListener(dropzoneElement, 'dropmove', function (event) {
-                        console.log('dropmove');
-                        console.dir(event);
+                        switchWidgets(event.relatedTarget.shadowRoot, event.target.children[0].shadowRoot);
+                        // reposition draggables
+                        dnd.resetPosition(event.relatedTarget);
+                        dnd.resetPosition(event.target.children[0]);
                     });
                 });
             }
@@ -118,11 +128,6 @@
             function enableDraggable(target) {
                 require(['core-dnd'], function (dnd) {
                     dnd.makeDraggable(target);
-                    dnd.addInteractEventListener(target, 'dragstart', function (event) {
-                        console.log('dragstart');
-                        console.dir(event);
-                    });
-
                 });
             }
 
@@ -158,7 +163,6 @@
                         // activate draggable and dropzones
                         enableDraggable(target);
                         enableDropzone(targetDropzone);
-                        console.log('dropzone and draggable created');
                     }
 
                     this.super([targetId, content]);
