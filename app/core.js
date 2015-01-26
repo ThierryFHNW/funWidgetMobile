@@ -643,18 +643,23 @@ require(['interact'], function (interact) {
         /**
          * Makes an element a draggable.
          * @param element The element to make draggable.
+         * @param options Options to configure the draggable.
+         *      Implemented options:
+         *          clone: boolean  // clones the draggable element and appends it to document.body.
          */
-        function _makeDraggable(element) {
+        function _makeDraggable(element, options) {
+            if (options === undefined) {
+                options = {};
+            }
             interact(element).draggable({
                 inertia: {
                     resistance: 30,
                     minSpeed: 200,
                     endSpeed: 100
                 },
-                enabled: false,
                 // call this function on every dragmove event
                 onmove: function (event) {
-                    var target = event.target,
+                    var target = this.target,
                     // keep the dragged position in the data-x/data-y attributes
                         x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
                         y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
@@ -670,13 +675,30 @@ require(['interact'], function (interact) {
                 },
                 onend: function (event) {
                     // reset z-index to the default value
-                    event.target.style.zIndex = '';
-                    event.target.classList.remove('dragging');
+                    this.target.style.zIndex = '';
+                    this.target.classList.remove('dragging');
+
+                    // remove clone
+                    if (this.target !== event.target) {
+                        document.body.removeChild(this.target);
+                    }
                 },
                 onstart: function (event) {
+                    // clone if set in options
+                    if (options.hasOwnProperty('clone') === true) {
+                        this.target = event.target.cloneNode(true);
+                        // set absolute position to pointer
+                        this.target.style.left = event.clientX + 'px';
+                        this.target.style.top = event.clientY + 'px';
+                        this.target.style.position = 'absolute';
+                        document.body.appendChild(this.target);
+                    } else {
+                        this.target = event.target;
+                    }
+
                     // make sure the draggable is always over the other elements
-                    event.target.style.zIndex = '100';
-                    event.target.classList.add('dragging');
+                    this.target.style.zIndex = '100';
+                    this.target.classList.add('dragging');
                 }
             });
 
@@ -699,14 +721,14 @@ require(['interact'], function (interact) {
          * @param target The element to reposition
          */
         function _resetPosition(target) {
-                // translate the element
-                target.style.webkitTransform =
-                    target.style.transform =
-                        'translate(' + 0 + 'px, ' + 0 + 'px)';
+            // translate the element
+            target.style.webkitTransform =
+                target.style.transform =
+                    'translate(' + 0 + 'px, ' + 0 + 'px)';
 
-                // update the position attributes
-                target.setAttribute('data-x', 0);
-                target.setAttribute('data-y', 0);
+            // update the position attributes
+            target.setAttribute('data-x', 0);
+            target.setAttribute('data-y', 0);
         }
 
         return {
