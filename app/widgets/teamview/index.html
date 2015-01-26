@@ -1,27 +1,31 @@
 <template class="content">
-
-    <polymer-element name="ads-teamview">
-        <template>
-            <ads-widget>
-                <h2>Team</h2>
-                <template repeat="{{person in people}}">
-                    <avatar-card user="{{person}}"></avatar-card>
-                </template>
-            </ads-widget>
-
-            <app-globals id="globals"></app-globals>
-            <ads-rest-people id="rest" response="{{people}}" projectId="{{projectId}}"></ads-rest-people>
-        </template>
-        <script>
-            Polymer({
-                ready: function () {
-                    this.projectId = this.$.globals.routeParams.projectId;
-                    this.$.rest.go();
-                }
-            });
-        </script>
-    </polymer-element>
-
     <ads-teamview></ads-teamview>
-
 </template>
+
+<polymer-element name="ads-teamview">
+    <template>
+        <style>
+            ads-avatarcard {
+                margin: 2px;
+            }
+        </style>
+        <ads-widget>
+            <h2>Team</h2>
+
+            <template repeat="{{person in people}}">
+                <ads-avatarcard user="{{person}}"></ads-avatarcard>
+            </template>
+        </ads-widget>
+
+        <app-globals id="globals"></app-globals>
+        <ads-rest-people id="rest" response="{{people}}" projectId="{{projectId}}"></ads-rest-people>
+    </template>
+    <script>
+        Polymer({
+            ready: function () {
+                this.projectId = this.$.globals.routeParams.projectId;
+                this.$.rest.go();
+            }
+        });
+    </script>
+</polymer-element>

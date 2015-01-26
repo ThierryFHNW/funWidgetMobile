@@ -2,7 +2,7 @@
   "name": "Team widget",
   "description": "Shows the members of the project.",
   "elements": [
-    "avatar-card",
+    "ads-avatarcard",
     "ads-rest",
     "ads-widget"
   ]

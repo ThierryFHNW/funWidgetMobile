@@ -1,0 +1,24 @@
+<polymer-element name="ads-avatarcard" attributes="user">
+    <template>
+        <style>
+            #img {
+                position: relative;
+                width: 60px;
+                height: 60px;
+            }
+        </style>
+        <img id="img" class="avatar" src="{{user.avatar}}" alt="{{user.name}}" title="{{user.name}}">
+    </template>
+    <script>
+        Polymer({
+            ready: function () {
+                var img = this.$.img;
+                require(['core-dnd'], function (dnd) {
+                    dnd.makeDraggable(img, {
+                        clone: true
+                    });
+                });
+            }
+        });
+    </script>
+</polymer-element>

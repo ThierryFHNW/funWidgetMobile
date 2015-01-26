@@ -1,4 +1,4 @@
-<polymer-element name="ads-taskcard" attributes="task" noscript>
+<polymer-element name="ads-taskcard" attributes="task">
     <template>
         <style>
             :host {
@@ -20,12 +20,30 @@
                 margin: 0;
                 padding: 0;
             }
+
+            .drop-active {
+                background-color: #ffff00;
+            }
+
+            .drop-entered {
+                background-color: green;
+            }
         </style>
-        <ul>
+        <ul id="card">
             <li><b>{{task.name}}</b></li>
             <li>
                 <small>{{task.description}}</small>
             </li>
         </ul>
     </template>
+    <script>
+        Polymer({
+           ready: function() {
+               var dropzone = this.$.card;
+               require(['core-dnd'], function(dnd) {
+                    dnd.makeDropZone(dropzone, '.avatar');
+               });
+           }
+        });
+    </script>
 </polymer-element>
