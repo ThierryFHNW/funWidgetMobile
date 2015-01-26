@@ -543,8 +543,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 require(['interact'], function (interact) {
     define('core-dnd', function () {
 
-        var startPos = {x: 0, y: 0};
-
         function _draggableEnableSnapping(element) {
             // snap to drag zone
             interact(element).draggable({
@@ -561,14 +559,14 @@ require(['interact'], function (interact) {
                 var rect = interact.getElementRect(event.target);
 
                 // record center point when starting a drag
-                startPos = {
+                event.interactable.startPos = {
                     x: rect.left + rect.width / 2,
                     y: rect.top + rect.height / 2
                 };
                 // snap to the start position
                 event.interactable.draggable({
                     snap: {
-                        targets: [startPos]
+                        targets: [event.interactable.startPos]
                     }
                 });
             });
@@ -593,7 +591,7 @@ require(['interact'], function (interact) {
                 // snap to the start position
                 event.draggable.draggable({
                     snap: {
-                        targets: [startPos]
+                        targets: [event.draggable.startPos]
                     }
                 });
             });
