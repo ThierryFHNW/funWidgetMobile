@@ -487,10 +487,9 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
             if (this.config.hasOwnProperty('widgets') && Object.keys(this.config.widgets).length > 0) {
                 log(this.config.name + ' has free widgets');
-                var viewTargetWidget = 1;
                 for (var widgetName in this.config.widgets) {
                     if (this.config.widgets.hasOwnProperty(widgetName)) {
-                        widgetsToLoad[widgetName] = 'widget' + (viewTargetWidget++);
+                        widgetsToLoad[widgetName] = this.config.widgets[widgetName];
                     }
                 }
             }
