@@ -1,15 +1,13 @@
-// configuration of the available components (under components)
+// configuration of the available workspaces
 define('config', function () {
     return {
-        workspaces: {
-            available: [
-                'projectselect',
-                'sprintselect',
-                'workspaceselect',
-                'sprintplanning2',
-                'taskboard'
-            ]
-        }
+        workspaces: [
+            'projectselect',
+            'sprintselect',
+            'workspaceselect',
+            'sprintplanning2',
+            'taskboard'
+        ]
     }
 });
 
@@ -18,10 +16,10 @@ require(['config', 'core-loader', 'core-routing'], function (config, loader, rou
 
     // Map k: url path, v: workspaceConfig
     var urlPathToWorkspaceConfig = Object.create(null);
-    var numberOfWorkspaceConfigs = config.workspaces.available.length;
+    var numberOfWorkspaceConfigs = config.workspaces.length;
     var numberOfWorkspaceConfigsLoaded = 0;
 
-    config.workspaces.available.forEach(function (wConfigName) {
+    config.workspaces.forEach(function (wConfigName) {
         var wcLoader = loader.createWorkspaceConfigLoader();
         wcLoader.load(wConfigName, function (wConfig) {
             console.log('*** loaded workspaceConfig ' + wConfigName);

@@ -17,12 +17,20 @@
         };
 
         Polymer({
+            /**
+             * Set the routes for the application.
+             * @param urlPathToWorkspaceConfig A map of URL-paths to WorkspaceConfigs
+             */
             setRoutes: function (urlPathToWorkspaceConfig) {
                 for (var urlPath in urlPathToWorkspaceConfig) {
                     var route = new Route(urlPath, urlPathToWorkspaceConfig[urlPath]);
                     this.routes.push(route);
                 }
             },
+            /**
+             * Callback function.
+             * To be called when the fragment identifier (hashchange) has been changed.
+             */
             routeChanged: function () {
                 for (var i = 0; i < this.routes.length; i++) {
                     var route = this.routes[i];

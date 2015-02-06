@@ -443,14 +443,14 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
             // set the URL path
             if (!config.hasOwnProperty('path')) {
-                console.log('Error, the workspace config has no path attribute!');
+                console.error('Error, the workspace config has no path attribute!');
                 return;
             }
             this.workspaceConfig.path = config.path;
 
             // load layout
             if (!this.config.hasOwnProperty('layout')) {
-                log('Loading failed: WorkspaceConfig has no layout!');
+                console.error('Loading failed: WorkspaceConfig has no layout!');
                 return;
             }
             var layoutLoader = new LayoutLoader();
