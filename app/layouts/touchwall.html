@@ -144,7 +144,15 @@
                         return true;
                     }
 
-                    if (contains(targetId, 'widget') || contains(targetId, 'mainWorkspace')) {
+                    function isWidget(id) {
+                        return contains(id, 'widget');
+                    }
+
+                    function isMainWorkspace(id) {
+                        return contains(id, 'mainWorkspace')
+                    }
+
+                    if (isWidget(targetId)) {
                         console.log('is widget or mainWorkspace: ' + targetId);
 
                         var targetDropzone = this.$[targetId + '-dropzone'];
