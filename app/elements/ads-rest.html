@@ -1,62 +1,60 @@
-<polymer-element name="ads-rest-collection" hidden attributes="resource expand response auto">
-    <template>
-        <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}" handleAs="json"
-                   params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
-    </template>
+<polymer-element name="ads-rest-base" hidden>
     <script>
         (function () {
             // these variables are shared by all instances
-            var wsEventsUrl = 'ws://windows92.cs.technik.fhnw.ch/api/wsevents';
-//            var wsEventsUrl = 'ws://localhost:8001';
-            var wsEvents = new WebSocket(wsEventsUrl);
+            var awallUrl = 'ws://windows92.cs.technik.fhnw.ch/api/awall';
+            var awallEndpoint = new WebSocket(awallUrl);
 
 
-            wsEvents.onopen = function () {
+            awallEndpoint.onopen = function () {
                 console.log('connected');
             };
-            wsEvents.onmessage = function (evt) {
+            awallEndpoint.onmessage = function (evt) {
                 console.log(evt.data);
-                observers.forEach(function (observer) {
-                    observer(evt.data);
+                var data = JSON.parse(evt.data);
+                var type = data.resourceType;
+                if (!observers.hasOwnProperty(type)) {
+                    console.log('No observers are listening for changes of type ' + type);
+                    return;
+                }
+                observers[type].forEach(function (observer) {
+                    observer(data);
                 });
             };
-            wsEvents.onerror = function (evt) {
+            awallEndpoint.onerror = function (evt) {
                 console.log(evt.message);
             };
-            wsEvents.onclose = function () {
+            awallEndpoint.onclose = function () {
                 console.log('disconnected');
             };
 
-            function send(message) {
-                if (wsEvents.readyState == WebSocket.OPEN) {
-                    wsEvents.send(message);
-                } else {
-                    console.log('Connection is closed');
-                }
-            }
+//            function send(message) {
+//                if (awallEndpoint.readyState == WebSocket.OPEN) {
+//                    awallEndpoint.send(message);
+//                } else {
+//                    console.log('Connection is closed');
+//                }
+//            }
 
-            var observers = [];
+            var observers = {};
 
-            function registerObserver(observer) {
-                if (!(observer in observers)) {
-                    observers.push(observer);
+            function registerObserver(resource, observer) {
+                if (!observers.hasOwnProperty(resource)) {
+                    observers[resource] = [];
+                    observers[resource].push(observer);
+                } else if (!(observer in observers[resource])) {
+                    observers[resource].push(observer);
                 }
             }
 
             Polymer({
-                onLoaded: function () {
-                    if ('onDataChanged' in this) {
-                        registerObserver(this.onDataChanged);
-                    }
-                    this.response = this.$.ajax.response.items;
-                },
                 ready: function () {
+                    if ('onDataChanged' in this) {
+                        registerObserver(this.notificationType, this.onDataChanged.bind(this));
+                    }
                     if (this.auto !== undefined) {
                         this.go();
                     }
-                },
-                go: function () {
-                    this.$.ajax.go();
                 },
                 /**
                  *  Sets the parameters for the query.
@@ -70,6 +68,62 @@
                         params.expand = this.expand;
                     }
                     this.params = JSON.stringify(params);
+                },
+                /**
+                 * Callback called when something happened on the server and we are notified.
+                 * @param data
+                 */
+                onDataChanged: function (data) {
+                    function update() {
+                        if (this.response.constructor == Array) {
+                            console.log('Update collection');
+                            for (var i = 0; i < this.response.length; i++) {
+                                var obj = this.response[i];
+                                if (data.data.id === obj.id) {
+                                    this.response[i] = data.data;
+                                }
+                            }
+                        } else {
+                            console.log('Update single');
+                            if (this.response.id === data.data.id) {
+                                this.response = data.data;
+                            }
+                        }
+                    }
+
+                    console.log('new message: ' + data.resourceType + ': ' + data.action);
+                    console.dir(data.data);
+                    if (this.response === null || this.response === undefined) {
+                        console.error('Cannot update the model(s), the response was null or undefined!');
+                        return;
+                    }
+                    if ("Updated" == data.action) {
+                        console.log('Update');
+                        if (data.data === null) {
+                            console.error('data-property was null but should not be.');
+                            return;
+                        }
+                        update.call(this);
+                    }
+                }
+            });
+        })();
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-collection" extends="ads-rest-base" hidden attributes="resource expand response auto">
+    <template>
+        <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}" handleAs="json"
+                   params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
+    </template>
+    <script>
+        (function () {
+            Polymer({
+                onLoaded: function () {
+                    this.response = this.$.ajax.response.items;
+                },
+                go: function () {
+                    this.$.ajax.go();
                 },
                 /**
                  * Creates a resource on the server with an POST request.
@@ -94,14 +148,12 @@
 <polymer-element name="ads-rest-people" extends="ads-rest-collection" attributes="response auto expand projectId">
     <script>
         Polymer({
-            onDataChanged: function (msg) {
-                console.log('received message in ads-rest-people: ' + msg);
-            },
             go: function () {
                 this.setParams({project: this.projectId});
                 this.super();
             },
-            resource: "people"
+            resource: 'people',
+            notificationType: 'Person'
         });
     </script>
 </polymer-element>
@@ -113,7 +165,8 @@
                 this.setParams({project: this.projectId});
                 this.super();
             },
-            resource: "sprints"
+            resource: 'sprints',
+            notificationType: 'Sprint'
         });
     </script>
 </polymer-element>
@@ -131,7 +184,8 @@
                 });
                 this.super();
             },
-            resource: "userstories"
+            resource: 'userstories',
+            notificationType: 'UserStory'
         });
     </script>
 </polymer-element>
@@ -149,7 +203,8 @@
                 });
                 this.super();
             },
-            resource: "tasks"
+            resource: 'tasks',
+            notificationType: 'Task'
         });
     </script>
 </polymer-element>
@@ -164,7 +219,8 @@
                 });
                 this.super();
             },
-            resource: "taskStates"
+            resource: 'taskStates',
+            notificationType: 'TaskState'
         });
     </script>
 </polymer-element>
@@ -180,12 +236,14 @@
                 });
                 this.super();
             },
-            resource: "userStoryStates"
+            resource: 'userStoryStates',
+            notificationType: 'UserStoryState'
         });
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-single" hidden attributes="resource resourceId response expand auto">
+<polymer-element name="ads-rest-single" extends="ads-rest-base" hidden
+                 attributes="resource resourceId response expand auto">
     <template>
         <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}/{{resourceId}}" handleAs="json"
                    params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
@@ -194,11 +252,6 @@
         Polymer({
             onLoaded: function () {
                 this.response = this.$.ajax.response;
-            },
-            ready: function () {
-                if (this.auto !== undefined) {
-                    this.go();
-                }
             },
             go: function () {
                 this.setParams();
@@ -248,19 +301,6 @@
                 var ajax = this.$.ajax;
                 ajax.method = 'DELETE';
                 ajax.go();
-            },
-            /**
-             *  Sets the parameters for the query.
-             * @param params Map of parameter name and value
-             */
-            setParams: function (params) {
-                if (params == undefined) {
-                    params = Object.create(null);
-                }
-                if (this.expand != undefined) {
-                    params.expand = this.expand;
-                }
-                this.params = JSON.stringify(params);
             }
         });
     </script>
@@ -269,7 +309,8 @@
 <polymer-element name="ads-rest-project" extends="ads-rest-single" attributes="resourceId response expand auto">
     <script>
         Polymer({
-            resource: "projects"
+            resource: 'projects',
+            notificationType: 'Project'
         });
     </script>
 </polymer-element>
@@ -277,7 +318,8 @@
 <polymer-element name="ads-rest-sprint" extends="ads-rest-single" attributes="resourceId response expand auto">
     <script>
         Polymer({
-            resource: "sprints"
+            resource: 'sprints',
+            notificationType: 'Sprint'
         });
     </script>
 </polymer-element>
@@ -285,7 +327,8 @@
 <polymer-element name="ads-rest-person" extends="ads-rest-single" attributes="resourceId response expand auto">
     <script>
         Polymer({
-            resource: "people"
+            resource: 'people',
+            notificationType: 'Person'
         });
     </script>
 </polymer-element>
@@ -293,7 +336,8 @@
 <polymer-element name="ads-rest-userstory" extends="ads-rest-single" attributes="resourceId response expand auto">
     <script>
         Polymer({
-            resource: "userstories"
+            resource: 'userstories',
+            notificationType: 'UserStory'
         });
     </script>
 </polymer-element>
@@ -301,7 +345,8 @@
 <polymer-element name="ads-rest-task" extends="ads-rest-single" attributes="resourceId response expand auto">
     <script>
         Polymer({
-            resource: "tasks"
+            resource: 'tasks',
+            notificationType: 'Task'
         });
     </script>
 </polymer-element>
@@ -309,7 +354,8 @@
 <polymer-element name="ads-rest-taskstate" extends="ads-rest-single" attributes="resourceId response auto">
     <script>
         Polymer({
-            resource: "taskStates"
+            resource: 'taskStates',
+            notificationType: 'TaskState'
         });
     </script>
 </polymer-element>
@@ -317,7 +363,8 @@
 <polymer-element name="ads-rest-userstorystate" extends="ads-rest-single" attributes="resourceId response auto">
     <script>
         Polymer({
-            resource: "userStoryStates"
+            resource: 'userStoryStates',
+            notificationType: 'UserStoryState'
         });
     </script>
 </polymer-element>
