@@ -475,16 +475,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
             }
             widgetsToLoad[this.config.mainWorkspace] = 'mainWorkspace';
 
-            if (this.config.hasOwnProperty('sideWorkspaceLeft') && this.config.sideWorkspaceLeft) {
-                log(this.config.name + ' has a side workspace left');
-                widgetsToLoad[this.config.sideWorkspaceLeft] = 'sideWorkspaceLeft';
-            }
-
-            if (this.config.hasOwnProperty('sideWorkspaceRight') && this.config.sideWorkspaceRight) {
-                log(this.config.name + ' has a side workspace right');
-                widgetsToLoad[this.config.sideWorkspaceRight] = 'sideWorkspaceRight';
-            }
-
             if (this.config.hasOwnProperty('widgets') && Object.keys(this.config.widgets).length > 0) {
                 log(this.config.name + ' has free widgets');
                 for (var widgetName in this.config.widgets) {

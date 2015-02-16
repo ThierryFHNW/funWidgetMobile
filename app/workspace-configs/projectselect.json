@@ -4,8 +4,6 @@
   "path": ".*",
   "layout": "single",
   "mainWorkspace": "projectselect",
-  "sideWorkspaceLeft": "",
-  "sideWorkspaceRight": "",
   "widgets": {
   }
 }

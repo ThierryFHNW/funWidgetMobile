@@ -4,8 +4,6 @@
   "path": "/project/:projectId",
   "layout": "single",
   "mainWorkspace": "sprintselect",
-  "sideWorkspaceLeft": "",
-  "sideWorkspaceRight": "",
   "widgets": {
   }
 }

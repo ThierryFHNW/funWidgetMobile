@@ -4,8 +4,6 @@
   "path": "/project/:projectId/sprint/:sprintId/sp2",
   "layout": "touchwall",
   "mainWorkspace": "sprintplanning2",
-  "sideWorkspaceLeft": "",
-  "sideWorkspaceRight": "",
   "widgets": {
     "teamview": "widget1",
     "sprintinfo": "widget2"
