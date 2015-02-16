@@ -74,36 +74,55 @@
                  * @param data
                  */
                 onDataChanged: function (data) {
-                    function update() {
-                        if (this.response.constructor == Array) {
-                            console.log('Update collection');
-                            for (var i = 0; i < this.response.length; i++) {
-                                var obj = this.response[i];
-                                if (data.data.id === obj.id) {
-                                    this.response[i] = data.data;
-                                }
-                            }
-                        } else {
-                            console.log('Update single');
-                            if (this.response.id === data.data.id) {
-                                this.response = data.data;
-                            }
-                        }
-                    }
-
                     console.log('new message: ' + data.resourceType + ': ' + data.action);
                     console.dir(data.data);
                     if (this.response === null || this.response === undefined) {
-                        console.error('Cannot update the model(s), the response was null or undefined!');
+//                        console.error('Cannot update the model(s), the response was null or undefined!');
                         return;
                     }
-                    if ("Updated" == data.action) {
-                        console.log('Update');
-                        if (data.data === null) {
-                            console.error('data-property was null but should not be.');
-                            return;
-                        }
-                        update.call(this);
+                    switch (data.action) {
+                        case 'Updated':
+                            console.log('Updated');
+                            if (data.data === null) {
+                                console.error('data-property was null but should not be.');
+                                return;
+                            }
+                            if (!('onUpdated' in this)) {
+                                console.error('No onUpdated function available.');
+                                return;
+                            }
+                            this.onUpdated(data.data);
+                            break;
+                        case 'Created':
+                            console.log('Created');
+                            if (data.data === null) {
+                                console.error('data-property was null but should not be.');
+                                return;
+                            }
+                            // only collections
+                            if (this.response.constructor === Array) {
+                                if (!('onCreated' in this)) {
+                                    console.error('No onCreated function available.');
+                                    return;
+                                }
+                                this.onCreated(data.data);
+                            }
+                            break;
+                        case 'Deleted':
+                            console.log('Deleted');
+                            if (data.data === null) {
+                                console.error('data-property was null but should not be.');
+                                return;
+                            }
+                            // only collections
+                            if (this.response.constructor === Array) {
+                                if (!('onDeleted' in this)) {
+                                    console.error('No onDeleted function available.');
+                                    return;
+                                }
+                                this.onDeleted(data.data);
+                            }
+                            break;
                     }
                 }
             });
@@ -121,6 +140,62 @@
             Polymer({
                 onLoaded: function () {
                     this.response = this.$.ajax.response.items;
+                },
+                onUpdated: function (data) {
+                    if (this.response != null && this.response.length > 0) {
+                        if (!('isInTheSameCollection' in this)) {
+                            console.error('Missing isInTheSameCollection function for ' + this);
+                            return;
+                        }
+
+                        var wasInTheCollection = false;
+                        for (var index = 0; index < this.response.length; index++) {
+                            if (data.id === this.response[index].id) {
+                                wasInTheCollection = true;
+                                if (this.isInTheSameCollection(data)) {
+                                    // Update of scalar properties.
+                                    this.response[index] = data;
+                                } else {
+                                    // Update removes it from this collection.
+                                    this.response.splice(index, 1);
+                                }
+                                break;
+                            }
+                        }
+
+                        // if it was not in the appropriate collection
+                        if (!wasInTheCollection && this.isInTheSameCollection(data)) {
+                            this.response.push(data);
+                        }
+
+                    }
+
+                },
+                onCreated: function (data) {
+                    if (this.response != null && this.response.length > 0) {
+                        if (!('isInTheSameCollection' in this)) {
+                            console.error('Missing isInTheSameCollection function for ' + this);
+                            return;
+                        }
+                        if (this.isInTheSameCollection(data)) {
+                            this.response.push(data);
+                        }
+                    }
+                },
+                onDeleted: function (data) {
+                    if (this.response != null && this.response.length > 0) {
+                        if (!('isInTheSameCollection' in this)) {
+                            console.error('Missing isInTheSameCollection function for ' + this);
+                            return;
+                        }
+                        if (this.isInTheSameCollection(data)) {
+                            for (var index = 0; index < this.response.length; index++) {
+                                if (this.response[index].id == data.id) {
+                                    this.response.splice(index, 1);
+                                }
+                            }
+                        }
+                    }
                 },
                 go: function () {
                     this.$.ajax.go();
@@ -152,6 +227,9 @@
                 this.setParams({project: this.projectId});
                 this.super();
             },
+            isInTheSameCollection: function (data) {
+                return !(this.projectId != undefined && data.project.id != this.projectId);
+            },
             resource: 'people',
             notificationType: 'Person'
         });
@@ -164,6 +242,10 @@
             go: function () {
                 this.setParams({project: this.projectId});
                 this.super();
+            },
+            isInTheSameCollection: function (data) {
+                return !(this.projectId != undefined && data.project.id != this.projectId);
+
             },
             resource: 'sprints',
             notificationType: 'Sprint'
@@ -184,6 +266,21 @@
                 });
                 this.super();
             },
+            isInTheSameCollection: function (data) {
+                if (this.authorId != undefined && data.author.id != this.authorId) {
+                    return false;
+                }
+                if (this.ownerId != undefined && data.owner.id != this.ownerId) {
+                    return false;
+                }
+                if (this.sprintId != undefined && data.sprint.id != this.sprintId) {
+                    return false;
+                }
+                if (this.stateId != undefined && data.state.id != this.stateId) {
+                    return false;
+                }
+                return true;
+            },
             resource: 'userstories',
             notificationType: 'UserStory'
         });
@@ -203,6 +300,21 @@
                 });
                 this.super();
             },
+            isInTheSameCollection: function (data) {
+                if (this.authorId != undefined && data.author.id != this.authorId) {
+                    return false;
+                }
+                if (this.assigneeId != undefined && data.assignee.id != this.assigneeId) {
+                    return false;
+                }
+                if (this.userStoryId != undefined && data.userStory.id != this.userStoryId) {
+                    return false;
+                }
+                if (this.stateId != undefined && data.state.id != this.stateId) {
+                    return false;
+                }
+                return true;
+            },
             resource: 'tasks',
             notificationType: 'Task'
         });
@@ -218,6 +330,15 @@
                     task: this.taskId
                 });
                 this.super();
+            },
+            isInTheSameCollection: function (data) {
+                if (this.projectId != undefined && data.project.id != this.projectId) {
+                    return false;
+                }
+                if (this.taskId != undefined && data.task.id != this.taskId) {
+                    return false;
+                }
+                return true;
             },
             resource: 'taskStates',
             notificationType: 'TaskState'
@@ -236,6 +357,15 @@
                 });
                 this.super();
             },
+            isInTheSameCollection: function (data) {
+                if (this.projectId != undefined && data.project.id != this.projectId) {
+                    return false;
+                }
+                if (this.userStoryId != undefined && data.userStory.id != this.userStoryId) {
+                    return false;
+                }
+                return true;
+            },
             resource: 'userStoryStates',
             notificationType: 'UserStoryState'
         });
@@ -252,6 +382,12 @@
         Polymer({
             onLoaded: function () {
                 this.response = this.$.ajax.response;
+            },
+            onUpdated: function (data) {
+                console.log('Update single');
+                if (this.response.id === data.id) {
+                    this.response = data;
+                }
             },
             go: function () {
                 this.setParams();
