@@ -28,13 +28,13 @@
                 console.log('disconnected');
             };
 
-//            function send(message) {
-//                if (awallEndpoint.readyState == WebSocket.OPEN) {
-//                    awallEndpoint.send(message);
-//                } else {
-//                    console.log('Connection is closed');
-//                }
-//            }
+            function send(message) {
+                if (awallEndpoint.readyState == WebSocket.OPEN) {
+                    awallEndpoint.send(message);
+                } else {
+                    console.log('Connection is closed');
+                }
+            }
 
             var observers = {};
 
@@ -49,11 +49,20 @@
 
             Polymer({
                 ready: function () {
-                    if ('onDataChanged' in this) {
-                        registerObserver(this.notificationType, this.onDataChanged.bind(this));
+                    if ('resourceType' in this) {
+                        this.registerObserverFor(this.resourceType);
                     }
                     if (this.auto !== undefined) {
                         this.go();
+                    }
+                },
+                /**
+                 * Registers the onDataChanged method for the given resource type.
+                 * @param resourceType The type for which to get events.
+                 */
+                registerObserverFor: function (resourceType) {
+                    if ('onDataChanged' in this) {
+                        registerObserver(resourceType, this.onDataChanged.bind(this));
                     }
                 },
                 /**
@@ -71,19 +80,19 @@
                 },
                 /**
                  * Callback called when something happened on the server and we are notified.
-                 * @param data
+                 * @param event
                  */
-                onDataChanged: function (data) {
-                    console.log('new message: ' + data.resourceType + ': ' + data.action);
-                    console.dir(data.data);
+                onDataChanged: function (event) {
+                    console.log('new message: ' + event.resourceType + ': ' + event.action);
+                    console.dir(event.data);
                     if (this.response === null || this.response === undefined) {
 //                        console.error('Cannot update the model(s), the response was null or undefined!');
                         return;
                     }
-                    switch (data.action) {
+                    switch (event.action) {
                         case 'Updated':
                             console.log('Updated');
-                            if (data.data === null) {
+                            if (event.data === null) {
                                 console.error('data-property was null but should not be.');
                                 return;
                             }
@@ -91,11 +100,11 @@
                                 console.error('No onUpdated function available.');
                                 return;
                             }
-                            this.onUpdated(data.data);
+                            this.onUpdated(event.data);
                             break;
                         case 'Created':
                             console.log('Created');
-                            if (data.data === null) {
+                            if (event.data === null) {
                                 console.error('data-property was null but should not be.');
                                 return;
                             }
@@ -105,12 +114,12 @@
                                     console.error('No onCreated function available.');
                                     return;
                                 }
-                                this.onCreated(data.data);
+                                this.onCreated(event.data);
                             }
                             break;
                         case 'Deleted':
                             console.log('Deleted');
-                            if (data.data === null) {
+                            if (event.data === null) {
                                 console.error('data-property was null but should not be.');
                                 return;
                             }
@@ -120,15 +129,125 @@
                                     console.error('No onDeleted function available.');
                                     return;
                                 }
-                                this.onDeleted(data.data);
+                                this.onDeleted(event.data);
                             }
                             break;
                     }
+                },
+                /**
+                 * Sends a message to the awall controller via WebSocket.
+                 * @param data The object to send. Will be converted to JSON.
+                 */
+                send: function (data) {
+                    var json = JSON.stringify(data);
+                    send(json);
                 }
             });
         })();
     </script>
 </polymer-element>
+
+
+
+<polymer-element name="ads-rest-awall" extends="ads-rest-base">
+    <script>
+        Polymer({
+            /**
+             * Create a temporary task.
+             * @param task The task to create.
+             */
+            createTempTask: function (task) {
+                this.send({
+                    'action': 'CreateTemp',
+                    'resourceType': 'Task',
+                    'data': task
+                });
+            },
+            /**
+             * Delete a temporary task.
+             * @param task The task to delete.
+             */
+            deleteTempTask: function (task) {
+                this.send({
+                    'action': 'DeleteTemp',
+                    'resourceType': 'Task',
+                    'data': task
+                });
+            },
+            /**
+             * Persist a temporary task.
+             * @param task The task to persist.
+             */
+            persistTempTask: function (task) {
+                this.send({
+                    'action': 'PersistTemp',
+                    'resourceType': 'Task',
+                    'data': task
+                });
+            },
+            /**
+             * Get all temporary tasks.
+             */
+            getAllTempTasks: function () {
+                this.send({
+                    'action': 'GetAllTemp',
+                    'resourceType': 'Task'
+                });
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-rest-awall-sp2" extends="ads-rest-awall">
+    <script>
+        Polymer({
+            publish: {
+                tasks: []
+            },
+            ready: function () {
+                this.registerObserverFor('Task');
+                this.getAllTempTasks();
+            },
+            /**
+             * Overwritten callback to handle events.
+             * @param event
+             */
+            onDataChanged: function (event) {
+                console.log('new message: ' + event.resourceType + ': ' + event.action);
+                console.dir(event.data);
+
+                function isTask(data) {
+                    return data.resourceType == 'Task';
+                }
+
+                switch (event.action) {
+                    case 'CreatedTemp':
+                        console.log('Created temp');
+                        if (isTask(event)) {
+                            this.tasks.push(event.data);
+                        }
+                        break;
+                    case 'DeletedTemp':
+                        console.log('Deleted temp');
+                        if (isTask(event)) {
+                            var index = this.tasks.indexOf(event.data);
+                            if (index > -1) {
+                                this.tasks.splice(index, 1);
+                            }
+                        }
+                        break;
+                    case 'GetAllTemp':
+                        console.log('Get all temp');
+                        if (isTask(event)) {
+                            this.tasks = event.data;
+                        }
+                        break;
+                }
+            }
+        });
+    </script>
+</polymer-element>
+
 
 <polymer-element name="ads-rest-collection" extends="ads-rest-base" hidden attributes="resource expand response auto">
     <template>
@@ -231,7 +350,7 @@
                 return !(this.projectId != undefined && data.project.id != this.projectId);
             },
             resource: 'people',
-            notificationType: 'Person'
+            resourceType: 'Person'
         });
     </script>
 </polymer-element>
@@ -248,7 +367,7 @@
 
             },
             resource: 'sprints',
-            notificationType: 'Sprint'
+            resourceType: 'Sprint'
         });
     </script>
 </polymer-element>
@@ -282,7 +401,7 @@
                 return true;
             },
             resource: 'userstories',
-            notificationType: 'UserStory'
+            resourceType: 'UserStory'
         });
     </script>
 </polymer-element>
@@ -316,7 +435,7 @@
                 return true;
             },
             resource: 'tasks',
-            notificationType: 'Task'
+            resourceType: 'Task'
         });
     </script>
 </polymer-element>
@@ -341,7 +460,7 @@
                 return true;
             },
             resource: 'taskStates',
-            notificationType: 'TaskState'
+            resourceType: 'TaskState'
         });
     </script>
 </polymer-element>
@@ -367,7 +486,7 @@
                 return true;
             },
             resource: 'userStoryStates',
-            notificationType: 'UserStoryState'
+            resourceType: 'UserStoryState'
         });
     </script>
 </polymer-element>
@@ -446,7 +565,7 @@
     <script>
         Polymer({
             resource: 'projects',
-            notificationType: 'Project'
+            resourceType: 'Project'
         });
     </script>
 </polymer-element>
@@ -455,7 +574,7 @@
     <script>
         Polymer({
             resource: 'sprints',
-            notificationType: 'Sprint'
+            resourceType: 'Sprint'
         });
     </script>
 </polymer-element>
@@ -464,7 +583,7 @@
     <script>
         Polymer({
             resource: 'people',
-            notificationType: 'Person'
+            resourceType: 'Person'
         });
     </script>
 </polymer-element>
@@ -473,7 +592,7 @@
     <script>
         Polymer({
             resource: 'userstories',
-            notificationType: 'UserStory'
+            resourceType: 'UserStory'
         });
     </script>
 </polymer-element>
@@ -482,7 +601,7 @@
     <script>
         Polymer({
             resource: 'tasks',
-            notificationType: 'Task'
+            resourceType: 'Task'
         });
     </script>
 </polymer-element>
@@ -491,7 +610,7 @@
     <script>
         Polymer({
             resource: 'taskStates',
-            notificationType: 'TaskState'
+            resourceType: 'TaskState'
         });
     </script>
 </polymer-element>
@@ -500,7 +619,7 @@
     <script>
         Polymer({
             resource: 'userStoryStates',
-            notificationType: 'UserStoryState'
+            resourceType: 'UserStoryState'
         });
     </script>
 </polymer-element>

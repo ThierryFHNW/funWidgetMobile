@@ -7,7 +7,6 @@
                 -moz-box-sizing: border-box;
                 -webkit-user-select: none;
                 -moz-user-select: none;
-                overflow: hidden;
                 background: white;
                 padding: 30px 42px;
                 outline: 1px solid rgba(0, 0, 0, 0.2);
@@ -55,7 +54,7 @@
             <h1>{{action}} User-Story</h1>
 
             <app-field-text label="Name" placeholder="Name of the user-story"
-                            value="{{userstory.name}}"></app-field-text>
+                            value="{{userstory.name}}" autofocus></app-field-text>
             <app-field-textarea label="Description" placeholder="Describe the user-story"
                                 value="{{userstory.description}}"></app-field-textarea>
             <app-field-textarea label="Acceptance Citeria" placeholder="When is the user-story done?"
@@ -119,7 +118,8 @@
         <ads-form id="form">
             <h1>{{action}} Task</h1>
 
-            <app-field-text label="Name" placeholder="Name of the task" value="{{task.name}}"></app-field-text>
+            <app-field-text label="Name" placeholder="Name of the task" value="{{task.name}}"
+                            autofocus></app-field-text>
             <app-field-textarea label="Description" placeholder="Describe the user-story"
                                 value="{{task.description}}"></app-field-textarea>
             <app-field-text type="number" label="Estimate" placeholder="Estimated work"
@@ -180,6 +180,56 @@
             onDelete: function () {
                 console.log('Deleting the task');
                 this.$.rest.remove(this.task);
+                this.$.form.toggle();
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-form-temp-task" attributes="userstory">
+    <template>
+        <ads-form id="form">
+            <h1>{{action}} Task</h1>
+
+            <app-field-text label="Name" placeholder="Name of the task" value="{{task.name}}"
+                            autofocus></app-field-text>
+            <app-field-textarea label="Description" placeholder="Describe the user-story"
+                                value="{{task.description}}"></app-field-textarea>
+            <app-field-text type="number" label="Estimate" placeholder="Estimated work"
+                            value="{{task.estimate}}"></app-field-text>
+            <app-field-select label="User-Story" placeholder="Assign to user-story" selected="{{task.userStory}}"
+                              values="{{userstories}}"></app-field-select>
+
+            <button id="save" on-tap="{{onSave}}">Save</button>
+            <button id="delete" on-tap="{{onDelete}}" hidden="{{task == undefined}}">Delete</button>
+        </ads-form>
+
+        <app-globals id="globals"></app-globals>
+        <ads-rest-userstories id="restUs" sprintId="{{sprintId}}" response="{{userstories}}"></ads-rest-userstories>
+        <ads-rest-awall id="awall"></ads-rest-awall>
+    </template>
+    <script>
+        Polymer({
+            ready: function () {
+                this.sprintId = this.$.globals.routeParams.sprintId;
+                this.$.restUs.go();
+            },
+            open: function () {
+                this.action = 'Create Temp';
+                this.task = {};
+                if (this.userstory !== undefined) {
+                    this.task.userStory = this.userstory
+                }
+                this.$.form.toggle();
+            },
+            onSave: function () {
+                console.dir(this.task);
+                this.$.awall.createTempTask(this.task);
+                this.$.form.toggle();
+            },
+            onDelete: function () {
+                console.log('Deleting the task');
+                this.$.awall.deleteTempTask(this.task);
                 this.$.form.toggle();
             }
         });
