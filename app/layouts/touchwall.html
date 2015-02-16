@@ -117,7 +117,6 @@
                 require(['core-dnd'], function (dnd) {
                     dnd.makeDropZone(dropzoneElement, '.widget');
                     dnd.addInteractEventListener(dropzoneElement, 'drop', function (event) {
-                        console.dir(event);
                         switchWidgets(event.relatedTarget.shadowRoot, event.target.children[0].shadowRoot);
                         // reposition draggables
                         dnd.resetPosition(event.relatedTarget);

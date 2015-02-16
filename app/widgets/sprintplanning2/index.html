@@ -1,19 +1,65 @@
+<template class="content">
+    <ads-sp2></ads-sp2>
+</template>
+
 <polymer-element name="ads-sp2">
     <template>
+        <style>
+            .container {
+                display: flex;
+                flex-direction: row;
+            }
+
+            .productBacklog {
+                flex: 0 0 15%;
+                border: dashed 1px #000000;
+            }
+
+            .sprintBacklog {
+                flex: 0 0 50%;
+                border: dashed 1px #000000;
+            }
+
+            .tempTasks {
+                flex: 0 0 35%;
+                border: dashed 1px #000000;
+            }
+
+            h3 {
+                padding-left: 10px;
+            }
+        </style>
         <ads-widget>
             <h2>Sprintplanning 2</h2>
-            <template repeat="{{story in userstories}}">
-                <ads-userstorycard userstory="{{story}}"></ads-userstorycard>
-            </template>
 
-            <!--<ads-rest-tasks userStoryId="{{story.id}}" response="{{tasks}}" auto></ads-rest-tasks>-->
-            <!--<template repeat="{{task in tasks}}">-->
-                <!--<ads-taskcard task="{{task}}"></ads-taskcard>-->
-            <!--</template>-->
+            <div class="container">
+                <div class="productBacklog">
+                    <h3>Product Backlog</h3>
+                    <template repeat="{{story in userstories | noPriority}}">
+                        <ads-userstorycard userstory="{{story}}"></ads-userstorycard>
+                    </template>
+                    <core-icon-button icon="add" on-tap="{{onAddUserStorytap}}">Add User Story</core-icon-button>
+                    <ads-form-userstory id="usForm"></ads-form-userstory>
+                </div>
+                <div class="sprintBacklog">
+                    <h3>Sprint Backlog</h3>
+                    <template repeat="{{story in userstories | withPriority}}">
+                        <ads-userstorycard userstory="{{story}}"></ads-userstorycard>
+                    </template>
+                </div>
+                <div class="tempTasks">
+                    <h3>Tasks</h3>
+                    <template repeat="{{task in tasks}}">
+                        <ads-taskcard task="{{task}}"></ads-taskcard>
+                    </template>
+                    <ads-form-temp-task id="taskForm"></ads-form-temp-task>
 
-
+                    <core-icon-button icon="add" on-tap="{{onAddTempTaskTap}}">Add Temp Task</core-icon-button>
+                </div>
+            </div>
         </ads-widget>
         <app-globals id="globals"></app-globals>
+        <ads-rest-awall-sp2 tasks="{{tasks}}"></ads-rest-awall-sp2>
         <ads-rest-userstories id="usEndpoint" sprintId="{{sprintId}}"
                               response="{{userstories}}"></ads-rest-userstories>
     </template>
@@ -22,11 +68,28 @@
             ready: function () {
                 this.sprintId = this.$.globals.routeParams.sprintId;
                 this.$.usEndpoint.go();
+            },
+            onAddTempTaskTap: function() {
+                this.$.taskForm.open();
+            },
+            onAddUserStorytap: function() {
+                this.$.usForm.open();
+            },
+            noPriority: function (values) {
+                if (values != null) {
+                    return values.filter(function (value) {
+                        return value.priority == null;
+                    });
+                }
+            },
+            withPriority: function (values) {
+                if (values != null) {
+                    return values.filter(function (value) {
+                        return value.priority != null;
+                    });
+                }
             }
         });
+
     </script>
 </polymer-element>
-
-<template class="content">
-    <ads-sp2></ads-sp2>
-</template>
