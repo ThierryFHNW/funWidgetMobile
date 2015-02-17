@@ -9,6 +9,20 @@ body {
     background-color: #1f497d;
 }
 
+/*
+ * Added to elements that support dropping the currently dragging element into them.
+ */
+html /deep/ .drop-active {
+    background-color: #ffff00 !important;
+}
+
+/*
+ * Added to elements into which the currently dragging element can be dropped.
+ */
+html /deep/ .drop-entered {
+    background-color: green !important;
+}
+
 html /deep/ core-field {
     border: 1px solid #ddd;
     margin: 10px 0 10px 0;
