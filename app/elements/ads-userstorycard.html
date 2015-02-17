@@ -1,7 +1,7 @@
-<polymer-element name="ads-userstorycard" attributes="userstory" noscript>
+<polymer-element name="ads-userstorycard">
     <template>
         <style>
-            :host {
+            #container {
                 float: left;
                 overflow: hidden;
                 height: 75px;
@@ -20,14 +20,40 @@
                 padding: 0;
             }
         </style>
-        <ul>
-            <li><b>{{userstory.name}}</b></li>
-            <li>
-                <small>Prio: {{userstory.priority}}</small>
-            </li>
-            <li>
-                <small>{{userstory.description}}</small>
-            </li>
-        </ul>
+        <div id="container" class="userstorycard">
+            <ul>
+                <li><b>{{userstory.name}}</b></li>
+                <li>
+                    <small>Prio: {{userstory.priority}}</small>
+                </li>
+                <li>
+                    <small>{{userstory.description}}</small>
+                </li>
+            </ul>
+        </div>
     </template>
+    <script>
+        Polymer({
+            publish: {
+                userstory: undefined,
+
+                /**
+                 * Disables draggable functionality if true.
+                 * Default: false.
+                 */
+                disableDraggable: false
+            },
+            domReady: function () {
+                if (!this.disableDraggable) {
+                    var container = this.$.container;
+                    require(['core-dnd'], function (dnd) {
+                        dnd.makeDraggable(container, {
+                            clone: true
+                        });
+                    });
+                }
+
+            }
+        });
+    </script>
 </polymer-element>

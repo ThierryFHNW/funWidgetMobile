@@ -1,7 +1,7 @@
-<polymer-element name="ads-taskcard" attributes="task">
+<polymer-element name="ads-taskcard">
     <template>
         <style>
-            :host {
+            #container {
                 float: left;
                 overflow: hidden;
                 height: 60px;
@@ -20,30 +20,43 @@
                 margin: 0;
                 padding: 0;
             }
-
-            .drop-active {
-                background-color: #ffff00;
-            }
-
-            .drop-entered {
-                background-color: green;
-            }
         </style>
-        <ul id="card">
-            <li><b>{{task.name}}</b></li>
-            <li>
-                <small>{{task.description}}</small>
-            </li>
-        </ul>
+        <div id="container" class="taskcard">
+            <ul>
+                <li><b>{{task.name}}</b></li>
+                <li>
+                    <small>{{task.description}}</small>
+                </li>
+            </ul>
+        </div>
     </template>
     <script>
         Polymer({
-           ready: function() {
-               var dropzone = this.$.card;
-               require(['core-dnd'], function(dnd) {
-                    dnd.makeDropZone(dropzone, '.avatar');
-               });
-           }
+            publish: {
+                task: undefined,
+
+                /**
+                 * Disables draggable functionality if true.
+                 * Default: false.
+                 */
+                disableDraggable: false
+            },
+            domReady: function () {
+                // dropzone for avatars
+                var container = this.$.container;
+                require(['core-dnd'], function (dnd) {
+                    dnd.makeDropZone(container, '.avatar');
+                });
+                // draggable
+                if (!this.disableDraggable) {
+                    require(['core-dnd'], function (dnd) {
+                        dnd.makeDraggable(container, {
+                            clone: true
+                        });
+                    });
+                }
+
+            }
         });
     </script>
 </polymer-element>
