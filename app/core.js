@@ -674,6 +674,19 @@ require(['interact'], function (interact) {
                     // clone if set in options
                     if (options.hasOwnProperty('clone') === true) {
                         this.target = event.target.cloneNode(true);
+                        // copy style definitions recursively
+                        function applyStyle(source, target) {
+                            var completeStyle = window.getComputedStyle(source, null).cssText;
+                            target.style.cssText = completeStyle;
+                            if (target.childElementCount > 0) {
+                                for (var i = 0; i < source.childElementCount; i++) {
+                                    applyStyle(source.children[i], target.children[i]);
+                                }
+                            }
+                        }
+
+                        applyStyle(event.target, this.target);
+
                         // set absolute position to pointer
                         this.target.style.left = event.clientX + 'px';
                         this.target.style.top = event.clientY + 'px';
