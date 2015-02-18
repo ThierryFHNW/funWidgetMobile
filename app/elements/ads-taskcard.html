@@ -1,3 +1,5 @@
+<link rel="import" href="../ads-rest.html">
+
 <polymer-element name="ads-taskcard">
     <template>
         <style>
@@ -25,10 +27,14 @@
             <ul>
                 <li><b>{{task.name}}</b></li>
                 <li>
+                    <small><b>{{task.assignee.name}}</b></small>
+                </li>
+                <li>
                     <small>{{task.description}}</small>
                 </li>
             </ul>
         </div>
+        <ads-rest-task id="rest"></ads-rest-task>
     </template>
     <script>
         Polymer({
@@ -44,11 +50,15 @@
             domReady: function () {
                 // capture variables
                 var container = this.$.container;
-                var draggableData = this.task;
+                var task = this.task;
+                var rest = this.$.rest;
 
                 // dropzone for avatars
                 require(['core-dnd'], function (dnd) {
-                    dnd.makeDropZone(container, '.avatar', draggableData);
+                    dnd.makeDropZone(container, '.avatar', function(data) {
+                        task.assignee = data;
+                        rest.save(task);
+                    });
                 });
 
                 // make draggable
@@ -56,7 +66,7 @@
                     require(['core-dnd'], function (dnd) {
                         dnd.makeDraggable(container, {
                             clone: true,
-                            data: draggableData
+                            data: task
                         });
                     });
                 }
