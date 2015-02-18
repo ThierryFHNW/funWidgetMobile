@@ -44,11 +44,10 @@
             <core-icon-button icon="add" on-tap="{{addUserStoryTabHandler}}">Add User Story</core-icon-button>
             <ads-form-userstory id="usForm"></ads-form-userstory>
 
-
-            <table class="table table-striped table-equal-width">
+            <table class="table">
                 <thead>
                 <tr>
-                    <th class="story-column"></th>
+                    <th></th>
                     <template repeat="{{state in taskstates}}">
                         <th><h3>{{state.name}}</h3></th>
                     </template>
@@ -58,7 +57,7 @@
                 <template repeat="{{userstory in userstories}}">
                     <tr>
                         <td class="story-column">
-                            <ads-userstorycard userstory="{{userstory}}"
+                            <ads-userstorycard userstory="{{userstory}}" disableDraggable
                                                on-dblclick="{{usCardDblClickHandler}}"></ads-userstorycard>
                         </td>
                         <template repeat="{{state in taskstates}}">
@@ -103,6 +102,6 @@
         </template>
 
         <ads-rest-tasks userStoryId="{{userstoryId}}" stateId="{{taskstate.id}}" response="{{tasks}}"
-                        auto></ads-rest-tasks>
+                        auto expand="all"></ads-rest-tasks>
     </template>
 </polymer-element>
