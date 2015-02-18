@@ -42,16 +42,21 @@
                 disableDraggable: false
             },
             domReady: function () {
-                // dropzone for avatars
+                // capture variables
                 var container = this.$.container;
+                var draggableData = this.task;
+
+                // dropzone for avatars
                 require(['core-dnd'], function (dnd) {
-                    dnd.makeDropZone(container, '.avatar');
+                    dnd.makeDropZone(container, '.avatar', draggableData);
                 });
-                // draggable
+
+                // make draggable
                 if (!this.disableDraggable) {
                     require(['core-dnd'], function (dnd) {
                         dnd.makeDraggable(container, {
-                            clone: true
+                            clone: true,
+                            data: draggableData
                         });
                     });
                 }

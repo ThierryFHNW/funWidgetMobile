@@ -12,10 +12,14 @@
     <script>
         Polymer({
             ready: function () {
+                // capture variables
                 var img = this.$.img;
+                var draggableData = this.user;
+
                 require(['core-dnd'], function (dnd) {
                     dnd.makeDraggable(img, {
-                        clone: true
+                        clone: true,
+                        data: draggableData
                     });
                 });
             }

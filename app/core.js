@@ -589,9 +589,10 @@ require(['interact'], function (interact) {
         /**
          * Makes an element a drop-zone for a draggable.
          * @param element The element to make a drop zone.
-         * @param acceptSelector The CSS selector a draggable needs to have in order to be accepted by this drop-zone.
+         * @param acceptSelector The CSS selector a draggable must have in order to be accepted by this drop-zone.
+         * @param onDropCallback Called when a draggable has been accepted and dropped in this dropzone.
          */
-        function _makeDropZone(element, acceptSelector) {
+        function _makeDropZone(element, acceptSelector, onDropCallback) {
             interact(element).dropzone({
                 // only accept elements matching this CSS selector
                 accept: acceptSelector,
@@ -615,6 +616,10 @@ require(['interact'], function (interact) {
                     event.relatedTarget.classList.remove('can-drop');
                 },
                 ondrop: function (event) {
+                    if (onDropCallback != undefined) {
+                        // call the callback with the data of the interaction set by the draggable in onstart.
+                        onDropCallback(event.interaction.data);
+                    }
                 },
                 ondropdeactivate: function (event) {
                     // remove active dropzone feedback
@@ -631,8 +636,10 @@ require(['interact'], function (interact) {
          * Makes an element a draggable.
          * @param element The element to make draggable.
          * @param options Options to configure the draggable.
-         *      Implemented options:
+         *      Available options:
          *          clone: boolean  // clones the draggable element and appends it to document.body.
+         *          data: object // the data to attach to the interaction. Will be available to the dropzone in ondrop.
+         *
          */
         function _makeDraggable(element, options) {
             if (options === undefined) {
@@ -671,13 +678,17 @@ require(['interact'], function (interact) {
                     }
                 },
                 onstart: function (event) {
+                    // attach data to the interaction
+                    if (options.hasOwnProperty('data')) {
+                        event.interaction.data = options.data;
+                    }
+
                     // clone if set in options
                     if (options.hasOwnProperty('clone') === true) {
                         this.target = event.target.cloneNode(true);
                         // copy style definitions recursively
                         function applyStyle(source, target) {
-                            var completeStyle = window.getComputedStyle(source, null).cssText;
-                            target.style.cssText = completeStyle;
+                            target.style.cssText = window.getComputedStyle(source, null).cssText;
                             if (target.childElementCount > 0) {
                                 for (var i = 0; i < source.childElementCount; i++) {
                                     applyStyle(source.children[i], target.children[i]);

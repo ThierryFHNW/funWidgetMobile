@@ -44,11 +44,16 @@
                 disableDraggable: false
             },
             domReady: function () {
+                // capture variables
+                var container = this.$.container;
+                var draggableData = this.userstory;
+
+                // make draggable
                 if (!this.disableDraggable) {
-                    var container = this.$.container;
                     require(['core-dnd'], function (dnd) {
                         dnd.makeDraggable(container, {
-                            clone: true
+                            clone: true,
+                            data: draggableData
                         });
                     });
                 }
