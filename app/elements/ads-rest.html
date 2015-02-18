@@ -10,15 +10,17 @@
                 console.log('connected');
             };
             awallEndpoint.onmessage = function (evt) {
-                console.log(evt.data);
-                var data = JSON.parse(evt.data);
-                var type = data.resourceType;
+                var message = JSON.parse(evt.data);
+                console.log('New WebSocket-message: ' + message.resourceType + ': ' + message.action);
+                console.dir(message);
+
+                var type = message.resourceType;
                 if (!observers.hasOwnProperty(type)) {
                     console.log('No observers are listening for changes of type ' + type);
                     return;
                 }
                 observers[type].forEach(function (observer) {
-                    observer(data);
+                    observer(message);
                 });
             };
             awallEndpoint.onerror = function (evt) {
@@ -63,7 +65,7 @@
                     if ('resourceType' in this) {
                         this.registerObserverFor(this.resourceType);
                     }
-                    if (this.auto !== undefined) {
+                    if (this.auto) {
                         this.go();
                     }
                 },
@@ -74,6 +76,8 @@
                 registerObserverFor: function (resourceType) {
                     if ('onDataChanged' in this) {
                         registerObserver(resourceType, this.onDataChanged.bind(this));
+                    } else {
+                        console.error('No onDataChanged-function available.');
                     }
                 },
                 /**
@@ -94,8 +98,6 @@
                  * @param event
                  */
                 onDataChanged: function (event) {
-                    console.log('new message: ' + event.resourceType + ': ' + event.action);
-                    console.dir(event.data);
                     if (this.response === null || this.response === undefined) {
                         return;
                     }
@@ -222,9 +224,6 @@
              * @param event
              */
             onDataChanged: function (event) {
-                console.log('new message: ' + event.resourceType + ': ' + event.action);
-                console.dir(event.data);
-
                 function isTask(data) {
                     return data.resourceType == 'Task';
                 }
@@ -239,10 +238,11 @@
                     case 'DeletedTemp':
                         console.log('Deleted temp');
                         if (isTask(event)) {
-                            var index = this.tasks.indexOf(event.data);
-                            if (index > -1) {
-                                this.tasks.splice(index, 1);
-                            }
+                            this.tasks.forEach(function (task, index, array) {
+                                if (event.data.name == task.name) {
+                                    array.splice(index, 1);
+                                }
+                            });
                         }
                         break;
                     case 'GetAllTemp':
@@ -258,7 +258,7 @@
 </polymer-element>
 
 
-<polymer-element name="ads-rest-collection" extends="ads-rest-base" hidden attributes="resource expand response auto">
+<polymer-element name="ads-rest-collection" extends="ads-rest-base" hidden>
     <template>
         <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}" handleAs="json"
                    params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
@@ -266,10 +266,29 @@
     <script>
         (function () {
             Polymer({
+                publish: {
+                    /**
+                     * The url part that names the resource (e.g. tasks like in example.com/api/tasks)
+                     */
+                    resource: undefined,
+                    /**
+                     * The expand query-parameter.
+                     */
+                    expand: undefined,
+                    /**
+                     * The response from the request.
+                     */
+                    response: [],
+                    /**
+                     * If true, the query will be fired as son as the element is ready.
+                     */
+                    auto: false
+                },
                 onLoaded: function () {
                     this.response = this.$.ajax.response.items;
                 },
                 onUpdated: function (data) {
+                    console.log('Update collection ' + this.resourceType);
                     if (this.response != null && this.response.length > 0) {
                         if (!('isInTheSameCollection' in this)) {
                             console.error('Missing isInTheSameCollection function for ' + this);
@@ -348,9 +367,15 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-people" extends="ads-rest-collection" attributes="response auto expand projectId">
+<polymer-element name="ads-rest-people" extends="ads-rest-collection">
     <script>
         Polymer({
+            publish: {
+                response: [],
+                auto: false,
+                expand: undefined,
+                projectId: undefined
+            },
             go: function () {
                 this.setParams({project: this.projectId});
                 this.super();
@@ -364,9 +389,15 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-sprints" extends="ads-rest-collection" attributes="response auto expand projectId">
+<polymer-element name="ads-rest-sprints" extends="ads-rest-collection">
     <script>
         Polymer({
+            publish: {
+                response: [],
+                auto: false,
+                expand: undefined,
+                projectId: undefined
+            },
             go: function () {
                 this.setParams({project: this.projectId});
                 this.super();
@@ -381,10 +412,18 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-userstories" extends="ads-rest-collection"
-                 attributes="response auto expand authorId ownerId sprintId stateId">
+<polymer-element name="ads-rest-userstories" extends="ads-rest-collection">
     <script>
         Polymer({
+            publish: {
+                response: [],
+                auto: false,
+                expand: undefined,
+                authorId: undefined,
+                ownerId: undefined,
+                sprintId: undefined,
+                stateId: undefined
+            },
             go: function () {
                 this.setParams({
                     author: this.authorId,
@@ -415,10 +454,18 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-tasks" extends="ads-rest-collection"
-                 attributes="response auto expand authorId assigneeId userStoryId stateId">
+<polymer-element name="ads-rest-tasks" extends="ads-rest-collection">
     <script>
         Polymer({
+            publish: {
+                response: [],
+                auto: false,
+                expand: undefined,
+                authorId: undefined,
+                assigneeId: undefined,
+                userStoryId: undefined,
+                stateId: undefined
+            },
             go: function () {
                 this.setParams({
                     author: this.authorId,
@@ -449,9 +496,15 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-taskstates" extends="ads-rest-collection" attributes="response auto projectId taskId">
+<polymer-element name="ads-rest-taskstates" extends="ads-rest-collection">
     <script>
         Polymer({
+            publish: {
+                response: [],
+                auto: false,
+                projectId: undefined,
+                taskId: undefined
+            },
             go: function () {
                 this.setParams({
                     project: this.projectId,
@@ -474,10 +527,15 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-userstorystates" extends="ads-rest-collection"
-                 attributes="response auto projectId userStoryId">
+<polymer-element name="ads-rest-userstorystates" extends="ads-rest-collection">
     <script>
         Polymer({
+            publish: {
+                response: [],
+                auto: false,
+                projectId: undefined,
+                userStoryId: undefined
+            },
             go: function () {
                 this.setParams({
                     project: this.projectId,
@@ -500,14 +558,35 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-single" extends="ads-rest-base" hidden
-                 attributes="resource resourceId response expand auto">
+<polymer-element name="ads-rest-single" extends="ads-rest-base" hidden>
     <template>
         <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}/{{resourceId}}" handleAs="json"
                    params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
     </template>
     <script>
         Polymer({
+            publish: {
+                /**
+                 * The url part that names the resource (e.g. tasks like in example.com/api/tasks)
+                 */
+                resource: undefined,
+                /**
+                 * The id of the resource (e.g. 22 like in example.com/api/tasks/22)
+                 */
+                resourceId: undefined,
+                /**
+                 * The response from the request.
+                 */
+                response: {},
+                /**
+                 * The expand query-parameter.
+                 */
+                expand: undefined,
+                /**
+                 * If true, the query will be fired as son as the element is ready.
+                 */
+                auto: false
+            },
             onLoaded: function () {
                 this.response = this.$.ajax.response;
             },
@@ -570,63 +649,103 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-project" extends="ads-rest-single" attributes="resourceId response expand auto">
+<polymer-element name="ads-rest-project" extends="ads-rest-single">
     <script>
         Polymer({
+            publish: {
+                response: {},
+                auto: false,
+                expand: undefined,
+                resourceId: undefined
+            },
             resource: 'projects',
             resourceType: 'Project'
         });
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-sprint" extends="ads-rest-single" attributes="resourceId response expand auto">
+<polymer-element name="ads-rest-sprint" extends="ads-rest-single">
     <script>
         Polymer({
+            publish: {
+                response: {},
+                auto: false,
+                expand: undefined,
+                resourceId: undefined
+            },
             resource: 'sprints',
             resourceType: 'Sprint'
         });
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-person" extends="ads-rest-single" attributes="resourceId response expand auto">
+<polymer-element name="ads-rest-person" extends="ads-rest-single">
     <script>
         Polymer({
+            publish: {
+                response: {},
+                auto: false,
+                expand: undefined,
+                resourceId: undefined
+            },
             resource: 'people',
             resourceType: 'Person'
         });
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-userstory" extends="ads-rest-single" attributes="resourceId response expand auto">
+<polymer-element name="ads-rest-userstory" extends="ads-rest-single">
     <script>
         Polymer({
+            publish: {
+                response: {},
+                auto: false,
+                expand: undefined,
+                resourceId: undefined
+            },
             resource: 'userstories',
             resourceType: 'UserStory'
         });
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-task" extends="ads-rest-single" attributes="resourceId response expand auto">
+<polymer-element name="ads-rest-task" extends="ads-rest-single">
     <script>
         Polymer({
+            publish: {
+                response: {},
+                auto: false,
+                expand: undefined,
+                resourceId: undefined
+            },
             resource: 'tasks',
             resourceType: 'Task'
         });
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-taskstate" extends="ads-rest-single" attributes="resourceId response auto">
+<polymer-element name="ads-rest-taskstate" extends="ads-rest-single">
     <script>
         Polymer({
+            publish: {
+                response: {},
+                auto: false,
+                resourceId: undefined
+            },
             resource: 'taskStates',
             resourceType: 'TaskState'
         });
     </script>
 </polymer-element>
 
-<polymer-element name="ads-rest-userstorystate" extends="ads-rest-single" attributes="resourceId response auto">
+<polymer-element name="ads-rest-userstorystate" extends="ads-rest-single">
     <script>
         Polymer({
+            publish: {
+                response: {},
+                auto: false,
+                resourceId: undefined
+            },
             resource: 'userStoryStates',
             resourceType: 'UserStoryState'
         });
