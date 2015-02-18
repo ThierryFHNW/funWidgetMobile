@@ -26,14 +26,25 @@
             };
             awallEndpoint.onclose = function () {
                 console.log('disconnected');
+                connect();
             };
 
+            function connect() {
+                awallEndpoint = new WebSocket(awallUrl);
+            }
+
             function send(message) {
-                if (awallEndpoint.readyState == WebSocket.OPEN) {
-                    awallEndpoint.send(message);
-                } else {
-                    console.log('Connection is closed');
+                function doSend() {
+                    if (awallEndpoint.readyState == WebSocket.OPEN) {
+                        awallEndpoint.send(message);
+                    } else {
+                        console.log('Cannot send: Connection is closed. Trying again in 200ms.');
+                        setTimeout(doSend, 200);
+                        connect();
+                    }
                 }
+
+                doSend();
             }
 
             var observers = {};
@@ -86,7 +97,6 @@
                     console.log('new message: ' + event.resourceType + ': ' + event.action);
                     console.dir(event.data);
                     if (this.response === null || this.response === undefined) {
-//                        console.error('Cannot update the model(s), the response was null or undefined!');
                         return;
                     }
                     switch (event.action) {
@@ -146,7 +156,6 @@
         })();
     </script>
 </polymer-element>
-
 
 
 <polymer-element name="ads-rest-awall" extends="ads-rest-base">
