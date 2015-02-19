@@ -48,7 +48,7 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-form-userstory" attributes="userstory">
+<polymer-element name="ads-form-userstory">
     <template>
         <ads-form id="form">
             <h1>{{action}} User-Story</h1>
@@ -69,7 +69,7 @@
                               selected="{{userstory.state}}"></app-field-select>
 
             <button id="save" on-tap="{{onSave}}">Save</button>
-            <button id="delete" on-tap="{{onDelete}}" hidden="{{userstory == undefined}}">Delete</button>
+            <button id="delete" on-tap="{{onDelete}}">Delete</button>
         </ads-form>
 
         <app-globals id="globals"></app-globals>
@@ -81,8 +81,12 @@
     </template>
     <script>
         Polymer({
+            publish: {
+                userstory: {}
+            },
             ready: function () {
                 this.projectId = this.$.globals.routeParams.projectId;
+                this.$.delete.hidden = this.userstory.id === undefined;
                 this.$.restPeople.go();
                 this.$.restStates.go();
             },
@@ -113,7 +117,7 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-form-task" attributes="task userstory">
+<polymer-element name="ads-form-task">
     <template>
         <ads-form id="form">
             <h1>{{action}} Task</h1>
@@ -136,7 +140,7 @@
                               values="{{userstories}}"></app-field-select>
 
             <button id="save" on-tap="{{onSave}}">Save</button>
-            <button id="delete" on-tap="{{onDelete}}" hidden="{{task == undefined}}">Delete</button>
+            <button id="delete" on-tap="{{onDelete}}">Delete</button>
         </ads-form>
 
         <app-globals id="globals"></app-globals>
@@ -149,9 +153,14 @@
     </template>
     <script>
         Polymer({
+            publish: {
+                task: {},
+                userstory: {}
+            },
             ready: function () {
                 this.projectId = this.$.globals.routeParams.projectId;
                 this.sprintId = this.$.globals.routeParams.sprintId;
+                this.$.delete.hidden = this.task.id === undefined;
                 this.$.restPeople.go();
                 this.$.restStates.go();
                 this.$.restUs.go();
@@ -186,7 +195,7 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-form-temp-task" attributes="userstory">
+<polymer-element name="ads-form-temp-task">
     <template>
         <ads-form id="form">
             <h1>Create Temp Task</h1>
@@ -199,7 +208,7 @@
                             value="{{task.estimate}}"></app-field-text>
 
             <button id="save" on-tap="{{onSave}}">Save</button>
-            <button id="delete" on-tap="{{onDelete}}" hidden="{{task == undefined}}">Delete</button>
+            <button id="delete" on-tap="{{onDelete}}">Delete</button>
         </ads-form>
 
         <app-globals id="globals"></app-globals>
@@ -207,8 +216,11 @@
     </template>
     <script>
         Polymer({
+            publish: {
+                task: {}
+            },
             open: function () {
-                this.task = {};
+                this.$.delete.hidden = this.task.id === undefined;
                 this.$.form.toggle();
             },
             onSave: function () {
