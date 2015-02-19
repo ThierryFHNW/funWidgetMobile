@@ -36,12 +36,14 @@
             }
 
             function send(message) {
+                var wait = 100;
                 function doSend() {
                     if (awallEndpoint.readyState == WebSocket.OPEN) {
                         awallEndpoint.send(message);
                     } else {
-                        console.log('Cannot send: Connection is closed. Trying again in 200ms.');
-                        setTimeout(doSend, 200);
+                        console.log('Cannot send: Connection is closed. Trying again in ' + wait + 'ms.');
+                        setTimeout(doSend, wait);
+                        wait += 250;
                         connect();
                     }
                 }
