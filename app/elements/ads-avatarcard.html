@@ -16,8 +16,8 @@
                 var img = this.$.img;
                 var draggableData = this.user;
 
-                require(['core-dnd'], function (dnd) {
-                    dnd.makeDraggable(img, {
+                require(['core-touch'], function (touch) {
+                    touch.makeDraggable(img, {
                         clone: true,
                         data: draggableData
                     });

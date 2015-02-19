@@ -1,3 +1,5 @@
+<link rel="import" href="ads-form.html">
+
 <polymer-element name="ads-userstorycard">
     <template>
         <style>
@@ -31,6 +33,7 @@
                 </li>
             </ul>
         </div>
+        <ads-form-userstory id="form" userstory="{{userstory}}"></ads-form-userstory>
     </template>
     <script>
         Polymer({
@@ -47,17 +50,24 @@
                 // capture variables
                 var container = this.$.container;
                 var draggableData = this.userstory;
+                var form = this.$.form;
 
                 // make draggable
                 if (!this.disableDraggable) {
-                    require(['core-dnd'], function (dnd) {
-                        dnd.makeDraggable(container, {
+                    require(['core-touch'], function (touch) {
+                        touch.makeDraggable(container, {
                             clone: true,
                             data: draggableData
                         });
                     });
                 }
 
+                // doubletap to show form
+                require(['core-touch'], function (touch) {
+                    touch.onDoubleTap(container, function (event) {
+                        form.open();
+                    })
+                });
             }
         });
     </script>

@@ -57,8 +57,7 @@
                 <template repeat="{{userstory in userstories}}">
                     <tr>
                         <td class="story-column">
-                            <ads-userstorycard userstory="{{userstory}}" disableDraggable
-                                               on-dblclick="{{usCardDblClickHandler}}"></ads-userstorycard>
+                            <ads-userstorycard userstory="{{userstory}}" disableDraggable></ads-userstorycard>
                         </td>
                         <template repeat="{{state in taskstates}}">
                             <td>
@@ -85,10 +84,6 @@
             },
             addUserStoryTabHandler: function () {
                 this.$.usForm.userstory = undefined;
-                this.$.usForm.open();
-            },
-            usCardDblClickHandler: function (evt, detail, target) {
-                this.$.usForm.userstory = target.userstory_;
                 this.$.usForm.open();
             }
         });

@@ -83,6 +83,11 @@
                                 </td>
                             </tr>
                         </template>
+                        <tr>
+                            <td colspan="2">
+                                <awall-sp2-us-dropzone></awall-sp2-us-dropzone>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -155,9 +160,9 @@
                 var userstory = this.userstory;
 
                 // enable dropzone
-                require(['core-dnd'], function (dnd) {
+                require(['core-touch'], function (touch) {
                     console.log('enable dropzone ...');
-                    dnd.makeDropZone(dropzone, '.taskcard', function (data) {
+                    touch.makeDropZone(dropzone, '.taskcard', function (data) {
                         if (data.userStory != undefined) {
                             // is existing task
                             console.error('Moving a task to another user-story is not possible (backend limitation).');
@@ -183,3 +188,29 @@
     </template>
 </polymer-element>
 
+<polymer-element name="awall-sp2-us-dropzone">
+    <template>
+        <style>
+            #container {
+                height: 75px;
+                width: 100%;
+            }
+        </style>
+        <div id="container"></div>
+    </template>
+    <script>
+        Polymer({
+            domReady: function() {
+                // capture variables
+                var container = this.$.container;
+
+                require(['core-touch'], function(touch) {
+                    touch.makeDropZone(container, '.userstorycard', function(data) {
+                        console.log('backlogged a userstory:');
+                        console.dir(data);
+                    });
+                });
+            }
+        });
+    </script>
+</polymer-element>

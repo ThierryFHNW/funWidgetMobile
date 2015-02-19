@@ -525,12 +525,12 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
 
 /**
- * core-dnd
+ * core-touch
  *
  * Provides drag and drop support provided by interact.js.
  */
 require(['interact'], function (interact) {
-    define('core-dnd', function () {
+    define('core-touch', function () {
 
         function _draggableEnableSnapping(element) {
             // snap to drag zone
@@ -746,7 +746,10 @@ require(['interact'], function (interact) {
             makeDraggable: _makeDraggable,
             makeDropZone: _makeDropZone,
             addInteractEventListener: _addInteractEventListener,
-            resetPosition: _resetPosition
+            resetPosition: _resetPosition,
+            onDoubleTap: function (element, callback) {
+                interact(element).on('doubletap', callback);
+            }
         }
     });
 

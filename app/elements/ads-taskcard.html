@@ -1,4 +1,5 @@
 <link rel="import" href="ads-rest.html">
+<link rel="import" href="ads-form.html">
 
 <polymer-element name="ads-taskcard">
     <template>
@@ -35,6 +36,7 @@
             </ul>
         </div>
         <ads-rest-task id="rest"></ads-rest-task>
+        <ads-form-task id="form" task="{{task}}" userstory="{{task.userStory}}"></ads-form-task>
     </template>
     <script>
         Polymer({
@@ -52,10 +54,11 @@
                 var container = this.$.container;
                 var task = this.task;
                 var rest = this.$.rest;
+                var form = this.$.form;
 
                 // dropzone for avatars
-                require(['core-dnd'], function (dnd) {
-                    dnd.makeDropZone(container, '.avatar', function(data) {
+                require(['core-touch'], function (touch) {
+                    touch.makeDropZone(container, '.avatar', function(data) {
                         task.assignee = data;
                         rest.save(task);
                     });
@@ -63,14 +66,20 @@
 
                 // make draggable
                 if (!this.disableDraggable) {
-                    require(['core-dnd'], function (dnd) {
-                        dnd.makeDraggable(container, {
+                    require(['core-touch'], function (touch) {
+                        touch.makeDraggable(container, {
                             clone: true,
                             data: task
                         });
                     });
                 }
 
+                // doubletap to show form
+                require(['core-touch'], function (touch) {
+                    touch.onDoubleTap(container, function(event) {
+                        form.open();
+                    })
+                });
             }
         });
     </script>
