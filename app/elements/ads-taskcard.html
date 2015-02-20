@@ -1,7 +1,7 @@
 <link rel="import" href="ads-rest.html">
 <link rel="import" href="ads-form.html">
 
-<polymer-element name="ads-taskcard">
+<polymer-element name="ads-taskcard-base">
     <template>
         <style>
             #container {
@@ -35,8 +35,6 @@
                 </li>
             </ul>
         </div>
-        <ads-rest-task id="rest"></ads-rest-task>
-        <ads-form-task id="form" task="{{task}}" userstory="{{task.userStory}}"></ads-form-task>
     </template>
     <script>
         Polymer({
@@ -53,16 +51,6 @@
                 // capture variables
                 var container = this.$.container;
                 var task = this.task;
-                var rest = this.$.rest;
-                var form = this.$.form;
-
-                // dropzone for avatars
-                require(['core-touch'], function (touch) {
-                    touch.makeDropZone(container, '.avatar', function(data) {
-                        task.assignee = data;
-                        rest.save(task);
-                    });
-                });
 
                 // make draggable
                 if (!this.disableDraggable) {
@@ -74,12 +62,78 @@
                     });
                 }
 
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-taskcard" extends="ads-taskcard-base">
+    <template>
+        <shadow></shadow>
+        <ads-rest-task id="rest"></ads-rest-task>
+        <ads-form-task id="form" task="{{task}}" userstory="{{task.userStory}}"></ads-form-task>
+    </template>
+    <script>
+        Polymer({
+            domReady: function () {
+                this.super();
+                // capture variables
+                var container = this.$.container;
+                var task = this.task;
+                var rest = this.$.rest;
+                var form = this.$.form;
+
+                // dropzone for avatars
+                require(['core-touch'], function (touch) {
+                    touch.makeDropZone(container, '.avatar', function (data) {
+                        task.assignee = data;
+                        rest.save(task);
+                    });
+                });
+
                 // doubletap to show form
                 require(['core-touch'], function (touch) {
-                    touch.onDoubleTap(container, function(event) {
+                    touch.onDoubleTap(container, function (event) {
                         form.open();
                     })
                 });
+
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="ads-temp-taskcard" extends="ads-taskcard-base">
+    <template>
+        <style>
+             ::content .taskcard {
+                 background: repeating-linear-gradient(
+                         -45deg,
+                         transparent,
+                         transparent 10px,
+                         #d7d8df 10px,
+                         #d7d8df 20px
+                 );
+            }
+        </style>
+        <shadow></shadow>
+        <ads-form-temp-task id="form" task="{{task}}"></ads-form-temp-task>
+    </template>
+    <script>
+        Polymer({
+            domReady: function () {
+                this.super();
+                // capture variables
+                var container = this.$.container;
+                var form = this.$.form;
+
+                // doubletap to show form
+                require(['core-touch'], function (touch) {
+                    touch.onDoubleTap(container, function (event) {
+                        form.open();
+                    })
+                });
+
             }
         });
     </script>

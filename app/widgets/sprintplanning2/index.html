@@ -93,8 +93,8 @@
                 </div>
                 <div class="tempTasks">
                     <h3>Tasks</h3>
-                    <template repeat="{{task in tasks}}">
-                        <ads-taskcard task="{{task}}"></ads-taskcard>
+                    <template repeat="{{task in tempTasks}}">
+                        <ads-temp-taskcard task="{{task}}"></ads-temp-taskcard>
                     </template>
                     <ads-form-temp-task id="taskForm"></ads-form-temp-task>
 
@@ -103,7 +103,7 @@
             </div>
         </ads-widget>
         <app-globals id="globals"></app-globals>
-        <ads-rest-awall-sp2 tasks="{{tasks}}"></ads-rest-awall-sp2>
+        <ads-rest-awall-sp2 tasks="{{tempTasks}}"></ads-rest-awall-sp2>
         <ads-rest-userstories id="usEndpoint" sprintId="{{sprintId}}"
                               response="{{userstories}}"></ads-rest-userstories>
     </template>
