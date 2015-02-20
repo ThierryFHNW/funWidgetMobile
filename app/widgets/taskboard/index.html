@@ -54,7 +54,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <template repeat="{{userstory in userstories}}">
+                <template repeat="{{userstory in userstories | orderBy('priority')}}">
                     <tr>
                         <td class="story-column">
                             <ads-userstorycard userstory="{{userstory}}" disableDraggable></ads-userstorycard>

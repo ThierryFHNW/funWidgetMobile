@@ -71,7 +71,7 @@
                     <h3>Sprint Backlog</h3>
                     <table class="table">
                         <tbody>
-                        <template repeat="{{story in userstories | withPriority}}">
+                        <template repeat="{{story in userstories | withPriority | orderBy('priority')}}">
                             <tr>
                                 <td>
                                     <ads-userstorycard userstory="{{story}}" disableDraggable></ads-userstorycard>
