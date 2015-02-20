@@ -2,7 +2,7 @@
     <template>
         <core-field>
             <label for="input">{{label}}</label>
-            <core-dropdown-menu label="{{placeholder}}">
+            <core-dropdown-menu label="{{placeholder}}" disabled?="{{disabled}}">
                 <core-dropdown class="dropdown">
                     <core-menu id="menu" on-core-select="{{selectAction}}">
                         <template repeat="{{value in values}}">
@@ -47,12 +47,22 @@
                  * @type Object
                  * @default {}
                  */
-                selected: {}
+                selected: {},
+                /**
+                 * Disable the field so it can't be changed.
+                 *
+                 * @attribute disabled
+                 * @type boolean
+                 * @default false
+                 */
+                disabled: false
             },
-            ready: function () {
+            // Gets called by polymer if the attribute values changes.
+            valuesChanged: function () {
                 function getSelectedItemIndex() {
                     for (var i = 0; i < this.values.length; i++) {
-                        if (this.values[i] === this.selected) {
+                        if (this.values[i].id === this.selected.id) {
+                            console.log('found selected: ' + this.selected);
                             return i;
                         }
                     }
@@ -70,21 +80,90 @@
 </polymer-element>
 
 
-<polymer-element name="app-field-textarea" attributes="label placeholder value" noscript>
+<polymer-element name="app-field-textarea">
     <template>
         <core-field>
             <label for="input">{{label}}</label>
             <textarea id="input" placeholder="{{placeholder}}" value="{{value}}"></textarea>
         </core-field>
     </template>
+    <script>
+        Polymer({
+            publish: {
+                /**
+                 * Label displayed beneath the actual select element.
+                 *
+                 * @attribute label
+                 * @type string
+                 * @default ''
+                 */
+                label: '',
+                /**
+                 * Placeholder text displayed in the select element, if nothing has been selected.
+                 *
+                 * @attribute placeholder
+                 * @type string
+                 * @default 'Select an item'
+                 */
+                placeholder: '',
+                /**
+                 * The value entered in the field.
+                 *
+                 * @attribute value
+                 * @type string
+                 * @default null
+                 */
+                value: null
+            }
+        });
+    </script>
 </polymer-element>
 
 
-<polymer-element name="app-field-text" attributes="label placeholder value type" noscript>
+<polymer-element name="app-field-text">
     <template>
         <core-field>
             <label for="input">{{label}}</label>
             <input id="input" type="{{type}}" placeholder="{{placeholder}}" value="{{value}}"/>.
         </core-field>
     </template>
+    <script>
+        Polymer({
+            publish: {
+                /**
+                 * Label displayed beneath the actual select element.
+                 *
+                 * @attribute label
+                 * @type string
+                 * @default ''
+                 */
+                label: '',
+                /**
+                 * Placeholder text displayed in the select element, if nothing has been selected.
+                 *
+                 * @attribute placeholder
+                 * @type string
+                 * @default 'Select an item'
+                 */
+                placeholder: '',
+                /**
+                 * The value entered in the field.
+                 *
+                 * @attribute value
+                 * @type string
+                 * @default null
+                 */
+                value: null,
+                /**
+                 * The type of the input field. See https://developer.mozilla.org/en/docs/Web/HTML/Element/Input for
+                 * a list of possible values.
+                 *
+                 * @attribute type
+                 * @type string
+                 * @default 'text'
+                 */
+                type: 'text'
+            }
+        });
+    </script>
 </polymer-element>

@@ -161,7 +161,6 @@
 
                 // enable dropzone
                 require(['core-touch'], function (touch) {
-                    console.log('enable dropzone ...');
                     touch.makeDropZone(dropzone, '.taskcard', function (data) {
                         if (data.userStory != undefined) {
                             // is existing task

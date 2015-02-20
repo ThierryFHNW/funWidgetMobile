@@ -66,7 +66,7 @@
             <app-field-select label="Owner" placeholder="Select owner" values="{{people}}"
                               selected="{{userstory.owner}}"></app-field-select>
             <app-field-select label="State" placeholder="Select state" values="{{states}}"
-                              selected="{{userstory.state}}"></app-field-select>
+                              selected="{{userstory.state}}" hidden?="{{isCreate}}"></app-field-select>
 
             <button id="save" on-tap="{{onSave}}">Save</button>
             <button id="delete" on-tap="{{onDelete}}">Delete</button>
@@ -76,41 +76,54 @@
         <ads-rest-people id="restPeople" projectId="{{projectId}}" response="{{people}}"></ads-rest-people>
         <ads-rest-userstorystates id="restStates" projectId="{{projectId}}"
                                   response="{{states}}"></ads-rest-userstorystates>
-        <ads-rest-userstory id="restSave"></ads-rest-userstory>
-        <ads-rest-userstories id="restCreate"></ads-rest-userstories>
+        <ads-rest-userstory id="restSingle"></ads-rest-userstory>
+        <ads-rest-userstories id="restCollection"></ads-rest-userstories>
     </template>
     <script>
         Polymer({
             publish: {
-                userstory: {}
+                userstory: {},
+                sprint: null,
+                isCreate: false
             },
             ready: function () {
                 this.projectId = this.$.globals.routeParams.projectId;
-                this.$.delete.hidden = this.userstory.id === undefined;
-                this.$.restPeople.go();
-                this.$.restStates.go();
+                this.sprintId = this.$.globals.routeParams.sprintId;
+                if(this.sprintId != undefined) {
+                    this.sprint = {
+                        id: this.sprintId
+                    }
+                }
             },
             open: function () {
-                if (this.userstory === undefined) {
-                    this.action = 'Create';
-                    this.userstory = {};
-                } else {
-                    this.action = 'Edit';
+                this.$.restPeople.go();
+                this.$.restStates.go();
+
+                this.isCreate = this.userstory.id === undefined;
+                this.action = this.isCreate ? 'Create' : 'Edit';
+                this.$.delete.hidden = this.isCreate;
+                if (this.isCreate) {
+                    if (this.sprint === null) {
+                        console.error('Sprint must not be null.');
+                        return;
+                    }
+                    this.userstory.sprint = this.sprint;
                 }
+
                 this.$.form.toggle();
             },
             onSave: function () {
-                console.dir(this.userstory);
-                if (this.userstory.id === undefined) {
-                    this.$.restCreate.create(this.userstory);
+                if (this.isCreate) {
+                    this.$.restCollection.create(this.userstory);
                 } else {
-                    this.$.restSave.save(this.userstory);
+                    this.$.restSingle.save(this.userstory);
                 }
+
                 this.$.form.toggle();
             },
             onDelete: function () {
                 console.log('Deleting the us');
-                this.$.rest.remove(this.userstory);
+                this.$.restSingle.remove(this.userstory);
                 this.$.form.toggle();
             }
         });
@@ -135,9 +148,9 @@
             <app-field-select label="Assignee" placeholder="Assigned person" selected="{{task.assignee}}"
                               values="{{people}}"></app-field-select>
             <app-field-select label="State" placeholder="State of the task" selected="{{task.state}}"
-                              values="{{states}}"></app-field-select>
+                              values="{{states}}" hidden?="{{isCreate}}"></app-field-select>
             <app-field-select label="User-Story" placeholder="Assign to user-story" selected="{{task.userStory}}"
-                              values="{{userstories}}"></app-field-select>
+                              values="{{userstories}}" disabled></app-field-select>
 
             <button id="save" on-tap="{{onSave}}">Save</button>
             <button id="delete" on-tap="{{onDelete}}">Delete</button>
@@ -148,47 +161,51 @@
         <ads-rest-taskstates id="restStates" projectId="{{projectId}}"
                              response="{{states}}"></ads-rest-taskstates>
         <ads-rest-userstories id="restUs" sprintId="{{sprintId}}" response="{{userstories}}"></ads-rest-userstories>
-        <ads-rest-task id="restSave"></ads-rest-task>
-        <ads-rest-tasks id="restCreate"></ads-rest-tasks>
+        <ads-rest-task id="restSingle"></ads-rest-task>
+        <ads-rest-tasks id="restCollection"></ads-rest-tasks>
     </template>
     <script>
         Polymer({
             publish: {
                 task: {},
-                userstory: {}
+                userstory: null,
+                isCreate: false
             },
             ready: function () {
                 this.projectId = this.$.globals.routeParams.projectId;
                 this.sprintId = this.$.globals.routeParams.sprintId;
-                this.$.delete.hidden = this.task.id === undefined;
+            },
+            open: function () {
                 this.$.restPeople.go();
                 this.$.restStates.go();
                 this.$.restUs.go();
-            },
-            open: function () {
-                if (this.task === undefined) {
-                    this.action = 'Create';
-                    this.task = {};
-                } else {
-                    this.action = 'Edit';
+
+                this.isCreate = this.task.id === undefined;
+                this.$.delete.hidden = this.isCreate;
+                this.action = this.isCreate ? 'Create' : 'Edit';
+
+                if (this.isCreate) {
+                    if (this.userstory === null) {
+                        console.error('UserStory must not be null.');
+                        return;
+                    }
+                    this.task.userstory = this.userstory;
                 }
-                if (this.userstory !== undefined) {
-                    this.task.userstory = this.userstory
-                }
+
                 this.$.form.toggle();
             },
             onSave: function () {
-                console.dir(this.task);
-                if (this.task.id === undefined) {
-                    this.$.restCreate.create(this.task);
+                if (this.isCreate) {
+                    this.$.restCollection.create(this.task);
                 } else {
-                    this.$.restSave.save(this.task);
+                    this.$.restSingle.save(this.task);
                 }
+
                 this.$.form.toggle();
             },
             onDelete: function () {
                 console.log('Deleting the task');
-                this.$.rest.remove(this.task);
+                this.$.restSingle.remove(this.task);
                 this.$.form.toggle();
             }
         });
