@@ -23,10 +23,63 @@
                 flex: 0 0 35%;
             }
 
-            h3 {
+            ::shadow h3 {
                 padding-left: 10px;
             }
+        </style>
+        <ads-widget>
+            <h2>Sprintplanning 2</h2>
 
+            <div class="container">
+                <awall-productbacklog userstories="{{userstories}}" class="productBacklog"></awall-productbacklog>
+                <awall-sprintbacklog userstories="{{userstories}}" class="sprintBacklog"></awall-sprintbacklog>
+                <awall-temptasks class="tempTasks"></awall-temptasks>
+            </div>
+        </ads-widget>
+        <app-globals id="globals"></app-globals>
+        <ads-rest-userstories id="usEndpoint" sprintId="{{sprintId}}"
+                              response="{{userstories}}"></ads-rest-userstories>
+    </template>
+    <script>
+        Polymer({
+            ready: function () {
+                this.sprintId = this.$.globals.routeParams.sprintId;
+                this.$.usEndpoint.go();
+            }
+        });
+
+    </script>
+</polymer-element>
+
+
+<polymer-element name="awall-productbacklog" attributes="userstories">
+    <template>
+        <h3>Product Backlog</h3>
+        <template repeat="{{story in userstories | noPriority}}">
+            <ads-userstorycard userstory="{{story}}"></ads-userstorycard>
+        </template>
+        <core-icon-button icon="add" on-tap="{{onAddUserStorytap}}">Add User Story</core-icon-button>
+        <ads-form-userstory id="usForm"></ads-form-userstory>
+    </template>
+    <script>
+        Polymer({
+            noPriority: function (values) {
+                if (values != null) {
+                    return values.filter(function (value) {
+                        return value.priority == null;
+                    });
+                }
+            },
+            onAddUserStorytap: function () {
+                this.$.usForm.open();
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="awall-sprintbacklog" attributes="userstories">
+    <template>
+        <style>
             table {
                 border-collapse: collapse;
                 box-sizing: border-box;
@@ -55,77 +108,33 @@
                 width: 10%; /* will be dynamically as big as the content */
             }
         </style>
-        <ads-widget>
-            <h2>Sprintplanning 2</h2>
 
-            <div class="container">
-                <div class="productBacklog">
-                    <h3>Product Backlog</h3>
-                    <template repeat="{{story in userstories | noPriority}}">
-                        <ads-userstorycard userstory="{{story}}"></ads-userstorycard>
-                    </template>
-                    <core-icon-button icon="add" on-tap="{{onAddUserStorytap}}">Add User Story</core-icon-button>
-                    <ads-form-userstory id="usForm"></ads-form-userstory>
-                </div>
-                <div class="sprintBacklog">
-                    <h3>Sprint Backlog</h3>
-                    <table class="table">
-                        <tbody>
-                        <template repeat="{{story in userstories | withPriority | orderBy('priority')}}">
-                            <tr>
-                                <td>
-                                    <ads-userstorycard userstory="{{story}}" disableDraggable></ads-userstorycard>
-                                </td>
-                                <td>
-                                    <awall-sp2-temptask-dropzone userstory="{{story}}">
-                                        <awall-sp2-ustasks userstoryId="{{story.id}}"></awall-sp2-ustasks>
-                                    </awall-sp2-temptask-dropzone>
-                                </td>
-                            </tr>
-                        </template>
-                        <tr>
-                            <td colspan="2">
-                                <awall-sp2-us-dropzone></awall-sp2-us-dropzone>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="tempTasks">
-                    <h3>Tasks</h3>
-                    <template repeat="{{task in tempTasks}}">
-                        <ads-temp-taskcard task="{{task}}"></ads-temp-taskcard>
-                    </template>
-                    <ads-form-temp-task id="taskForm"></ads-form-temp-task>
-
-                    <core-icon-button icon="add" on-tap="{{onAddTempTaskTap}}">Add Temp Task</core-icon-button>
-                </div>
-            </div>
-        </ads-widget>
-        <app-globals id="globals"></app-globals>
-        <ads-rest-awall-sp2 tasks="{{tempTasks}}"></ads-rest-awall-sp2>
-        <ads-rest-userstories id="usEndpoint" sprintId="{{sprintId}}"
-                              response="{{userstories}}"></ads-rest-userstories>
+        <h3>Sprint Backlog</h3>
+        <table class="table">
+            <tbody>
+            <template repeat="{{userstory in userstories | withPriority | orderBy('priority')}}">
+                <tr>
+                    <td>
+                        <ads-userstorycard userstory="{{userstory}}" disableDraggable></ads-userstorycard>
+                    </td>
+                    <td>
+                        <awall-temptask-dropzone userstory="{{userstory}}">
+                            <awall-sp2-ustasks userstoryId="{{userstory.id}}"></awall-sp2-ustasks>
+                        </awall-temptask-dropzone>
+                    </td>
+                </tr>
+            </template>
+            <tr>
+                <td colspan="2">
+                    <awall-sp2-us-dropzone></awall-sp2-us-dropzone>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
     </template>
     <script>
         Polymer({
-            ready: function () {
-                this.sprintId = this.$.globals.routeParams.sprintId;
-                this.$.usEndpoint.go();
-            },
-            onAddTempTaskTap: function () {
-                this.$.taskForm.open();
-            },
-            onAddUserStorytap: function () {
-                this.$.usForm.open();
-            },
-            noPriority: function (values) {
-                if (values != null) {
-                    return values.filter(function (value) {
-                        return value.priority == null;
-                    });
-                }
-            },
             withPriority: function (values) {
                 if (values != null) {
                     return values.filter(function (value) {
@@ -134,11 +143,30 @@
                 }
             }
         });
-
     </script>
 </polymer-element>
 
-<polymer-element name="awall-sp2-temptask-dropzone" attributes="userstory">
+<polymer-element name="awall-temptasks">
+    <template>
+        <h3>Tasks</h3>
+        <template repeat="{{task in tempTasks | orderBy('name')}}">
+            <ads-temp-taskcard task="{{task}}"></ads-temp-taskcard>
+        </template>
+        <ads-form-temp-task id="taskForm"></ads-form-temp-task>
+
+        <core-icon-button icon="add" on-tap="{{onAddTempTaskTap}}">Add Temp Task</core-icon-button>
+        <ads-rest-awall-sp2 tasks="{{tempTasks}}"></ads-rest-awall-sp2>
+    </template>
+    <script>
+        Polymer({
+            onAddTempTaskTap: function () {
+                this.$.taskForm.open();
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="awall-temptask-dropzone" attributes="userstory">
     <template>
         <style>
             #dropzone {
@@ -199,12 +227,12 @@
     </template>
     <script>
         Polymer({
-            domReady: function() {
+            domReady: function () {
                 // capture variables
                 var container = this.$.container;
 
-                require(['core-touch'], function(touch) {
-                    touch.makeDropZone(container, '.userstorycard', function(data) {
+                require(['core-touch'], function (touch) {
+                    touch.makeDropZone(container, '.userstorycard', function (data) {
                         console.log('backlogged a userstory:');
                         console.dir(data);
                     });
