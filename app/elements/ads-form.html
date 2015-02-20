@@ -234,10 +234,16 @@
     <script>
         Polymer({
             publish: {
-                task: {}
+                task: {},
+                isCreate: false
             },
             open: function () {
-                this.$.delete.hidden = this.task.id === undefined;
+                this.isCreate = this.task.id === undefined;
+                this.$.delete.hidden = this.isCreate;
+                if(this.isCreate) {
+                    this.task = {};
+                }
+
                 this.$.form.toggle();
             },
             onSave: function () {
