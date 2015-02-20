@@ -21,8 +21,27 @@
                 margin: 0;
                 padding: 0;
             }
+
+            .circle {
+                float: right;
+                height: 35px;
+            }
+
+            .circle-content {
+                width: 2em;
+                height: 2em;
+                line-height: 2em;
+                text-align: center;
+                border-radius: 50%;
+                border: 1px solid #000000;
+            }
         </style>
         <div id="container" class="userstorycard">
+            <div class="circle">
+                <div class="circle-content">
+                    {{userstory.storyPoints | noNull}}
+                </div>
+            </div>
             <ul>
                 <li><b>{{userstory.name}}</b></li>
                 <li>
@@ -68,6 +87,9 @@
                         form.open();
                     })
                 });
+            },
+            noNull: function(value) {
+                return value == null ? '-' : value;
             }
         });
     </script>
