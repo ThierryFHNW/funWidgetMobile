@@ -37,6 +37,7 @@
 
             function send(message) {
                 var wait = 100;
+
                 function doSend() {
                     if (awallEndpoint.readyState == WebSocket.OPEN) {
                         awallEndpoint.send(message);
@@ -254,6 +255,11 @@
                         }
                         break;
                 }
+                /*
+                 * Copy array so polymer detects the change for sure.
+                 * Without this, the changes will not be detected if a filter is used.
+                 */
+                this.tasks = this.tasks.slice();
             }
         });
     </script>
@@ -317,18 +323,29 @@
                             this.response.push(data);
                         }
 
+                        /*
+                         * Copy array so polymer detects the change for sure.
+                         * Without this, the changes will not be detected if a filter is used.
+                         */
+                        this.response = this.response.slice();
                     }
 
                 },
                 onCreated: function (data) {
-                    if (this.response != null && this.response.length > 0) {
-                        if (!('isInTheSameCollection' in this)) {
-                            console.error('Missing isInTheSameCollection function for ' + this);
-                            return;
-                        }
-                        if (this.isInTheSameCollection(data)) {
-                            this.response.push(data);
-                        }
+                    if (this.response == null) {
+                        this.response = [];
+                    }
+                    if (!('isInTheSameCollection' in this)) {
+                        console.error('Missing isInTheSameCollection function for ' + this);
+                        return;
+                    }
+                    if (this.isInTheSameCollection(data)) {
+                        this.response.push(data);
+                        /*
+                         * Copy array so polymer detects the change for sure.
+                         * Without this, the changes will not be detected if a filter is used.
+                         */
+                        this.response = this.response.slice();
                     }
                 },
                 onDeleted: function (data) {
@@ -343,6 +360,11 @@
                                     this.response.splice(index, 1);
                                 }
                             }
+                            /*
+                             * Copy array so polymer detects the change for sure.
+                             * Without this, the changes will not be detected if a filter is used.
+                             */
+                            this.response = this.response.slice();
                         }
                     }
                 },
