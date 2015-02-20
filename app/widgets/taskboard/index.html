@@ -9,7 +9,7 @@
                 border-collapse: collapse;
                 box-sizing: border-box;
                 margin-bottom: 10px;
-                max-width: 100%;
+                width: 100%;
             }
 
             tr:nth-child(even) {
@@ -48,7 +48,7 @@
                 <thead>
                 <tr>
                     <th></th>
-                    <template repeat="{{state in taskstates}}">
+                    <template repeat="{{state in taskstates | sortStates}}">
                         <th><h3>{{state.name}}</h3></th>
                     </template>
                 </tr>
@@ -59,7 +59,7 @@
                         <td class="story-column">
                             <ads-userstorycard userstory="{{userstory}}" disableDraggable></ads-userstorycard>
                         </td>
-                        <template repeat="{{state in taskstates}}">
+                        <template repeat="{{state in taskstates | sortStates}}">
                             <td>
                                 <ads-tb-tasks taskstate="{{state}}" userstoryId="{{userstory.id}}"></ads-tb-tasks>
                             </td>
@@ -84,6 +84,20 @@
             },
             addUserStoryTabHandler: function () {
                 this.$.usForm.open();
+            },
+            sortStates: function (values) {
+                if (values != null) {
+                    var sortMap = {
+                        'Open': 1,
+                        'In Progress': 2,
+                        'To Verify': 3,
+                        'Done': 4
+                    };
+
+                    return values.sort(function (a, b) {
+                        return sortMap[a.name] > sortMap[b.name] ? 1 : -1;
+                    });
+                }
             }
         });
     </script>
