@@ -106,7 +106,6 @@
                     }
                     switch (event.action) {
                         case 'Updated':
-                            console.log('Updated');
                             if (event.data === null) {
                                 console.error('data-property was null but should not be.');
                                 return;
@@ -296,7 +295,6 @@
                     this.response = this.$.ajax.response.items;
                 },
                 onUpdated: function (data) {
-                    console.log('Update collection ' + this.resourceType);
                     if (this.response != null && this.response.length > 0) {
                         if (!('isInTheSameCollection' in this)) {
                             console.error('Missing isInTheSameCollection function for ' + this);
@@ -615,7 +613,6 @@
                 this.response = this.$.ajax.response;
             },
             onUpdated: function (data) {
-                console.log('Update single');
                 if (this.response.id === data.id) {
                     this.response = data;
                 }
