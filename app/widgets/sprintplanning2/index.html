@@ -87,22 +87,22 @@
                 width: 100%;
             }
 
-            tr:nth-child(even) {
+            table /deep/ tr:nth-child(even) {
                 background-color: rgba(255, 255, 255, 0.5);
             }
 
-            th {
+            table /deep/ th {
                 border-bottom: 2px solid rgb(221, 221, 221);
                 border-collapse: collapse;
                 text-align: left;
             }
 
-            td {
+            table /deep/ td {
                 border-top: 1px solid rgb(221, 221, 221);
                 vertical-align: top;
             }
 
-            td:nth-child(1) {
+            table /deep/ td:nth-child(1) {
                 padding: 8px;
                 text-align: left;
                 width: 10%; /* will be dynamically as big as the content */
@@ -113,16 +113,7 @@
         <table class="table">
             <tbody>
             <template repeat="{{userstory in userstories | withPriority | orderBy('priority')}}">
-                <tr>
-                    <td>
-                        <ads-userstorycard userstory="{{userstory}}" disableDraggable></ads-userstorycard>
-                    </td>
-                    <td>
-                        <awall-temptask-dropzone userstory="{{userstory}}">
-                            <awall-sp2-ustasks userstoryId="{{userstory.id}}"></awall-sp2-ustasks>
-                        </awall-temptask-dropzone>
-                    </td>
-                </tr>
+                <tr is="awall-backlog-row" userstory="{{userstory}}"></tr>
             </template>
             <tr>
                 <td colspan="2">
@@ -135,6 +126,7 @@
     </template>
     <script>
         Polymer({
+
             withPriority: function (values) {
                 if (values != null) {
                     return values.filter(function (value) {
@@ -146,50 +138,31 @@
     </script>
 </polymer-element>
 
-<polymer-element name="awall-temptasks">
+<polymer-element name="awall-backlog-row" extends="tr" attributes="userstory">
     <template>
-        <h3>Tasks</h3>
-        <template repeat="{{task in tempTasks | orderBy('name')}}">
-            <ads-temp-taskcard task="{{task}}"></ads-temp-taskcard>
-        </template>
-        <ads-form-temp-task id="taskForm"></ads-form-temp-task>
+        <td>
+            <ads-userstorycard userstory="{{userstory}}" disableDraggable></ads-userstorycard>
+        </td>
+        <td id="taskDropzone">
+            <template repeat="{{task in tasks}}">
+                <ads-taskcard task="{{task}}"></ads-taskcard>
+            </template>
+        </td>
 
-        <core-icon-button icon="add" on-tap="{{onAddTempTaskTap}}">Add Temp Task</core-icon-button>
-        <ads-rest-awall-sp2 tasks="{{tempTasks}}"></ads-rest-awall-sp2>
-    </template>
-    <script>
-        Polymer({
-            onAddTempTaskTap: function () {
-                this.$.taskForm.open();
-            }
-        });
-    </script>
-</polymer-element>
-
-<polymer-element name="awall-temptask-dropzone" attributes="userstory">
-    <template>
-        <style>
-            #dropzone {
-                width: 100%;
-                height: 200px;
-            }
-        </style>
-        <div id="dropzone">
-            <content></content>
-        </div>
         <ads-rest-awall id="awall"></ads-rest-awall>
+        <ads-rest-tasks userStoryId="{{userstory.id}}" response="{{tasks}}" auto expand="all"></ads-rest-tasks>
     </template>
     <script>
         Polymer({
             domReady: function () {
                 // capture variables
                 var awall = this.$.awall;
-                var dropzone = this.$.dropzone;
+                var taskDropzone = this.$.taskDropzone;
                 var userstory = this.userstory;
 
                 // enable dropzone
                 require(['core-touch'], function (touch) {
-                    touch.makeDropZone(dropzone, '.taskcard', function (data) {
+                    touch.makeDropZone(taskDropzone, '.taskcard', function (data) {
                         if (data.userStory != undefined) {
                             // is existing task
                             console.error('Moving a task to another user-story is not possible (backend limitation).');
@@ -200,20 +173,16 @@
                         }
                     });
                 });
+            },
+            userstoryChanged: function () {
+                console.log('!! us changed');
+                var dropzone = this.$.usDropzone;
+                console.dir(dropzone)
             }
         });
     </script>
 </polymer-element>
 
-<polymer-element name="awall-sp2-ustasks" attributes="userstoryId" noscript>
-    <template>
-        <template repeat="{{task in tasks}}">
-            <ads-taskcard task="{{task}}"></ads-taskcard>
-        </template>
-
-        <ads-rest-tasks userStoryId="{{userstoryId}}" response="{{tasks}}" auto expand="all"></ads-rest-tasks>
-    </template>
-</polymer-element>
 
 <polymer-element name="awall-sp2-us-dropzone">
     <template>
@@ -237,6 +206,27 @@
                         console.dir(data);
                     });
                 });
+            }
+        });
+    </script>
+</polymer-element>
+
+
+<polymer-element name="awall-temptasks">
+    <template>
+        <h3>Tasks</h3>
+        <template repeat="{{task in tempTasks | orderBy('name')}}">
+            <ads-temp-taskcard task="{{task}}"></ads-temp-taskcard>
+        </template>
+        <ads-form-temp-task id="taskForm"></ads-form-temp-task>
+
+        <core-icon-button icon="add" on-tap="{{onAddTempTaskTap}}">Add Temp Task</core-icon-button>
+        <ads-rest-awall-sp2 tasks="{{tempTasks}}"></ads-rest-awall-sp2>
+    </template>
+    <script>
+        Polymer({
+            onAddTempTaskTap: function () {
+                this.$.taskForm.open();
             }
         });
     </script>
