@@ -532,8 +532,8 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 require(['interact'], function (interact) {
     define('core-touch', function () {
 
-        function _draggableEnableSnapping(element) {
-            // snap to drag zone
+        function _draggableEnableSnapping(element, revertToStart) {
+            // snap to dropzone
             interact(element).draggable({
                 snap: {
                     mode: 'anchor',
@@ -544,21 +544,23 @@ require(['interact'], function (interact) {
                 }
             });
             // revert back to starting point if not dropped in another drop zone
-            interact(element).on('dragstart', function (event) {
-                var rect = interact.getElementRect(event.target);
+            if (revertToStart) {
+                interact(element).on('dragstart', function (event) {
+                    var rect = interact.getElementRect(event.target);
 
-                // record center point when starting a drag
-                event.interactable.startPos = {
-                    x: rect.left + rect.width / 2,
-                    y: rect.top + rect.height / 2
-                };
-                // snap to the start position
-                event.interactable.draggable({
-                    snap: {
-                        targets: [event.interactable.startPos]
-                    }
+                    // record center point when starting a drag
+                    event.interactable.startPos = {
+                        x: rect.left + rect.width / 2,
+                        y: rect.top + rect.height / 2
+                    };
+                    // snap to the start position
+                    event.interactable.draggable({
+                        snap: {
+                            targets: [event.interactable.startPos]
+                        }
+                    });
                 });
-            });
+            }
         }
 
         function _dropZoneEnableSnapping(element) {
@@ -639,12 +641,33 @@ require(['interact'], function (interact) {
          *      Available options:
          *          clone: boolean  // clones the draggable element and appends it to document.body.
          *          data: object // the data to attach to the interaction. Will be available to the dropzone in ondrop.
+         *          revert: boolean // whether to revert back to the start position when not dropped in dropzone.
          *
          */
         function _makeDraggable(element, options) {
-            if (options === undefined) {
-                options = {};
+            var defaultOptions = {
+                clone: false,
+                data: null,
+                revert: true
+            };
+
+            function mergeOptions() {
+                console.log('merging options');
+                if (options === undefined) {
+                    options = defaultOptions.clone();
+                } else {
+                    for (var option in defaultOptions) {
+                        console.log('checking option: ' + option);
+                        if (!(option in options)) {
+                            console.log('is not in options!');
+                            options[option] = defaultOptions[option];
+                        }
+                    }
+                }
             }
+
+            mergeOptions();
+
             interact(element).draggable({
                 inertia: {
                     resistance: 30,
@@ -679,12 +702,10 @@ require(['interact'], function (interact) {
                 },
                 onstart: function (event) {
                     // attach data to the interaction
-                    if (options.hasOwnProperty('data')) {
-                        event.interaction.data = options.data;
-                    }
+                    // event.interaction.data = options.data;
 
                     // clone if set in options
-                    if (options.hasOwnProperty('clone') === true) {
+                    if (options.clone) {
                         this.target = event.target.cloneNode(true);
                         // copy style definitions recursively
                         function applyStyle(source, target) {
@@ -713,7 +734,7 @@ require(['interact'], function (interact) {
                 }
             });
 
-            _draggableEnableSnapping(element);
+            _draggableEnableSnapping(element, options.revert);
         }
 
         /**

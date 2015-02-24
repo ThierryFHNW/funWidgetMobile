@@ -114,7 +114,9 @@
 
             function enableDraggable(target) {
                 require(['core-touch'], function (touch) {
-                    touch.makeDraggable(target);
+                    touch.makeDraggable(target, {
+                        revert: false
+                    });
                 });
             }
 
