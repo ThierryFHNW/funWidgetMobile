@@ -105,7 +105,6 @@
             table /deep/ td:nth-child(1) {
                 padding: 8px;
                 text-align: left;
-                width: 10%; /* will be dynamically as big as the content */
             }
         </style>
 
@@ -115,11 +114,6 @@
             <template repeat="{{userstory in userstories | withPriority | orderBy('priority')}}">
                 <tr is="awall-backlog-row" userstory="{{userstory}}" userstories="{{userstories}}"></tr>
             </template>
-            <tr>
-                <td colspan="2">
-                    <awall-sp2-us-dropzone></awall-sp2-us-dropzone>
-                </td>
-            </tr>
             </tbody>
         </table>
         </div>
@@ -139,8 +133,37 @@
 
 <polymer-element name="awall-backlog-row" extends="tr" attributes="userstory userstories">
     <template>
+        <style>
+            #usDropzone {
+                position: relative;
+                height: 150px;
+                width: 250px;
+            }
+
+            #upperDropzone, #lowerDropzone {
+                position: absolute;
+                left: 0;
+                height: 50%;
+                width: 100%;
+            }
+
+            #upperDropzone {
+                top: 0;
+            }
+
+            #lowerDropzone {
+                bottom: 0;
+            }
+
+            ads-userstorycard {
+                position: absolute;
+                z-index: 1;
+            }
+        </style>
         <td id="usDropzone">
             <ads-userstorycard userstory="{{userstory}}" disableDraggable></ads-userstorycard>
+            <div id="upperDropzone"></div>
+            <div id="lowerDropzone"></div>
         </td>
         <td id="taskDropzone">
             <template repeat="{{task in tasks}}">
@@ -154,40 +177,37 @@
     </template>
     <script>
         Polymer({
-            domReady: function () {
+            userstoriesChanged: function () {
                 // capture variables
                 var awall = this.$.awall;
                 var rest = this.$.rest;
                 var taskDropzone = this.$.taskDropzone;
-                var usDropzone = this.$.usDropzone;
                 var userstory = this.userstory;
                 var userstories = this.userstories;
+                var upperDropzone = this.$.upperDropzone;
+                var lowerDropzone = this.$.lowerDropzone;
 
-                // enable dropzones
-                require(['core-touch'], function (touch) {
-                    touch.makeDropZone(usDropzone, '.userstorycard', function (data) {
-                        var usWithPriority = userstories.filter(function (value) {
+
+                function applyPriority(sourcePriority, newPriority, droppedUs, allUs) {
+
+                    function getSortedUsWithPriority(array) {
+                        return array.filter(function (value) {
                             return value.priority != null;
-                        });
-                        var sortedUs = usWithPriority.sort(function (a, b) {
+                        }).sort(function (a, b) {
                             return a.priority >= b.priority ? 1 : -1;
                         });
+                    }
 
-                        var index = sortedUs.indexOf(userstory);
-                        if (index == -1) {
-                            console.log('index not found.');
-                            return;
-                        }
-
+                    function reorder(array, sourcePriority, indx) {
                         var changedItems = [];
 
-                        function reorder(priority, indx) {
-                            while (indx < sortedUs.length - 1) {
-                                var item = sortedUs[indx];
+                        function check(priority, indx) {
+                            while (indx < array.length) {
+                                var item = array[indx];
                                 if (item.priority == priority) {
-                                    item.priority += 1;
-                                    priority += 1;
                                     changedItems.push(item);
+                                    check(priority + 1, indx + 1);
+                                    item.priority += 1;
                                 } else {
                                     break;
                                 }
@@ -195,65 +215,54 @@
                             }
                         }
 
-                        var isFirstElement = index == 0;
-                        var isLastElement = index == sortedUs.length - 1;
+                        check(sourcePriority, indx);
 
-                        // set priority
-                        if (isFirstElement) {
-                            data.priority = 1;
-                        } else if (isLastElement) {
-                            data.priority = userstory.priority + 1;
-                        } else {
-                            data.priority = sortedUs[index - 1].priority + 1;
-                        }
+                        return changedItems;
+                    }
 
-                        // take appropriate action to persist changes
-                        if (!isLastElement) {
-                            reorder(data.priority, index);
-                            changedItems.forEach(function (item) {
-                                rest.save(item);
-                            });
-                        }
-                        rest.save(data);
+
+                    var sortedUs = getSortedUsWithPriority(allUs);
+
+                    var index = sortedUs.indexOf(userstory);
+                    console.dir(sortedUs);
+                    if (index == -1) {
+                        console.error('index not found.');
+                        return;
+                    }
+
+                    droppedUs.priority = newPriority;
+
+                    // take appropriate action to persist changes
+                    index = sourcePriority != newPriority ? index + 1 : index;
+                    reorder(sortedUs, newPriority, index).forEach(function (item) {
+                        rest.save(item);
+                    });
+                    rest.save(droppedUs);
+                }
+
+                // enable dropzones
+                require(['core-touch'], function (touch) {
+                    touch.makeDropZone(upperDropzone, '.userstorycard', function (droppedUs) {
+                        var sourcePriority = userstory.priority;
+                        var newPriority = sourcePriority;
+                        applyPriority(sourcePriority, newPriority, droppedUs, userstories);
                     });
 
-                    touch.makeDropZone(taskDropzone, '.taskcard', function (data) {
-                        if (data.userStory != undefined) {
+                    touch.makeDropZone(lowerDropzone, '.userstorycard', function (droppedUs) {
+                        var sourcePriority = userstory.priority;
+                        var newPriority = sourcePriority + 1;
+                        applyPriority(sourcePriority, newPriority, droppedUs, userstories);
+                    });
+
+                    touch.makeDropZone(taskDropzone, '.taskcard', function (droppedTask) {
+                        if (droppedTask.userStory != undefined) {
                             // is existing task
                             console.error('Moving a task to another user-story is not possible (backend limitation).');
                         } else {
                             // is a temporary task
-                            data.userStory = userstory;
-                            awall.persistTempTask(data);
+                            droppedTask.userStory = userstory;
+                            awall.persistTempTask(droppedTask);
                         }
-                    });
-                });
-            }
-        });
-    </script>
-</polymer-element>
-
-
-<polymer-element name="awall-sp2-us-dropzone">
-    <template>
-        <style>
-            #container {
-                height: 75px;
-                width: 100%;
-            }
-        </style>
-        <div id="container"></div>
-    </template>
-    <script>
-        Polymer({
-            domReady: function () {
-                // capture variables
-                var container = this.$.container;
-
-                require(['core-touch'], function (touch) {
-                    touch.makeDropZone(container, '.userstorycard', function (data) {
-                        console.log('backlogged a userstory:');
-                        console.dir(data);
                     });
                 });
             }
