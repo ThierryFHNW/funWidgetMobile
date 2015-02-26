@@ -622,12 +622,20 @@ require(['interact'], function (interact) {
                         // call the callback with the data of the interaction set by the draggable in onstart.
                         onDropCallback(event.interaction.data);
                     }
+                    // reset z-index to the default value
+                    event.relatedTarget.style.zIndex = '';
                 },
                 ondropdeactivate: function (event) {
                     // remove active dropzone feedback
                     event.target.classList.remove('drop-active');
                     event.target.classList.remove('drop-entered');
                     event.relatedTarget.classList.remove('can-drop');
+
+                    // reduce z-index to stay on top
+                    var draggableStyle = event.relatedTarget.style;
+                    if (draggableStyle.zIndex !== '') {
+                        draggableStyle.zIndex = '50';
+                    }
                 }
             });
 
@@ -652,14 +660,11 @@ require(['interact'], function (interact) {
             };
 
             function mergeOptions() {
-                console.log('merging options');
                 if (options === undefined) {
                     options = defaultOptions.clone();
                 } else {
                     for (var option in defaultOptions) {
-                        console.log('checking option: ' + option);
                         if (!(option in options)) {
-                            console.log('is not in options!');
                             options[option] = defaultOptions[option];
                         }
                     }
@@ -691,8 +696,6 @@ require(['interact'], function (interact) {
                     target.setAttribute('data-y', y);
                 },
                 onend: function (event) {
-                    // reset z-index to the default value
-                    this.target.style.zIndex = '';
                     this.target.classList.remove('dragging');
 
                     // remove clone
@@ -702,7 +705,7 @@ require(['interact'], function (interact) {
                 },
                 onstart: function (event) {
                     // attach data to the interaction
-                    // event.interaction.data = options.data;
+                    event.interaction.data = options.data;
 
                     // clone if set in options
                     if (options.clone) {
