@@ -16,7 +16,7 @@
 
             #body {
                 flex: 1;
-                margin: 5px;
+                padding: 5px;
                 display: flex;
                 flex-direction: column;
                 overflow-y: scroll;
@@ -35,16 +35,10 @@
                 box-sizing: border-box;
             }
 
-            .widget {
+            .widget, #mainWorkspace {
                 position: relative;
                 height: 100%;
                 width: 100%;
-            }
-
-            #mainWorkspace-dropzone {
-                flex: 1;
-                width: 100%;
-                height: 100%;
             }
 
             .hidden {
@@ -69,7 +63,7 @@
                     </div>
                 </div>
 
-                <div class="widget" id="mainWorkspace"></div>
+                <div id="mainWorkspace"></div>
             </div>
 
             <div id="footer">FOOTER</div>
