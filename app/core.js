@@ -601,6 +601,7 @@ require(['interact'], function (interact) {
 
                 // listen for drop related events:
                 ondropactivate: function (event) {
+                    event.interaction.dropped = false;
                     // add active dropzone feedback
                     event.target.classList.add('drop-active');
                 },
@@ -618,6 +619,8 @@ require(['interact'], function (interact) {
                     event.relatedTarget.classList.remove('can-drop');
                 },
                 ondrop: function (event) {
+                    event.interaction.dropped = true;
+
                     if (onDropCallback != undefined) {
                         // call the callback with the data of the interaction set by the draggable in onstart.
                         onDropCallback(event.interaction.data);
@@ -643,6 +646,25 @@ require(['interact'], function (interact) {
         }
 
         /**
+         * Merge an object. Set the missing options using the defaults in the given default options.
+         * @param options The options to merge.
+         * @param defaultOptions The default options.
+         * @returns {*} The merged object.
+         */
+        function mergeOptions(options, defaultOptions) {
+            if (options === undefined) {
+                options = defaultOptions.clone();
+            } else {
+                for (var option in defaultOptions) {
+                    if (!(option in options)) {
+                        options[option] = defaultOptions[option];
+                    }
+                }
+            }
+            return options
+        }
+
+        /**
          * Makes an element a draggable.
          * @param element The element to make draggable.
          * @param options Options to configure the draggable.
@@ -650,28 +672,23 @@ require(['interact'], function (interact) {
          *          clone: boolean  // clones the draggable element and appends it to document.body.
          *          data: object // the data to attach to the interaction. Will be available to the dropzone in ondrop.
          *          revert: boolean // whether to revert back to the start position when not dropped in dropzone.
+         *          onstart: function called on start of dragging.
+         *          onmove: function called when the element is moved.
+         *          onend: function called on end of dragging.
          *
          */
         function _makeDraggable(element, options) {
-            var defaultOptions = {
+            options = mergeOptions(options, {
                 clone: false,
                 data: null,
-                revert: true
-            };
-
-            function mergeOptions() {
-                if (options === undefined) {
-                    options = defaultOptions.clone();
-                } else {
-                    for (var option in defaultOptions) {
-                        if (!(option in options)) {
-                            options[option] = defaultOptions[option];
-                        }
-                    }
+                revert: true,
+                onstart: function () {
+                },
+                onmove: function () {
+                },
+                onend: function () {
                 }
-            }
-
-            mergeOptions();
+            });
 
             interact(element).draggable({
                 inertia: {
@@ -694,6 +711,8 @@ require(['interact'], function (interact) {
                     // update the position attributes
                     target.setAttribute('data-x', x);
                     target.setAttribute('data-y', y);
+
+                    options.onmove(event);
                 },
                 onend: function (event) {
                     this.target.classList.remove('dragging');
@@ -702,6 +721,8 @@ require(['interact'], function (interact) {
                     if (this.target !== event.target) {
                         document.body.removeChild(this.target);
                     }
+
+                    options.onend(event);
                 },
                 onstart: function (event) {
                     // attach data to the interaction
@@ -734,6 +755,8 @@ require(['interact'], function (interact) {
                     // make sure the draggable is always over the other elements
                     this.target.style.zIndex = '100';
                     this.target.classList.add('dragging');
+
+                    options.onstart(event);
                 }
             });
 
@@ -747,7 +770,7 @@ require(['interact'], function (interact) {
          * @param event The name of the event.
          * @param callback The function that is called on the event.
          */
-        function _addInteractEventListener(element, event, callback) {
+        function _on(element, event, callback) {
             interact(element).on(event, callback);
         }
 
@@ -766,7 +789,25 @@ require(['interact'], function (interact) {
             target.setAttribute('data-y', 0);
         }
 
-        function _makeResizable(element) {
+        /**
+         * Makes an element resizable via mouse or via pinch-to-zoom.
+         * @param element The element to make resizable.
+         * @param options Options to configure the resizable:
+         *      Available options:
+         *          onstart: function called on start of resizing.
+         *          onmove: function called when the element is moved.
+         *          onend: function called on end of resizing.
+         */
+        function _makeResizable(element, options) {
+
+            options = mergeOptions(options, {
+                onstart: function () {
+                },
+                onmove: function () {
+                },
+                onstop: function () {
+                }
+            });
 
             function onstart(target) {
                 // save the initial size
@@ -785,10 +826,10 @@ require(['interact'], function (interact) {
                     newHeight = parseFloat(height) + dy;
 
                 // update the element's style only if it's not smaller that the initial size
-                if (newHeight > target.initialSize.height) {
+                if (newHeight >= target.initialSize.height) {
                     target.style.height = newHeight + 'px';
                 }
-                if (newWidth > target.initialSize.width) {
+                if (newWidth >= target.initialSize.width) {
                     target.style.width = newWidth + 'px';
                 }
             }
@@ -798,9 +839,14 @@ require(['interact'], function (interact) {
                 .resizable(true)
                 .on('resizestart', function (event) {
                     onstart(event.target);
+                    options.onstart(event);
                 })
                 .on('resizemove', function (event) {
                     onmove(event.target, event.dx, event.dy);
+                    options.onmove(event);
+                })
+                .on('resizeend', function (event) {
+                    options.onend(event);
                 });
 
             // pinch-to-zoom
@@ -808,6 +854,7 @@ require(['interact'], function (interact) {
                 onstart: function (event) {
                     onstart(event.target);
                     event.interaction.initialDistance = event.distance;
+                    options.onstart(event);
                 },
                 onmove: function (event) {
                     var target = event.target;
@@ -815,19 +862,62 @@ require(['interact'], function (interact) {
                     var distanceDiff = event.distance - previousDistance;
                     onmove(target, distanceDiff, distanceDiff);
                     event.interaction.previousDistance = event.distance;
+                    options.onmove(event);
+                },
+                onend: function (event) {
+                    options.onend(event);
                 }
             });
         }
 
+        /**
+         * Resets the size of the widget to initial size.
+         * @param target The element to resize to initial size.
+         */
+        function _resizeToInitial(target) {
+            target.style.height = target.initialSize.height + 'px';
+            target.style.width = target.initialSize.width + 'px';
+        }
+
+        /**
+         * Check the element if it's current size is equal or very close to the initial size.
+         * @param target The element to check.
+         * @returns boolean true if the current size is the initial size, false otherwise.
+         */
+        function _isInitialSize(target) {
+            var currentSize = interact.getElementRect(target);
+            var initialSize = target.initialSize;
+
+            // exactly
+            if (initialSize.height == currentSize.height && initialSize.width == currentSize.width) {
+                return true;
+            }
+
+            function near(a, b, maxDistance) {
+                for (var distance = 1; distance <= maxDistance; distance++) {
+                    if (a + distance == b || a - distance == b) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            // allow for some margin because the values may already be rounded
+            return near(initialSize.height, currentSize.height, 1) && near(initialSize.width, currentSize.width, 1);
+        }
+
+
         return {
             makeDraggable: _makeDraggable,
             makeDropZone: _makeDropZone,
-            addInteractEventListener: _addInteractEventListener,
+            on: _on,
             resetPosition: _resetPosition,
             onDoubleTap: function (element, callback) {
                 interact(element).on('doubletap', callback);
             },
-            makeResizable: _makeResizable
+            makeResizable: _makeResizable,
+            resizeToInitial: _resizeToInitial,
+            isInitialSize: _isInitialSize
         }
     });
 

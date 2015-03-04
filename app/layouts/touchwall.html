@@ -88,7 +88,7 @@
             function enableDropzone(dropzoneElement) {
                 require(['core-touch'], function (touch) {
                     touch.makeDropZone(dropzoneElement, '.widget');
-//                    touch.addInteractEventListener(dropzoneElement, 'drop', function (event) {
+//                    touch.on(dropzoneElement, 'drop', function (event) {
 //                        switchWidgets(event.relatedTarget.shadowRoot, event.target.children[0].shadowRoot);
 //                        // reposition draggables
 //                        touch.resetPosition(event.relatedTarget);

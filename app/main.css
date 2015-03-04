@@ -81,9 +81,7 @@ html /deep/ label {
 }
 
 html /deep/ core-icon-button {
-    background: #fff;
-    padding-right: 15px;
-    border-radius: 2px;
+    border-radius: 1px;
 }
 
 html /deep/ button {

@@ -21,9 +21,22 @@
                 padding: 5px;
                 overflow: auto;
             }
+
+            .iconbar {
+                float: right;
+                margin: 2px;
+                height: 25px;
+            }
+
         </style>
 
         <div id="widget" class="widget">
+            <div class="iconbar">
+                <core-icon-button icon="aspect-ratio" hidden?="{{hideResizeToInitial}}"
+                                  on-tap="{{resizeToInitial}}"></core-icon-button>
+                <core-icon-button icon="dashboard" hidden?="{{hideRevertToDock}}"
+                                  on-tap="{{revertToDock}}"></core-icon-button>
+            </div>
             <content select="h2"></content>
             <div class="body">
                 <content select="*"></content>
@@ -50,22 +63,50 @@
                  */
                 disableResizable: false
             },
+            hideResizeToInitial: true,
+            hideRevertToDock: true,
             domReady: function () {
                 // capture variables
-                var widget = this.$.widget;
-                var disableDraggable = this.disableDraggable;
-                var disableResizable = this.disableResizable;
+                var elementThis = this;
 
                 require(['core-touch'], function (touch) {
-                    if (!disableDraggable) {
+                    var widget = elementThis.$.widget;
+                    if (!elementThis.disableDraggable) {
                         touch.makeDraggable(widget, {
-                            revert: false
+                            revert: false,
+                            onstart: function () {
+                                elementThis.hideRevertToDock = false;
+                            },
+                            onend: function (event) {
+                                elementThis.hideRevertToDock = event.interaction.dropped;
+                            }
                         });
                     }
-                    if (!disableResizable) {
-                        touch.makeResizable(widget);
+                    if (!elementThis.disableResizable) {
+                        touch.makeResizable(widget, {
+                            onstart: function () {
+                                elementThis.hideResizeToInitial = false;
+                            },
+                            onend: function () {
+                                elementThis.hideResizeToInitial = touch.isInitialSize(widget);
+                            }
+                        });
                     }
                 });
+            },
+            resizeToInitial: function () {
+                var widget = this.$.widget;
+                require(['core-touch'], function (touch) {
+                    touch.resizeToInitial(widget);
+                });
+                this.hideResizeToInitial = true;
+            },
+            revertToDock: function () {
+                var widget = this.$.widget;
+                require(['core-touch'], function (touch) {
+                    touch.resetPosition(widget);
+                });
+                this.hideRevertToDock = true;
             }
         });
     </script>
