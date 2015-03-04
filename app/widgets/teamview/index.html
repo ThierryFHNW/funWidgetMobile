@@ -22,7 +22,7 @@
     </template>
     <script>
         Polymer({
-            ready: function () {
+            attached: function () {
                 this.projectId = this.$.globals.routeParams.projectId;
                 this.$.rest.go();
             }

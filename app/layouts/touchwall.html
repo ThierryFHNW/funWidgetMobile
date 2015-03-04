@@ -33,9 +33,10 @@
                 width: 350px;
                 height: 200px;
                 box-sizing: border-box;
+                position: relative;
             }
 
-            .widget, #mainWorkspace {
+            #mainWorkspace {
                 position: relative;
                 height: 100%;
                 width: 100%;
@@ -49,18 +50,10 @@
             <div id="header">HEADER</div>
             <div id="body">
                 <div id="widgets">
-                    <div class="widgetDropzone hidden" id="widget1-dropzone">
-                        <div class="widget" id="widget1"></div>
-                    </div>
-                    <div class="widgetDropzone hidden" id="widget2-dropzone">
-                        <div class="widget" id="widget2"></div>
-                    </div>
-                    <div class="widgetDropzone hidden" id="widget3-dropzone">
-                        <div class="widget" id="widget3"></div>
-                    </div>
-                    <div class="widgetDropzone hidden" id="widget4-dropzone">
-                        <div class="widget" id="widget4"></div>
-                    </div>
+                    <div class="widgetDropzone hidden" id="widget1"></div>
+                    <div class="widgetDropzone hidden" id="widget2"></div>
+                    <div class="widgetDropzone hidden" id="widget3"></div>
+                    <div class="widgetDropzone hidden" id="widget4"></div>
                 </div>
 
                 <div id="mainWorkspace"></div>
@@ -95,23 +88,14 @@
             function enableDropzone(dropzoneElement) {
                 require(['core-touch'], function (touch) {
                     touch.makeDropZone(dropzoneElement, '.widget');
-                    touch.addInteractEventListener(dropzoneElement, 'drop', function (event) {
-                        switchWidgets(event.relatedTarget.shadowRoot, event.target.children[0].shadowRoot);
-                        // reposition draggables
-                        touch.resetPosition(event.relatedTarget);
-                        touch.resetPosition(event.target.children[0]);
-                    });
+//                    touch.addInteractEventListener(dropzoneElement, 'drop', function (event) {
+//                        switchWidgets(event.relatedTarget.shadowRoot, event.target.children[0].shadowRoot);
+//                        // reposition draggables
+//                        touch.resetPosition(event.relatedTarget);
+//                        touch.resetPosition(event.target.children[0]);
+//                    });
                 });
             }
-
-            function enableDraggable(target) {
-                require(['core-touch'], function (touch) {
-                    touch.makeDraggable(target, {
-                        revert: false
-                    });
-                });
-            }
-
 
             Polymer({
                 addWidget: function (targetId, content) {
@@ -131,7 +115,7 @@
                     if (isWidget(targetId)) {
                         console.log('is widget or mainWorkspace: ' + targetId);
 
-                        var targetDropzone = this.$[targetId + '-dropzone'];
+                        var targetDropzone = this.$[targetId];
                         if (targetDropzone == null) {
                             console.error('Parent dropzone for ' + targetId + ' not found');
                             return;
@@ -139,14 +123,7 @@
                         // show the dropzone if a widget is present
                         targetDropzone.classList.remove('hidden');
 
-                        if (targetDropzone.children.length != 1) {
-                            console.error('The dropzone ofclass="widget" ' + targetId + ' must only contain a single div for the widget itself.');
-                            return;
-                        }
-                        var target = targetDropzone.children[0];
-
-                        // activate draggable and dropzones
-                        enableDraggable(target);
+                        // activate dropzones
                         enableDropzone(targetDropzone);
                     }
 

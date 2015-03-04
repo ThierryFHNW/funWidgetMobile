@@ -1,34 +1,33 @@
 <template class="content">
-
-    <polymer-element name="ads-sprintinfo">
-        <template>
-            <ads-widget>
-                <h2>{{sprint.name}}</h2>
-                <p>From {{sprint.startTime | dateFmt}} to {{sprint.endTime | dateFmt}}</p>
-            </ads-widget>
-
-            <app-globals id="globals"></app-globals>
-            <ads-rest-sprint id="rest" resourceId="{{sprintId}}" response="{{sprint}}"></ads-rest-sprint>
-
-        </template>
-        <script>
-            Polymer({
-                ready: function () {
-                    this.sprintId = this.$.globals.routeParams.sprintId;
-                    this.$.rest.go();
-                },
-                dateFmt: function (value) {
-                    if (value == undefined) {
-                        return '';
-                    }
-                    var date = value.split('T')[0];
-                    var parts = date.split('-');
-                    return parts[2] + '.' + parts[1] + '.' + parts[0];
-                }
-            });
-        </script>
-    </polymer-element>
-
     <ads-sprintinfo></ads-sprintinfo>
-
 </template>
+
+<polymer-element name="ads-sprintinfo">
+    <template>
+        <ads-widget>
+            <h2>{{sprint.name}}</h2>
+
+            <p>From {{sprint.startTime | dateFmt}} to {{sprint.endTime | dateFmt}}</p>
+
+        </ads-widget>
+
+        <app-globals id="globals"></app-globals>
+        <ads-rest-sprint id="rest" resourceId="{{sprintId}}" response="{{sprint}}"></ads-rest-sprint>
+    </template>
+    <script>
+        Polymer({
+            attached: function () {
+                this.sprintId = this.$.globals.routeParams.sprintId;
+                this.$.rest.go();
+            },
+            dateFmt: function (value) {
+                if (value == undefined) {
+                    return '';
+                }
+                var date = value.split('T')[0];
+                var parts = date.split('-');
+                return parts[2] + '.' + parts[1] + '.' + parts[0];
+            }
+        });
+    </script>
+</polymer-element>

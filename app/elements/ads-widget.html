@@ -1,12 +1,13 @@
-<polymer-element name="ads-widget" noscript>
+<polymer-element name="ads-widget">
     <template>
         <style>
-            .box {
+            #widget {
                 height: 100%;
                 background-color: #f2f2f2;
                 border: 2px solid #000000;
                 box-sizing: border-box;
                 overflow: auto;
+                position: relative;
             }
 
             ::content h2 {
@@ -22,11 +23,28 @@
             }
         </style>
 
-        <div class="box">
+        <div id="widget" class="widget">
             <content select="h2"></content>
             <div class="body">
                 <content select="*"></content>
             </div>
         </div>
     </template>
+    <script>
+        Polymer({
+            publish: {
+                disableDraggability: false
+            },
+            domReady: function () {
+                var widget = this.$.widget;
+                if (!this.disableDraggability) {
+                    require(['core-touch'], function(touch) {
+                        touch.makeDraggable(widget, {
+                            revert: false
+                        });
+                    });
+                }
+            }
+        });
+    </script>
 </polymer-element>
