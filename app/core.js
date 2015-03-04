@@ -797,6 +797,7 @@ require(['interact'], function (interact) {
          *          onstart: function called on start of resizing.
          *          onmove: function called when the element is moved.
          *          onend: function called on end of resizing.
+         *          disableMove: function to control the move function of the resizable: return true to disable resizing temporarily.
          */
         function _makeResizable(element, options) {
 
@@ -806,6 +807,9 @@ require(['interact'], function (interact) {
                 onmove: function () {
                 },
                 onstop: function () {
+                },
+                disableMove: function () {
+                    return false;
                 }
             });
 
@@ -842,7 +846,9 @@ require(['interact'], function (interact) {
                     options.onstart(event);
                 })
                 .on('resizemove', function (event) {
-                    onmove(event.target, event.dx, event.dy);
+                    if (!options.disableMove()) {
+                        onmove(event.target, event.dx, event.dy);
+                    }
                     options.onmove(event);
                 })
                 .on('resizeend', function (event) {
@@ -857,11 +863,13 @@ require(['interact'], function (interact) {
                     options.onstart(event);
                 },
                 onmove: function (event) {
-                    var target = event.target;
-                    var previousDistance = event.interaction.previousDistance || event.interaction.initialDistance;
-                    var distanceDiff = event.distance - previousDistance;
-                    onmove(target, distanceDiff, distanceDiff);
-                    event.interaction.previousDistance = event.distance;
+                    if (!options.disableMove()) {
+                        var target = event.target;
+                        var previousDistance = event.interaction.previousDistance || event.interaction.initialDistance;
+                        var distanceDiff = event.distance - previousDistance;
+                        onmove(target, distanceDiff, distanceDiff);
+                        event.interaction.previousDistance = event.distance;
+                    }
                     options.onmove(event);
                 },
                 onend: function (event) {

@@ -87,6 +87,9 @@
                             onstart: function () {
                                 elementThis.hideResizeToInitial = false;
                             },
+                            disableMove: function () {
+                                return elementThis.hideRevertToDock;
+                            },
                             onend: function () {
                                 elementThis.hideResizeToInitial = touch.isInitialSize(widget);
                             }
