@@ -768,20 +768,21 @@ require(['interact'], function (interact) {
 
         function _makeResizable(element) {
 
-            function onstart(event) {
-                var target = event.target;
+            function onstart(target) {
                 // save the initial size
                 if (target.initialSize == undefined) {
                     target.initialSize = interact.getElementRect(target);
                 }
             }
 
-            function onmove(event) {
-                var target = event.target;
+            function onmove(target, dx, dy) {
                 var currentSize = interact.getElementRect(target);
+                var height = target.style.height != '' ? target.style.height : currentSize.height;
+                var width = target.style.width != '' ? target.style.width : currentSize.width;
+
                 // add the change in coords to the previous width of the target element
-                var newWidth = parseFloat(currentSize.width) + event.dx,
-                    newHeight = parseFloat(currentSize.height) + event.dy;
+                var newWidth = parseFloat(width) + dx,
+                    newHeight = parseFloat(height) + dy;
 
                 // update the element's style only if it's not smaller that the initial size
                 if (newHeight > target.initialSize.height) {
@@ -796,19 +797,24 @@ require(['interact'], function (interact) {
             interact(element)
                 .resizable(true)
                 .on('resizestart', function (event) {
-                    onstart(event);
+                    onstart(event.target);
                 })
                 .on('resizemove', function (event) {
-                    onmove(event);
+                    onmove(event.target, event.dx, event.dy);
                 });
 
             // pinch-to-zoom
             interact(element).gesturable({
                 onstart: function (event) {
-                    onstart(event);
+                    onstart(event.target);
+                    event.interaction.initialDistance = event.distance;
                 },
                 onmove: function (event) {
-                    onmove(event);
+                    var target = event.target;
+                    var previousDistance = event.interaction.previousDistance || event.interaction.initialDistance;
+                    var distanceDiff = event.distance - previousDistance;
+                    onmove(target, distanceDiff, distanceDiff);
+                    event.interaction.previousDistance = event.distance;
                 }
             });
         }
