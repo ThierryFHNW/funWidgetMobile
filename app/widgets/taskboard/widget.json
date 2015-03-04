@@ -3,8 +3,8 @@
   "description": "",
   "elements": [
     "ads-rest",
-    "ads-taskcard",
-    "ads-userstorycard",
-    "ads-form"
+    "awall-taskcard",
+    "awall-userstorycard",
+    "awall-form"
   ]
 }

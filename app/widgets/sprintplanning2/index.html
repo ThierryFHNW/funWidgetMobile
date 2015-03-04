@@ -1,8 +1,8 @@
 <template class="content">
-    <ads-sp2></ads-sp2>
+    <awall-sp2></awall-sp2>
 </template>
 
-<polymer-element name="ads-sp2">
+<polymer-element name="awall-sp2">
     <template>
         <style>
             .container {
@@ -27,7 +27,7 @@
                 padding-left: 10px;
             }
         </style>
-        <ads-widget>
+        <awall-widget disableDraggability>
             <h2>Sprintplanning 2</h2>
 
             <div class="container">
@@ -35,7 +35,7 @@
                 <awall-sprintbacklog userstories="{{userstories}}" class="sprintBacklog"></awall-sprintbacklog>
                 <awall-temptasks class="tempTasks"></awall-temptasks>
             </div>
-        </ads-widget>
+        </awall-widget>
         <app-globals id="globals"></app-globals>
         <ads-rest-userstories id="usEndpoint" sprintId="{{sprintId}}"
                               response="{{userstories}}"></ads-rest-userstories>
@@ -56,10 +56,10 @@
     <template>
         <h3>Product Backlog</h3>
         <template repeat="{{story in userstories | noPriority}}">
-            <ads-userstorycard userstory="{{story}}"></ads-userstorycard>
+            <awall-userstorycard userstory="{{story}}"></awall-userstorycard>
         </template>
         <core-icon-button icon="add" on-tap="{{onAddUserStorytap}}">Add User Story</core-icon-button>
-        <ads-form-userstory id="usForm"></ads-form-userstory>
+        <awall-form-userstory id="usForm"></awall-form-userstory>
     </template>
     <script>
         Polymer({
@@ -155,19 +155,19 @@
                 bottom: 0;
             }
 
-            ads-userstorycard {
+            awall-userstorycard {
                 position: absolute;
                 z-index: 1;
             }
         </style>
         <td id="usDropzone">
-            <ads-userstorycard userstory="{{userstory}}" disableDraggable></ads-userstorycard>
+            <awall-userstorycard userstory="{{userstory}}" disableDraggable></awall-userstorycard>
             <div id="upperDropzone"></div>
             <div id="lowerDropzone"></div>
         </td>
         <td id="taskDropzone">
             <template repeat="{{task in tasks}}">
-                <ads-taskcard task="{{task}}"></ads-taskcard>
+                <awall-taskcard task="{{task}}"></awall-taskcard>
             </template>
         </td>
 
@@ -275,9 +275,9 @@
     <template>
         <h3>Tasks</h3>
         <template repeat="{{task in tempTasks | orderBy('name')}}">
-            <ads-temp-taskcard task="{{task}}"></ads-temp-taskcard>
+            <awall-temp-taskcard task="{{task}}"></awall-temp-taskcard>
         </template>
-        <ads-form-temp-task id="taskForm"></ads-form-temp-task>
+        <awall-form-temp-task id="taskForm"></awall-form-temp-task>
 
         <core-icon-button icon="add" on-tap="{{onAddTempTaskTap}}">Add Temp Task</core-icon-button>
         <ads-rest-awall-sp2 tasks="{{tempTasks}}"></ads-rest-awall-sp2>

@@ -1,8 +1,8 @@
 <template class="content">
-    <ads-taskboard></ads-taskboard>
+    <awall-taskboard></awall-taskboard>
 </template>
 
-<polymer-element name="ads-taskboard">
+<polymer-element name="awall-taskboard">
     <template>
         <style>
             table {
@@ -38,11 +38,11 @@
                 font-weight: normal;
             }
         </style>
-        <ads-widget disableDraggability>
+        <awall-widget disableDraggability>
             <h2>Taskboard</h2>
 
             <core-icon-button icon="add" on-tap="{{addUserStoryTabHandler}}">Add User Story</core-icon-button>
-            <ads-form-userstory id="usForm"></ads-form-userstory>
+            <awall-form-userstory id="usForm"></awall-form-userstory>
 
             <table class="table">
                 <thead>
@@ -57,18 +57,18 @@
                 <template repeat="{{userstory in userstories | orderBy('priority')}}">
                     <tr>
                         <td class="story-column">
-                            <ads-userstorycard userstory="{{userstory}}" disableDraggable></ads-userstorycard>
+                            <awall-userstorycard userstory="{{userstory}}" disableDraggable></awall-userstorycard>
                         </td>
                         <template repeat="{{state in taskstates | sortStates}}">
                             <td>
-                                <ads-tb-tasks taskstate="{{state}}" userstoryId="{{userstory.id}}"></ads-tb-tasks>
+                                <awall-tb-tasks taskstate="{{state}}" userstoryId="{{userstory.id}}"></awall-tb-tasks>
                             </td>
                         </template>
                     </tr>
                 </template>
                 </tbody>
             </table>
-        </ads-widget>
+        </awall-widget>
         <app-globals id="globals"></app-globals>
         <ads-rest-userstories id="usRest" sprintId="{{sprintId}}"
                               response="{{userstories}}"></ads-rest-userstories>
@@ -103,13 +103,13 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-tb-tasks" attributes="taskstate userstoryId" noscript>
+<polymer-element name="awall-tb-tasks" attributes="taskstate userstoryId" noscript>
     <template>
         <template repeat="{{task in tasks}}">
-            <ads-taskcard task="{{task}}"></ads-taskcard>
+            <awall-taskcard task="{{task}}"></awall-taskcard>
         </template>
 
         <ads-rest-tasks userStoryId="{{userstoryId}}" stateId="{{taskstate.id}}" response="{{tasks}}"
-                        auto expand="all"></ads-rest-tasks>
+                          auto expand="all"></ads-rest-tasks>
     </template>
 </polymer-element>

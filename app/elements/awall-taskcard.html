@@ -1,7 +1,7 @@
 <link rel="import" href="ads-rest.html">
-<link rel="import" href="ads-form.html">
+<link rel="import" href="awall-form.html">
 
-<polymer-element name="ads-taskcard-base">
+<polymer-element name="awall-taskcard-base">
     <template>
         <style>
             #container {
@@ -71,11 +71,11 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-taskcard" extends="ads-taskcard-base">
+<polymer-element name="awall-taskcard" extends="awall-taskcard-base">
     <template>
         <shadow></shadow>
         <ads-rest-task id="rest"></ads-rest-task>
-        <ads-form-task id="form" task="{{task}}" userstory="{{task.userStory}}"></ads-form-task>
+        <awall-form-task id="form" task="{{task}}" userstory="{{task.userStory}}"></awall-form-task>
     </template>
     <script>
         Polymer({
@@ -107,7 +107,7 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-temp-taskcard" extends="ads-taskcard-base">
+<polymer-element name="awall-temp-taskcard" extends="awall-taskcard-base">
     <template>
         <style>
             ::content .taskcard {
@@ -121,7 +121,7 @@
             }
         </style>
         <shadow></shadow>
-        <ads-form-temp-task id="form" task="{{task}}"></ads-form-temp-task>
+        <awall-form-temp-task id="form" task="{{task}}"></awall-form-temp-task>
     </template>
     <script>
         Polymer({

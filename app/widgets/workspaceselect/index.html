@@ -1,4 +1,8 @@
-<polymer-element name="ads-workspaceselect">
+<template class="content">
+    <awall-workspaceselect></awall-workspaceselect>
+</template>
+
+<polymer-element name="awall-workspaceselect">
     <template>
         <style>
             #content {
@@ -18,7 +22,8 @@
         <div id="content">
             <h1>Select workspace for {{sprint.name}}</h1>
             <ul>
-                <li><a href="#/project/{{projectId}}/sprint/{{sprint.id}}/taskboard">Taskboard for daily stand-up</a></li>
+                <li><a href="#/project/{{projectId}}/sprint/{{sprint.id}}/taskboard">Taskboard for daily stand-up</a>
+                </li>
                 <li><a href="#/project/{{projectId}}/sprint/{{sprint.id}}/sp2">Sprint Planning 2</a></li>
             </ul>
         </div>
@@ -36,7 +41,3 @@
         });
     </script>
 </polymer-element>
-
-<template class="content">
-    <ads-workspaceselect></ads-workspaceselect>
-</template>

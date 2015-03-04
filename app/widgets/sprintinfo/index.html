@@ -1,15 +1,15 @@
 <template class="content">
-    <ads-sprintinfo></ads-sprintinfo>
+    <awall-sprintinfo></awall-sprintinfo>
 </template>
 
-<polymer-element name="ads-sprintinfo">
+<polymer-element name="awall-sprintinfo">
     <template>
-        <ads-widget>
+        <awall-widget>
             <h2>{{sprint.name}}</h2>
 
             <p>From {{sprint.startTime | dateFmt}} to {{sprint.endTime | dateFmt}}</p>
 
-        </ads-widget>
+        </awall-widget>
 
         <app-globals id="globals"></app-globals>
         <ads-rest-sprint id="rest" resourceId="{{sprintId}}" response="{{sprint}}"></ads-rest-sprint>

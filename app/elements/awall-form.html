@@ -1,4 +1,4 @@
-<polymer-element name="ads-form">
+<polymer-element name="awall-form">
     <template>
         <style>
             :host {
@@ -48,9 +48,9 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-form-userstory">
+<polymer-element name="awall-form-userstory">
     <template>
-        <ads-form id="form">
+        <awall-form id="form">
             <h1>{{action}} User-Story</h1>
 
             <app-field-text label="Name" placeholder="Name of the user-story"
@@ -70,7 +70,7 @@
 
             <button id="save" on-tap="{{onSave}}">Save</button>
             <button id="delete" on-tap="{{onDelete}}">Delete</button>
-        </ads-form>
+        </awall-form>
 
         <app-globals id="globals"></app-globals>
         <ads-rest-people id="restPeople" projectId="{{projectId}}" response="{{people}}"></ads-rest-people>
@@ -130,9 +130,9 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-form-task">
+<polymer-element name="awall-form-task">
     <template>
-        <ads-form id="form">
+        <awall-form id="form">
             <h1>{{action}} Task</h1>
 
             <app-field-text label="Name" placeholder="Name of the task" value="{{task.name}}"
@@ -154,7 +154,7 @@
 
             <button id="save" on-tap="{{onSave}}">Save</button>
             <button id="delete" on-tap="{{onDelete}}">Delete</button>
-        </ads-form>
+        </awall-form>
 
         <app-globals id="globals"></app-globals>
         <ads-rest-people id="restPeople" projectId="{{projectId}}" response="{{people}}"></ads-rest-people>
@@ -212,9 +212,9 @@
     </script>
 </polymer-element>
 
-<polymer-element name="ads-form-temp-task">
+<polymer-element name="awall-form-temp-task">
     <template>
-        <ads-form id="form">
+        <awall-form id="form">
             <h1>Create Temp Task</h1>
 
             <app-field-text label="Name" placeholder="Name of the task" value="{{task.name}}"
@@ -226,7 +226,7 @@
 
             <button id="save" on-tap="{{onSave}}">Save</button>
             <button id="delete" on-tap="{{onDelete}}">Delete</button>
-        </ads-form>
+        </awall-form>
 
         <app-globals id="globals"></app-globals>
         <ads-rest-awall id="awall"></ads-rest-awall>

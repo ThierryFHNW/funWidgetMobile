@@ -1,21 +1,21 @@
 <template class="content">
-    <ads-teamview></ads-teamview>
+    <awall-teamview></awall-teamview>
 </template>
 
-<polymer-element name="ads-teamview">
+<polymer-element name="awall-teamview">
     <template>
         <style>
-            ads-avatarcard {
+            awall-avatarcard {
                 margin: 2px;
             }
         </style>
-        <ads-widget>
+        <awall-widget>
             <h2>Team</h2>
 
             <template repeat="{{person in people}}">
-                <ads-avatarcard user="{{person}}"></ads-avatarcard>
+                <awall-avatarcard user="{{person}}"></awall-avatarcard>
             </template>
-        </ads-widget>
+        </awall-widget>
 
         <app-globals id="globals"></app-globals>
         <ads-rest-people id="rest" response="{{people}}" projectId="{{projectId}}"></ads-rest-people>
