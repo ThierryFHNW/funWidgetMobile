@@ -33,17 +33,39 @@
     <script>
         Polymer({
             publish: {
-                disableDraggability: false
+                /**
+                 * Switch to disable draggability of the element.
+                 *
+                 * @attribute disableDraggable
+                 * @type boolean
+                 * @default false
+                 */
+                disableDraggable: false,
+                /**
+                 * Switch to disable resizability of the element.
+                 *
+                 * @attribute disableResizable
+                 * @type boolean
+                 * @default false
+                 */
+                disableResizable: false
             },
             domReady: function () {
+                // capture variables
                 var widget = this.$.widget;
-                if (!this.disableDraggability) {
-                    require(['core-touch'], function(touch) {
+                var disableDraggable = this.disableDraggable;
+                var disableResizable = this.disableResizable;
+
+                require(['core-touch'], function (touch) {
+                    if (!disableDraggable) {
                         touch.makeDraggable(widget, {
                             revert: false
                         });
-                    });
-                }
+                    }
+                    if (!disableResizable) {
+                        touch.makeResizable(widget);
+                    }
+                });
             }
         });
     </script>

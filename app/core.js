@@ -766,6 +766,53 @@ require(['interact'], function (interact) {
             target.setAttribute('data-y', 0);
         }
 
+        function _makeResizable(element) {
+
+            function onstart(event) {
+                var target = event.target;
+                // save the initial size
+                if (target.initialSize == undefined) {
+                    target.initialSize = interact.getElementRect(target);
+                }
+            }
+
+            function onmove(event) {
+                var target = event.target;
+                var currentSize = interact.getElementRect(target);
+                // add the change in coords to the previous width of the target element
+                var newWidth = parseFloat(currentSize.width) + event.dx,
+                    newHeight = parseFloat(currentSize.height) + event.dy;
+
+                // update the element's style only if it's not smaller that the initial size
+                if (newHeight > target.initialSize.height) {
+                    target.style.height = newHeight + 'px';
+                }
+                if (newWidth > target.initialSize.width) {
+                    target.style.width = newWidth + 'px';
+                }
+            }
+
+            // resize
+            interact(element)
+                .resizable(true)
+                .on('resizestart', function (event) {
+                    onstart(event);
+                })
+                .on('resizemove', function (event) {
+                    onmove(event);
+                });
+
+            // pinch-to-zoom
+            interact(element).gesturable({
+                onstart: function (event) {
+                    onstart(event);
+                },
+                onmove: function (event) {
+                    onmove(event);
+                }
+            });
+        }
+
         return {
             makeDraggable: _makeDraggable,
             makeDropZone: _makeDropZone,
@@ -773,7 +820,8 @@ require(['interact'], function (interact) {
             resetPosition: _resetPosition,
             onDoubleTap: function (element, callback) {
                 interact(element).on('doubletap', callback);
-            }
+            },
+            makeResizable: _makeResizable
         }
     });
 
