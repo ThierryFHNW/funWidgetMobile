@@ -5,9 +5,19 @@
 <polymer-element name="awall-sprintinfo">
     <template>
         <awall-widget>
-            <h2>{{sprint.name}}</h2>
+            <awall-widget-size-default>
+                <h2>{{sprint.name}}</h2>
 
-            <p>From {{sprint.startTime | dateFmt}} to {{sprint.endTime | dateFmt}}</p>
+                <p>From {{sprint.startTime | dateFmt}} to {{sprint.endTime | dateFmt}}</p>
+            </awall-widget-size-default>
+
+            <awall-widget-size-full>
+                <h1>FULL VIEW IS SHOWN NOW !</h1>
+            </awall-widget-size-full>
+
+            <awall-widget-editable>
+                <h1>EDITABLE VIEW IS SHOWN NOW !</h1>
+            </awall-widget-editable>
 
         </awall-widget>
 

@@ -883,8 +883,10 @@ require(['interact'], function (interact) {
          * @param target The element to resize to initial size.
          */
         function _resizeToInitial(target) {
-            target.style.height = target.initialSize.height + 'px';
-            target.style.width = target.initialSize.width + 'px';
+            if(target.initialSize) {
+                target.style.height = target.initialSize.height + 'px';
+                target.style.width = target.initialSize.width + 'px';
+            }
         }
 
         /**
@@ -914,6 +916,10 @@ require(['interact'], function (interact) {
             return near(initialSize.height, currentSize.height, 1) && near(initialSize.width, currentSize.width, 1);
         }
 
+        function _getElementSize(target) {
+            return interact.getElementRect(target);
+        }
+
 
         return {
             makeDraggable: _makeDraggable,
@@ -925,7 +931,8 @@ require(['interact'], function (interact) {
             },
             makeResizable: _makeResizable,
             resizeToInitial: _resizeToInitial,
-            isInitialSize: _isInitialSize
+            isInitialSize: _isInitialSize,
+            getElementSize: _getElementSize
         }
     });
 

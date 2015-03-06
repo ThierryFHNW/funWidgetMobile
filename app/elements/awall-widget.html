@@ -32,15 +32,22 @@
 
         <div id="widget" class="widget">
             <div class="iconbar">
+                <core-icon-button icon="create" hidden?="{{hideEditMode}}"
+                                  on-tap="{{showEditMode}}"></core-icon-button>
                 <core-icon-button icon="aspect-ratio" hidden?="{{hideResizeToInitial}}"
                                   on-tap="{{resizeToInitial}}"></core-icon-button>
                 <core-icon-button icon="dashboard" hidden?="{{hideRevertToDock}}"
                                   on-tap="{{revertToDock}}"></core-icon-button>
+                <core-icon-button icon="close" hidden?="{{hideCloseEditMode}}"
+                                  on-tap="{{closeEditMode}}"></core-icon-button>
             </div>
-            <content select="h2"></content>
-            <div class="body">
-                <content select="*"></content>
-            </div>
+
+            <content select="awall-widget-size-default"></content>
+            <content select="awall-widget-size-full"></content>
+            <content select="awall-widget-editable"></content>
+
+            <!-- fallback for widgets not using the above sizes with behaviour -->
+            <content select="*"></content>
         </div>
     </template>
     <script>
@@ -65,12 +72,66 @@
             },
             hideResizeToInitial: true,
             hideRevertToDock: true,
+            hideEditMode: true,
+            hideCloseEditMode: true,
+            widgetSize: {
+                height: 0,
+                width: 0
+            },
+            widgetDefault: undefined,
+            widgetFull: undefined,
+            widgetEditable: undefined,
+            widgetSizeElements: [],
             domReady: function () {
-                // capture variables
-                var elementThis = this;
+                var getSingleElement = function (selector) {
+                    var found = this.querySelectorAll(selector);
+                    if (found.length > 1) {
+                        console.error('Found more than one of: ' + selector + '. Only one is allowed');
+                        return null;
+                    }
+                    return found.length == 1 ? found[0] : null;
+                }.bind(this);
 
+                this.widgetDefault = getSingleElement('awall-widget-size-default');
+                this.widgetFull = getSingleElement('awall-widget-size-full');
+                this.widgetEditable = getSingleElement('awall-widget-editable');
+
+                this.widgetSizeElements = [this.widgetDefault, this.widgetFull, this.widgetEditable].filter(function (widget) {
+                    return widget != undefined || widget != null;
+                });
+
+                // attach onHide/onShow callbacks to full widget
+                if (this.widgetFull) {
+                    this.widgetFull.onShow = function () {
+                        if (this.widgetDefault) {
+                            this.widgetDefault.hide();
+                        }
+                        if (this.widgetEditable) {
+                            this.hideEditMode = false;
+                        }
+                    }.bind(this);
+                    this.widgetFull.onHide = function () {
+                        if (this.widgetDefault) {
+                            this.widgetDefault.show();
+                        }
+                        if (this.widgetEditable) {
+                            this.hideEditMode = true;
+                        }
+                    }.bind(this);
+                }
+
+
+                // enable touch interaction
+                var elementThis = this;
                 require(['core-touch'], function (touch) {
                     var widget = elementThis.$.widget;
+
+                    // set the initial size of the widget
+                    var size = touch.getElementSize(widget);
+                    elementThis.height = size.height;
+                    elementThis.width = size.width;
+
+                    // make draggable
                     if (!elementThis.disableDraggable) {
                         touch.makeDraggable(widget, {
                             revert: false,
@@ -82,10 +143,17 @@
                             }
                         });
                     }
+
+                    // make resizable
                     if (!elementThis.disableResizable) {
                         touch.makeResizable(widget, {
                             onstart: function () {
                                 elementThis.hideResizeToInitial = false;
+                            },
+                            onmove: function () {
+                                if (!this.disableMove()) {
+                                    elementThis.widgetSize = touch.getElementSize(widget);
+                                }
                             },
                             disableMove: function () {
                                 return elementThis.hideRevertToDock;
@@ -99,17 +167,120 @@
             },
             resizeToInitial: function () {
                 var widget = this.$.widget;
+                var elementThis = this;
                 require(['core-touch'], function (touch) {
+                    // resize to initial and adjust the height/width
                     touch.resizeToInitial(widget);
+                    elementThis.widgetSize = touch.getElementSize(widget);
                 });
                 this.hideResizeToInitial = true;
             },
             revertToDock: function () {
                 var widget = this.$.widget;
+                var elementThis = this;
                 require(['core-touch'], function (touch) {
+                    // resize to initial
+                    elementThis.resizeToInitial();
+
                     touch.resetPosition(widget);
                 });
                 this.hideRevertToDock = true;
+            },
+            widgetSizeChanged: function () {
+                this.widgetSizeElements.forEach(function (widget) {
+                    widget.setDimensions(this.widgetSize.height, this.widgetSize.width);
+                }, this);
+            },
+            showEditMode: function () {
+                this.hideEditMode = true;
+                this.hideCloseEditMode = false;
+                this.hideResizeToInitial = true;
+                this.hideRevertToDock = true;
+                this.widgetEditable.show();
+                this.widgetFull.hide();
+                this.widgetDefault.hide();
+            },
+            closeEditMode: function () {
+                this.hideEditMode = false;
+                this.hideCloseEditMode = true;
+                this.hideResizeToInitial = false;
+                this.hideRevertToDock = false;
+                this.widgetEditable.hide();
+                this.widgetFull.show();
+                this.widgetDefault.hide();
+            }
+        });
+    </script>
+</polymer-element>
+
+
+<polymer-element name="awall-widget-size">
+    <template>
+        <content id="content"></content>
+    </template>
+    <script>
+        Polymer({
+            publish: {
+                showHeight: -1,
+                showWidth: -1,
+                onShow: function () {
+
+                },
+                onHide: function () {
+
+                }
+            },
+            height: 0,
+            width: 0,
+            isManualControl: false,
+            attached: function () {
+                this.evaluateVisibility();
+            },
+            evaluateVisibility: function () {
+                if (!this.isManualControl) {
+                    if (this.height >= this.showHeight && this.width >= this.showWidth) {
+                        this.show();
+                    } else {
+                        this.hide();
+                    }
+                }
+            },
+            show: function () {
+                this.hidden = false;
+                this.onShow();
+            },
+            hide: function () {
+                this.hidden = true;
+                this.onHide();
+            },
+            setDimensions: function (height, width) {
+                this.height = height;
+                this.width = width;
+                this.evaluateVisibility();
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="awall-widget-size-default" extends="awall-widget-size" noscript></polymer-element>
+
+<polymer-element name="awall-widget-size-full" extends="awall-widget-size">
+    <script>
+        Polymer({
+            publish: {
+                showHeight: 400,
+                showWidth: 400
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="awall-widget-editable" extends="awall-widget-size-full">
+    <script>
+        Polymer({
+            isManualControl: true,
+            attached: function () {
+                this.hide();
             }
         });
     </script>
