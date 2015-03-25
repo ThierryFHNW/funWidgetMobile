@@ -1,11 +1,57 @@
-body {
-    font-size: 12px;
-    font-family: Arial, Helvetica, sans-serif;
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
     margin: 0;
     padding: 0;
-    position: relative;
-    height: 100%;
-    min-height: 100%;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+body {
+    line-height: 1;
+}
+ol, ul {
+    list-style: none;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/****** END RESET CSS *******/
+
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
     background-color: #1f497d;
 }
 
@@ -24,26 +70,25 @@ html /deep/ .drop-entered {
 }
 
 html /deep/ core-field {
-    border: 1px solid #ddd;
-    margin: 10px 0 10px 0;
+    border: 0.1em solid #ddd;
+    margin: 0.8em 0;
 }
 
 html /deep/ input {
     font-size: 1.2em !important;
     margin: 0;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding: 0.4em 0;
     box-sizing: border-box;
     width: 100%;
 }
 
 html /deep/ textarea {
     font-family: sans-serif;
-    margin: 5px 5px 5px 0;
+    margin: 0.4em 0.4em 0.4em 0;
     border: none;
     height: 3em;
     font-size: 1.2em;
-    padding: 5px 0;
+    padding: 0.4em 0;
     box-sizing: border-box;
     width: 100%;
 }
@@ -51,15 +96,15 @@ html /deep/ textarea {
 html /deep/ core-dropdown-menu {
     font-size: 1.2em;
     background: none;
-    padding: 5px 0;
+    padding: 0.4em 0;
     width: 100%;
     border: none;
-    margin-right: 5px;
+    margin-right: 0.4em;
 }
 
 html /deep/ core-dropdown {
     box-sizing: border-box;
-    min-width: 200px;
+    min-width: 12em;
     color: #000;
     border: 1px solid #ccc;
 }
@@ -73,9 +118,9 @@ core-item {
 html /deep/ label {
     box-sizing: border-box;
     text-align: right;
-    padding: 0 15px 0 10px;;
-    width: 150px;
-    margin: 10px 0 10px 0;
+    padding: 0 1em 0 0.8em;
+    width: 10em;
+    margin: 0.8em 0;
     font-size: 1.1em;
     font-weight: bold;
 }
@@ -86,17 +131,17 @@ html /deep/ core-icon-button {
 
 html /deep/ button {
     float: right;
-    margin-left: 10px;
+    margin-left: 0.8em;
     background-color: #333;
     opacity: 0.4;
     transition: opacity 420ms ease-in-out;
-    border-radius: 2px;
+    border-radius: 0.15em;
     color: #fff;
     font-size: 1.5em;
     text-decoration: none;
     cursor: pointer;
     border: none;
-    padding: 5px 20px 5px 20px;
+    padding: 0.4em 1.5em;
     box-shadow: 0 0 1px #777;
 }
 

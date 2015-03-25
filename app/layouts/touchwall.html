@@ -8,7 +8,7 @@
                 flex-direction: column;
             }
 
-            #header, #footer {
+            footer {
                 color: white;
                 padding: 1em;
                 background-color: #000000;
@@ -16,7 +16,7 @@
 
             #body {
                 flex: 1;
-                padding: 5px;
+                padding: 0.3em;
                 display: flex;
                 flex-direction: column;
                 overflow-y: scroll;
@@ -28,10 +28,10 @@
 
             .widgetDropzone {
                 flex: 0 0 25%;
-                margin-right: 5px;
-                margin-bottom: 5px;
-                width: 350px;
-                height: 200px;
+                margin-right: 0.3em;
+                margin-bottom: 0.3em;
+                width: 20em;
+                height: 13em;
                 box-sizing: border-box;
                 position: relative;
             }
@@ -47,7 +47,9 @@
             }
         </style>
         <div id="container">
-            <div id="header">HEADER</div>
+            <header>
+                <!-- Nothing yet -->
+            </header>
             <div id="body">
                 <div id="widgets">
                     <div class="widgetDropzone hidden" id="widget1"></div>
@@ -59,7 +61,7 @@
                 <div id="mainWorkspace"></div>
             </div>
 
-            <div id="footer">FOOTER</div>
+            <footer>FOOTER</footer>
         </div>
     </template>
     <script>

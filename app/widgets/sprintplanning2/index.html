@@ -11,10 +11,6 @@
                 box-sizing: border-box;
             }
 
-            .productBacklog {
-                flex: 0 0 250px;
-            }
-
             .sprintBacklog {
                 flex: 1;
             }
@@ -24,14 +20,13 @@
             }
 
             ::shadow h3 {
-                padding-left: 10px;
+                padding-left: 0.8em;
             }
         </style>
         <awall-widget disableDraggable disableResizable>
             <h2>Sprintplanning 2</h2>
 
             <div class="container">
-                <awall-productbacklog userstories="{{userstories}}" class="productBacklog"></awall-productbacklog>
                 <awall-sprintbacklog userstories="{{userstories}}" class="sprintBacklog"></awall-sprintbacklog>
                 <awall-temptasks class="tempTasks"></awall-temptasks>
             </div>
@@ -51,39 +46,13 @@
     </script>
 </polymer-element>
 
-
-<polymer-element name="awall-productbacklog" attributes="userstories">
-    <template>
-        <h3>Product Backlog</h3>
-        <template repeat="{{story in userstories | noPriority}}">
-            <awall-userstorycard userstory="{{story}}"></awall-userstorycard>
-        </template>
-        <core-icon-button icon="add" on-tap="{{onAddUserStorytap}}">Add User Story</core-icon-button>
-        <awall-form-userstory id="usForm"></awall-form-userstory>
-    </template>
-    <script>
-        Polymer({
-            noPriority: function (values) {
-                if (values != null) {
-                    return values.filter(function (value) {
-                        return value.priority == null;
-                    });
-                }
-            },
-            onAddUserStorytap: function () {
-                this.$.usForm.open();
-            }
-        });
-    </script>
-</polymer-element>
-
 <polymer-element name="awall-sprintbacklog" attributes="userstories">
     <template>
         <style>
             table {
                 border-collapse: collapse;
                 box-sizing: border-box;
-                margin-bottom: 10px;
+                margin-bottom: 0.8em;
                 width: 100%;
             }
 
@@ -103,7 +72,7 @@
             }
 
             table /deep/ td:nth-child(1) {
-                padding: 8px;
+                padding: 0.6em;
                 text-align: left;
             }
         </style>
@@ -136,8 +105,8 @@
         <style>
             #usDropzone {
                 position: relative;
-                height: 150px;
-                width: 250px;
+                height: 10em;
+                width: 16em;
             }
 
             #upperDropzone, #lowerDropzone {

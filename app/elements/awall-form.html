@@ -2,34 +2,24 @@
     <template>
         <style>
             :host {
-                width: 500px;
+                width: 32em;
                 box-sizing: border-box;
                 -moz-box-sizing: border-box;
                 -webkit-user-select: none;
                 -moz-user-select: none;
                 background: white;
-                padding: 30px 42px;
+                padding: 2em 3em;
                 outline: 1px solid rgba(0, 0, 0, 0.2);
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+                box-shadow: 0 0.25em 1em rgba(0, 0, 0, 0.2);
             }
 
-            a.close {
+            core-icon-button {
                 float: right;
-                margin-top: -26px;
-                margin-right: -38px;
-                cursor: pointer;
-                color: #333;
-                text-decoration: none;
-                font-size: 50px;
-                line-height: 0;
-                padding: 15px 3px;
-            }
-
-            .close:before {
-                content: "×";
+                margin: -2em -3em;
+                height: 2em;
             }
         </style>
-        <a class="close" on-tap="{{onClose}}"></a>
+        <core-icon-button icon="close" on-tap="{{onClose}}"></core-icon-button>
         <core-overlay id="overlay" backdrop layered></core-overlay>
         <content></content>
     </template>
@@ -89,7 +79,7 @@
             ready: function () {
                 this.projectId = this.$.globals.routeParams.projectId;
                 this.sprintId = this.$.globals.routeParams.sprintId;
-                if(this.sprintId != undefined) {
+                if (this.sprintId != undefined) {
                     this.sprint = {
                         id: this.sprintId
                     }
@@ -240,7 +230,7 @@
             open: function () {
                 this.isCreate = this.task.id === undefined;
                 this.$.delete.hidden = this.isCreate;
-                if(this.isCreate) {
+                if (this.isCreate) {
                     this.task = {};
                 }
 
