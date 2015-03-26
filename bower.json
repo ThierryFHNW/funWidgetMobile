@@ -14,7 +14,8 @@
     "core-icon": "Polymer/core-icon#~0.5.4",
     "core-icon-button": "Polymer/core-icon-button#~0.5.4",
     "core-dropdown-menu": "Polymer/core-dropdown-menu#~0.5.4",
-    "polymer-filters": "~0.2.1"
+    "polymer-filters": "~0.2.1",
+    "core-menu-button": "Polymer/core-menu-button#~0.5.5"
   },
   "devDependencies": {}
 }

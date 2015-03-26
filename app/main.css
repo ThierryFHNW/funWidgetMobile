@@ -23,32 +23,37 @@ time, mark, audio, video {
     font: inherit;
     vertical-align: baseline;
 }
+
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
     display: block;
 }
+
 body {
     line-height: 1;
 }
+
 ol, ul {
     list-style: none;
 }
+
 blockquote, q {
     quotes: none;
 }
+
 blockquote:before, blockquote:after,
 q:before, q:after {
     content: '';
     content: none;
 }
+
 table {
     border-collapse: collapse;
     border-spacing: 0;
 }
 
 /****** END RESET CSS *******/
-
 
 body {
     font-family: Arial, Helvetica, sans-serif;
@@ -67,62 +72,6 @@ html /deep/ .drop-active {
  */
 html /deep/ .drop-entered {
     background-color: green !important;
-}
-
-html /deep/ core-field {
-    border: 0.1em solid #ddd;
-    margin: 0.8em 0;
-}
-
-html /deep/ input {
-    font-size: 1.2em !important;
-    margin: 0;
-    padding: 0.4em 0;
-    box-sizing: border-box;
-    width: 100%;
-}
-
-html /deep/ textarea {
-    font-family: sans-serif;
-    margin: 0.4em 0.4em 0.4em 0;
-    border: none;
-    height: 3em;
-    font-size: 1.2em;
-    padding: 0.4em 0;
-    box-sizing: border-box;
-    width: 100%;
-}
-
-html /deep/ core-dropdown-menu {
-    font-size: 1.2em;
-    background: none;
-    padding: 0.4em 0;
-    width: 100%;
-    border: none;
-    margin-right: 0.4em;
-}
-
-html /deep/ core-dropdown {
-    box-sizing: border-box;
-    min-width: 12em;
-    color: #000;
-    border: 1px solid #ccc;
-}
-
-core-item {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
-html /deep/ label {
-    box-sizing: border-box;
-    text-align: right;
-    padding: 0 1em 0 0.8em;
-    width: 10em;
-    margin: 0.8em 0;
-    font-size: 1.1em;
-    font-weight: bold;
 }
 
 html /deep/ core-icon-button {

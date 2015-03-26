@@ -1,5 +1,53 @@
+<style>
+    html /deep/ input {
+        font-size: 1.2em !important;
+        margin: 0;
+        padding: 0.4em 0;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    html /deep/ core-field {
+        border: 0.1em solid #ddd;
+        margin: 0.8em 0;
+    }
+
+    html /deep/ label {
+        box-sizing: border-box;
+        text-align: right;
+        padding: 0 1em 0 0.8em;
+        width: 10em;
+        margin: 0.8em 0;
+        font-size: 1.1em;
+        font-weight: bold;
+    }
+</style>
+
 <polymer-element name="app-field-select">
     <template>
+        <style>
+            core-dropdown-menu {
+                font-size: 1.2em;
+                background: none;
+                padding: 0.4em 0;
+                width: 100%;
+                border: none;
+                margin-right: 0.4em;
+            }
+
+            core-dropdown {
+                box-sizing: border-box;
+                min-width: 12em;
+                color: #000;
+                border: 1px solid #ccc;
+            }
+
+            core-item {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+        </style>
         <core-field>
             <label for="input">{{label}}</label>
             <core-dropdown-menu label="{{placeholder}}" disabled?="{{disabled}}">
@@ -81,6 +129,18 @@
 
 <polymer-element name="app-field-textarea">
     <template>
+        <style>
+            textarea {
+                font-family: sans-serif;
+                margin: 0.4em 0.4em 0.4em 0;
+                border: none;
+                height: 3em;
+                font-size: 1.2em;
+                padding: 0.4em 0;
+                box-sizing: border-box;
+                width: 100%;
+            }
+        </style>
         <core-field>
             <label for="input">{{label}}</label>
             <textarea id="input" placeholder="{{placeholder}}" value="{{value}}"></textarea>
