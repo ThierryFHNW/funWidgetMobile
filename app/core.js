@@ -840,7 +840,15 @@ require(['interact'], function (interact) {
 
             // resize
             interact(element)
-                .resizable(true)
+                .resizable({
+                    edges: {
+                        top   : false,
+                        left  : false,
+                        bottom: '.resize',
+                        right : '.resize'
+                    },
+                    inertia: true
+                })
                 .on('resizestart', function (event) {
                     onstart(event.target);
                     options.onstart(event);

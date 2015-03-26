@@ -28,6 +28,14 @@
                 height: 1.6em;
             }
 
+            .resize {
+                cursor: se-resize;
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                height: 1em;
+                width: 1em;
+            }
         </style>
 
         <div id="widget" class="widget">
@@ -48,6 +56,7 @@
 
             <!-- fallback for widgets not using the above sizes with behaviour -->
             <content select="*"></content>
+            <div class="resize"></div>
         </div>
     </template>
     <script>

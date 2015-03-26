@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "requirejs": "~2.1.15",
-    "interact": "~1.2.2",
+    "interact": "~1.2.3",
     "polymer": "Polymer/polymer#~0.5.4",
     "core-ajax": "Polymer/core-ajax#~0.5.4",
     "heir": "~3.0.0",
