@@ -88,10 +88,10 @@
                  * @param params Map of parameter name and value
                  */
                 setParams: function (params) {
-                    if (params == undefined) {
+                    if (params === undefined) {
                         params = Object.create(null);
                     }
-                    if (this.expand != undefined) {
+                    if (this.expand !== undefined) {
                         params.expand = this.expand;
                     }
                     this.params = JSON.stringify(params);
@@ -295,7 +295,7 @@
                     this.response = this.$.ajax.response.items;
                 },
                 onUpdated: function (data) {
-                    if (this.response != null && this.response.length > 0) {
+                    if (this.response !== null && this.response.length > 0) {
                         if (!('isInTheSameCollection' in this)) {
                             console.error('Missing isInTheSameCollection function for ' + this);
                             return;
@@ -330,7 +330,7 @@
 
                 },
                 onCreated: function (data) {
-                    if (this.response == null) {
+                    if (this.response === null) {
                         this.response = [];
                     }
                     if (!('isInTheSameCollection' in this)) {
@@ -347,7 +347,7 @@
                     }
                 },
                 onDeleted: function (data) {
-                    if (this.response != null && this.response.length > 0) {
+                    if (this.response !== null && this.response.length > 0) {
                         if (!('isInTheSameCollection' in this)) {
                             console.error('Missing isInTheSameCollection function for ' + this);
                             return;
@@ -403,7 +403,7 @@
                 this.super();
             },
             isInTheSameCollection: function (data) {
-                return !(this.projectId != undefined && data.project.id != this.projectId);
+                return !(this.projectId !== undefined && data.project.id != this.projectId);
             },
             resource: 'people',
             resourceType: 'Person'
@@ -425,7 +425,7 @@
                 this.super();
             },
             isInTheSameCollection: function (data) {
-                return !(this.projectId != undefined && data.project.id != this.projectId);
+                return !(this.projectId !== undefined && data.project.id != this.projectId);
 
             },
             resource: 'sprints',
@@ -456,16 +456,16 @@
                 this.super();
             },
             isInTheSameCollection: function (data) {
-                if (this.authorId != undefined && data.author.id != this.authorId) {
+                if (this.authorId !== undefined && data.author.id != this.authorId) {
                     return false;
                 }
-                if (this.ownerId != undefined && data.owner.id != this.ownerId) {
+                if (this.ownerId !== undefined && data.owner.id != this.ownerId) {
                     return false;
                 }
-                if (this.sprintId != undefined && data.sprint.id != this.sprintId) {
+                if (this.sprintId !== undefined && data.sprint.id != this.sprintId) {
                     return false;
                 }
-                if (this.stateId != undefined && data.state.id != this.stateId) {
+                if (this.stateId !== undefined && data.state.id != this.stateId) {
                     return false;
                 }
                 return true;
@@ -498,16 +498,16 @@
                 this.super();
             },
             isInTheSameCollection: function (data) {
-                if (this.authorId != undefined && data.author.id != this.authorId) {
+                if (this.authorId !== undefined && data.author.id != this.authorId) {
                     return false;
                 }
-                if (this.assigneeId != undefined && data.assignee.id != this.assigneeId) {
+                if (this.assigneeId !== undefined && data.assignee.id != this.assigneeId) {
                     return false;
                 }
-                if (this.userStoryId != undefined && data.userStory.id != this.userStoryId) {
+                if (this.userStoryId !== undefined && data.userStory.id != this.userStoryId) {
                     return false;
                 }
-                if (this.stateId != undefined && data.state.id != this.stateId) {
+                if (this.stateId !== undefined && data.state.id != this.stateId) {
                     return false;
                 }
                 return true;
@@ -535,10 +535,10 @@
                 this.super();
             },
             isInTheSameCollection: function (data) {
-                if (this.projectId != undefined && data.project.id != this.projectId) {
+                if (this.projectId !== undefined && data.project.id != this.projectId) {
                     return false;
                 }
-                if (this.taskId != undefined && data.task.id != this.taskId) {
+                if (this.taskId !== undefined && data.task.id != this.taskId) {
                     return false;
                 }
                 return true;
@@ -566,10 +566,10 @@
                 this.super();
             },
             isInTheSameCollection: function (data) {
-                if (this.projectId != undefined && data.project.id != this.projectId) {
+                if (this.projectId !== undefined && data.project.id != this.projectId) {
                     return false;
                 }
-                if (this.userStoryId != undefined && data.userStory.id != this.userStoryId) {
+                if (this.userStoryId !== undefined && data.userStory.id != this.userStoryId) {
                     return false;
                 }
                 return true;

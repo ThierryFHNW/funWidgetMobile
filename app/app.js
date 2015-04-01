@@ -8,7 +8,7 @@ define('config', function () {
             'sprintplanning2',
             'taskboard'
         ]
-    }
+    };
 });
 
 // application starts here

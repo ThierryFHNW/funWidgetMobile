@@ -79,10 +79,10 @@
             ready: function () {
                 this.projectId = this.$.globals.routeParams.projectId;
                 this.sprintId = this.$.globals.routeParams.sprintId;
-                if (this.sprintId != undefined) {
+                if (this.sprintId !== undefined) {
                     this.sprint = {
                         id: this.sprintId
-                    }
+                    };
                 }
             },
             open: function () {

@@ -86,11 +86,11 @@
                 require(['core-touch'], function (touch) {
                     touch.onDoubleTap(container, function (event) {
                         form.open();
-                    })
+                    });
                 });
             },
             noNull: function(value) {
-                return value == null ? '-' : value;
+                return value === null ? '-' : value;
             }
         });
     </script>

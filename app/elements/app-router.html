@@ -10,7 +10,7 @@
         }
 
         Route.prototype.parse = function (hashLocation) {
-            if (hashLocation.indexOf('#') == 0) {
+            if (hashLocation.indexOf('#') === 0) {
                 hashLocation = hashLocation.substring(1);
             }
             return this.matcher.parse(hashLocation);
@@ -35,7 +35,7 @@
                 for (var i = 0; i < this.routes.length; i++) {
                     var route = this.routes[i];
                     this.routeParams = route.parse(location.hash);
-                    if (this.routeParams != null) {
+                    if (this.routeParams !== null) {
                         console.log('found a route for ' + location.hash);
                         this.$.globals.setRouteParams(this.routeParams);
                         route.workspaceConfig.show();

@@ -106,7 +106,7 @@
                 this.widgetEditable = getSingleElement('awall-widget-editable');
 
                 this.widgetSizeElements = [this.widgetDefault, this.widgetFull, this.widgetEditable].filter(function (widget) {
-                    return widget != undefined || widget != null;
+                    return widget !== undefined || widget !== null;
                 });
 
                 // attach onHide/onShow callbacks to full widget

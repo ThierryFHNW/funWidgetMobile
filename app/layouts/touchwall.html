@@ -135,7 +135,7 @@
                         console.log('is widget or mainWorkspace: ' + targetId);
 
                         var targetDropzone = this.$[targetId];
-                        if (targetDropzone == null) {
+                        if (targetDropzone === null) {
                             console.error('Parent dropzone for ' + targetId + ' not found');
                             return;
                         }

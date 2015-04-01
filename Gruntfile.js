@@ -14,11 +14,14 @@ module.exports = function (grunt) {
             jshint: {
                 options: {
                     //jshintrc: '.jshintrc',
-                    reporter: require('jshint-stylish')
+                    reporter: require('jshint-stylish'),
+                    extract: 'auto', // extracts the JS from HTML files to correctly check it
+                    ignores: ['app/bower_components/']
                 },
                 all: [
                     'Gruntfile.js',
-                    'app/scripts/{,*/}*.js'
+                    'app/{,*/}*.js',
+                    'app/{,*/}*.html'
                 ],
                 test: {
                     //options: {
@@ -49,8 +52,7 @@ module.exports = function (grunt) {
             uglify: {
                 options: {
                     banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
-                }
-                ,
+                },
                 build: {
                     src: 'src/<%= pkg.name %>.js',
                     dest: 'build/<%= pkg.name %>.min.js'
@@ -184,6 +186,7 @@ module.exports = function (grunt) {
         }
 
         grunt.task.run([
+            'jshint',
             'clean:server',
             'wiredep',
             'concurrent:server',

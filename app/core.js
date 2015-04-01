@@ -26,7 +26,7 @@ define('core-routing', function () {
             router.setRoutes(urlPathToWorkspaceConfig);
             router.routeChanged();
         }
-    }
+    };
 });
 
 /**
@@ -95,13 +95,13 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     WorkspaceConfig.prototype.show = function () {
         var WORKSPACE_ID = 'workspace';
 
-        if (this.workspace == null) {
+        if (this.workspace === null) {
             this.workspace = this.build();
             this.workspace.setAttribute('id', WORKSPACE_ID);
         }
 
         var currentWorkspace = document.getElementById(WORKSPACE_ID);
-        if (currentWorkspace != null) {
+        if (currentWorkspace !== null) {
             document.body.removeChild(currentWorkspace);
         }
 
@@ -118,7 +118,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.widgets.forEach(function (widget) {
             var templates = widget.document.querySelectorAll('template.content');
             console.log('widget ' + widget.name + ' has ' + templates.length + ' template(s)');
-            if (templates.length == 0) {
+            if (templates.length === 0) {
                 console.log('no templates found in the widget ' + widget.name);
                 return;
             }
@@ -225,9 +225,13 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
             if (xhr.readyState == 4) {   // DONE
                 if (xhr.status == 200) {  // HTTP OK
                     var data = JSON.parse(xhr.responseText);
-                    onSuccessCallback && onSuccessCallback(data);
+                    if (typeof onSuccessCallback === 'function') {
+                        onSuccessCallback(data);
+                    }
                 } else {
-                    onErrorCallback && onErrorCallback(xhr.status, xhr.statusText, xhr.responseText)
+                    if (typeof onErrorCallback === 'function') {
+                        onErrorCallback(xhr.status, xhr.statusText, xhr.responseText);
+                    }
                 }
             }
         };
@@ -477,23 +481,26 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
             if (this.config.hasOwnProperty('widgets') && Object.keys(this.config.widgets).length > 0) {
                 log(this.config.name + ' has free widgets');
-                for (var widgetName in this.config.widgets) {
-                    if (this.config.widgets.hasOwnProperty(widgetName)) {
-                        widgetsToLoad[widgetName] = this.config.widgets[widgetName];
+                for (var widget in this.config.widgets) {
+                    if (this.config.widgets.hasOwnProperty(widget)) {
+                        widgetsToLoad[widget] = this.config.widgets[widget];
                     }
                 }
             }
 
             this.numberOfWidgets = Object.keys(widgetsToLoad).length;
             log(this.config.name + ' has ' + this.numberOfWidgets + ' widgets');
+
+            var loadCallback = function (widget) {
+                widget.viewTarget = widgetsToLoad[widget.name];
+                this.workspaceConfig.widgets.push(widget);
+                this.numberOfWidgetsLoaded += 1;
+                onDependencyLoaded.call(this);
+            }.bind(this);
+
             for (var widgetName in widgetsToLoad) {
                 var widgetLoader = new WidgetLoader();
-                widgetLoader.load(widgetName, function (widget) {
-                    widget.viewTarget = widgetsToLoad[widget.name];
-                    this.workspaceConfig.widgets.push(widget);
-                    this.numberOfWidgetsLoaded += 1;
-                    onDependencyLoaded.call(this);
-                }.bind(this));
+                widgetLoader.load(widgetName, loadCallback);
             }
 
         }
@@ -506,7 +513,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         }
 
 
-        Loader.prototype.loadResource(configUrl, this.workspaceConfig, onLoadedCallback, loadWorkspaceConfig.bind(this))
+        Loader.prototype.loadResource(configUrl, this.workspaceConfig, onLoadedCallback, loadWorkspaceConfig.bind(this));
     };
 
 
@@ -519,7 +526,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         createWorkspaceConfigLoader: function () {
             return new WorkspaceConfigLoader();
         }
-    }
+    };
 
 });
 
@@ -621,7 +628,7 @@ require(['interact'], function (interact) {
                 ondrop: function (event) {
                     event.interaction.dropped = true;
 
-                    if (onDropCallback != undefined) {
+                    if (typeof onDropCallback === 'function') {
                         // call the callback with the data of the interaction set by the draggable in onstart.
                         onDropCallback(event.interaction.data);
                     }
@@ -661,7 +668,7 @@ require(['interact'], function (interact) {
                     }
                 }
             }
-            return options
+            return options;
         }
 
         /**
@@ -732,14 +739,14 @@ require(['interact'], function (interact) {
                     if (options.clone) {
                         this.target = event.target.cloneNode(true);
                         // copy style definitions recursively
-                        function applyStyle(source, target) {
+                        var applyStyle = function (source, target) {
                             target.style.cssText = window.getComputedStyle(source, null).cssText;
                             if (target.childElementCount > 0) {
                                 for (var i = 0; i < source.childElementCount; i++) {
                                     applyStyle(source.children[i], target.children[i]);
                                 }
                             }
-                        }
+                        };
 
                         applyStyle(event.target, this.target);
 
@@ -815,15 +822,15 @@ require(['interact'], function (interact) {
 
             function onstart(target) {
                 // save the initial size
-                if (target.initialSize == undefined) {
+                if (target.initialSize === undefined) {
                     target.initialSize = interact.getElementRect(target);
                 }
             }
 
             function onmove(target, dx, dy) {
                 var currentSize = interact.getElementRect(target);
-                var height = target.style.height != '' ? target.style.height : currentSize.height;
-                var width = target.style.width != '' ? target.style.width : currentSize.width;
+                var height = target.style.height !== '' ? target.style.height : currentSize.height;
+                var width = target.style.width !== '' ? target.style.width : currentSize.width;
 
                 // add the change in coords to the previous width of the target element
                 var newWidth = parseFloat(width) + dx,
@@ -842,10 +849,10 @@ require(['interact'], function (interact) {
             interact(element)
                 .resizable({
                     edges: {
-                        top   : false,
-                        left  : false,
+                        top: false,
+                        left: false,
                         bottom: '.resize',
-                        right : '.resize'
+                        right: '.resize'
                     },
                     inertia: true
                 })
@@ -891,7 +898,7 @@ require(['interact'], function (interact) {
          * @param target The element to resize to initial size.
          */
         function _resizeToInitial(target) {
-            if(target.initialSize) {
+            if (target.initialSize) {
                 target.style.height = target.initialSize.height + 'px';
                 target.style.width = target.initialSize.width + 'px';
             }
@@ -941,7 +948,7 @@ require(['interact'], function (interact) {
             resizeToInitial: _resizeToInitial,
             isInitialSize: _isInitialSize,
             getElementSize: _getElementSize
-        }
+        };
     });
 
 });
