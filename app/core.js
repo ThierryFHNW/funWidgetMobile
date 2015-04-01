@@ -203,12 +203,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      */
     Loader.loading = new Cache();
 
-    // All Loaders inherit from Loader
-    heir.inherit(WorkspaceConfigLoader, Loader, true);
-    heir.inherit(LayoutLoader, Loader, true);
-    heir.inherit(ElementLoader, Loader, true);
-    heir.inherit(WidgetLoader, Loader, true);
-
     /**
      * Loads a JSON file.
      *
@@ -516,6 +510,12 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         Loader.prototype.loadResource(configUrl, this.workspaceConfig, onLoadedCallback, loadWorkspaceConfig.bind(this));
     };
 
+
+    // All Loaders inherit from Loader
+    heir.inherit(WorkspaceConfigLoader, Loader, true);
+    heir.inherit(LayoutLoader, Loader, true);
+    heir.inherit(ElementLoader, Loader, true);
+    heir.inherit(WidgetLoader, Loader, true);
 
     return {
         /**
