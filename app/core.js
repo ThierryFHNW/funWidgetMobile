@@ -183,6 +183,12 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.objects = {};
     };
 
+    // All Loaders inherit from Loader
+    heir.inherit(WorkspaceConfigLoader, Loader, true);
+    heir.inherit(LayoutLoader, Loader, true);
+    heir.inherit(ElementLoader, Loader, true);
+    heir.inherit(WidgetLoader, Loader, true);
+
 
     /**
      * Base class of all resource loaders.
@@ -510,12 +516,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         Loader.prototype.loadResource(configUrl, this.workspaceConfig, onLoadedCallback, loadWorkspaceConfig.bind(this));
     };
 
-
-    // All Loaders inherit from Loader
-    heir.inherit(WorkspaceConfigLoader, Loader, true);
-    heir.inherit(LayoutLoader, Loader, true);
-    heir.inherit(ElementLoader, Loader, true);
-    heir.inherit(WidgetLoader, Loader, true);
 
     return {
         /**
