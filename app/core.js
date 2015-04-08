@@ -37,11 +37,15 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     /**
      * Represents a workspace.
      *
-     * @param id The id of the workspace.
+     * @param id The id of the workspace. Represents part of the URL.
+     * @param name The name of the workspace.
+     * @param description The description of the workspace.
      * @constructor
      */
-    function Workspace(id) {
+    function Workspace(id, name, description) {
         this.id = id;
+        this.name = name || "";
+        this.description = description || "";
         this.path = null;
         this.layout = {};
         this.widgets = [];
@@ -51,7 +55,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     /**
      * Represents a layout.
      *
-     * @param id The id of the layout.
+     * @param id The id of the layout. Represents part of the URL.
      * @constructor
      */
     function Layout(id) {
@@ -62,11 +66,15 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     /**
      * Represents a widget.
      *
-     * @param id The id of the widget.
+     * @param id The id of the widget. Represents part of the URL.
+     * @param name The name of the widget.
+     * @param description The description of the widget.
      * @constructor
      */
-    function Widget(id) {
+    function Widget(id, name, description) {
         this.id = id;
+        this.name = name || "";
+        this.description = description || "";
         this.viewTarget = null;
         this.document = {};
         this.elements = [];
@@ -75,7 +83,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     /**
      * Represents an element.
      *
-     * @param id The id of the element.
+     * @param id The id of the element. Represents part of the URL.
      * @constructor
      */
     function Element(id) {
@@ -322,7 +330,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.numberOfElementsLoaded = 0;
         this.indexHtmlLoaded = false;
         this.widget = null;
-        this.configUrl = null;
         this.onResourceLoadedCallback = function () {
         };
     }
@@ -334,7 +341,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @param onLoadedCallback The function called if the widget has been loaded.
      */
     WidgetLoader.prototype.load = function (id, onLoadedCallback) {
-        this.configUrl = 'widgets/' + id + '/widget.json';
+        var configUrl = 'widgets/' + id + '/widget.json';
         this.widget = new Widget(id);
 
 
@@ -343,6 +350,10 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
             this.loadJson(url, function (config) {
                 this.config = config;
+
+                // set name and description
+                this.widget.name = config.name || "";
+                this.widget.description = config.description || "";
 
                 // load dependencies (elements)
                 if (config.hasOwnProperty('elements')) {
@@ -387,7 +398,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         }
 
 
-        Loader.prototype.loadResource(this.configUrl, this.widget, onLoadedCallback, loadWidget.bind(this));
+        Loader.prototype.loadResource(configUrl, this.widget, onLoadedCallback, loadWidget.bind(this));
     };
 
 
@@ -450,6 +461,10 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 console.error('Error, the workspace config has no path attribute!');
                 return;
             }
+
+            // set name, description and path
+            this.workspace.name = config.name || "";
+            this.workspace.description = config.description || "";
             this.workspace.path = config.path;
 
             // load layout
