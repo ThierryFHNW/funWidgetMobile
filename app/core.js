@@ -37,11 +37,11 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     /**
      * Represents a workspace.
      *
-     * @param name The name of the workspace.
+     * @param id The id of the workspace.
      * @constructor
      */
-    function Workspace(name) {
-        this.name = name;
+    function Workspace(id) {
+        this.id = id;
         this.path = null;
         this.layout = {};
         this.widgets = [];
@@ -51,22 +51,22 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     /**
      * Represents a layout.
      *
-     * @param name The name of the layout.
+     * @param id The id of the layout.
      * @constructor
      */
-    function Layout(name) {
-        this.name = name;
+    function Layout(id) {
+        this.id = id;
         this.document = {};
     }
 
     /**
      * Represents a widget.
      *
-     * @param name The name of the widget.
+     * @param id The id of the widget.
      * @constructor
      */
-    function Widget(name) {
-        this.name = name;
+    function Widget(id) {
+        this.id = id;
         this.viewTarget = null;
         this.document = {};
         this.elements = [];
@@ -75,11 +75,11 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     /**
      * Represents an element.
      *
-     * @param name The name of the element.
+     * @param id The id of the element.
      * @constructor
      */
-    function Element(name) {
-        this.name = name;
+    function Element(id) {
+        this.id = id;
     }
 
     // All resource representations inherit from EventEmitter. Gives them addEventListener and emitEvent.
@@ -114,12 +114,12 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @returns {HTMLElement} The root node of the workspace.
      */
     Workspace.prototype.build = function () {
-        var workspace = document.createElement('workspace-layout-' + this.layout.name);
+        var workspace = document.createElement('workspace-layout-' + this.layout.id);
         this.widgets.forEach(function (widget) {
             var templates = widget.document.querySelectorAll('template.content');
-            console.log('widget ' + widget.name + ' has ' + templates.length + ' template(s)');
+            console.log('widget ' + widget.id + ' has ' + templates.length + ' template(s)');
             if (templates.length === 0) {
-                console.log('no templates found in the widget ' + widget.name);
+                console.log('no templates found in the widget ' + widget.id);
                 return;
             }
             var content = document.importNode(templates[0].content, true);
@@ -300,14 +300,14 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     }
 
     /**
-     * Loads an element by name.
+     * Loads an element by id.
      *
-     * @param name The name of the element.
+     * @param id The id of the element.
      * @param onLoadedCallback The function to be called if the element has been loaded.
      */
-    ElementLoader.prototype.load = function (name, onLoadedCallback) {
-        var url = 'elements/' + name + '.html';
-        Loader.prototype.loadResource(url, new Element(name), onLoadedCallback, this.loadHtml);
+    ElementLoader.prototype.load = function (id, onLoadedCallback) {
+        var url = 'elements/' + id + '.html';
+        Loader.prototype.loadResource(url, new Element(id), onLoadedCallback, this.loadHtml);
     };
 
 
@@ -328,14 +328,14 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     }
 
     /**
-     * Loads the widget by name.
+     * Loads the widget by id.
      *
-     * @param name The name of the widget.
+     * @param id The id of the widget.
      * @param onLoadedCallback The function called if the widget has been loaded.
      */
-    WidgetLoader.prototype.load = function (name, onLoadedCallback) {
-        this.configUrl = 'widgets/' + name + '/widget.json';
-        this.widget = new Widget(name);
+    WidgetLoader.prototype.load = function (id, onLoadedCallback) {
+        this.configUrl = 'widgets/' + id + '/widget.json';
+        this.widget = new Widget(id);
 
 
         function loadWidget(url, onResourceLoadedCallback) {
@@ -348,7 +348,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 if (config.hasOwnProperty('elements')) {
                     loadElements.call(this, config.elements);
                 } else {
-                    log('Widget ' + name + ' has no elements');
+                    log('Widget ' + id + ' has no elements');
                 }
 
                 // load index.html
@@ -358,10 +358,10 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
         function loadElements(elementArray) {
             this.numberOfElements = elementArray.length;
-            log('Widget ' + name + ' has ' + this.numberOfElements + ' elements');
-            elementArray.forEach(function (elementName) {
+            log('Widget ' + id + ' has ' + this.numberOfElements + ' elements');
+            elementArray.forEach(function (elementId) {
                 var loader = new ElementLoader();
-                loader.load(elementName, function (element) {
+                loader.load(elementId, function (element) {
                     this.widget.elements.push(element);
                     this.numberOfElementsLoaded += 1;
                     onDependencyLoaded.call(this);
@@ -370,7 +370,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         }
 
         function loadIndexHtml() {
-            var htmlUrl = 'widgets/' + this.widget.name + '/index.html';
+            var htmlUrl = 'widgets/' + this.widget.id + '/index.html';
             this.loadHtml(htmlUrl, function (e) {
                 console.log('Loaded widget html: ' + e.target.href);
                 this.indexHtmlLoaded = true;
@@ -381,7 +381,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
         function onDependencyLoaded() {
             if (this.numberOfElements == this.numberOfElementsLoaded && this.indexHtmlLoaded) {
-                log('Widget ' + this.widget.name + ' has been loaded');
+                log('Widget ' + this.widget.id + ' has been loaded');
                 this.onResourceLoadedCallback();
             }
         }
@@ -401,14 +401,14 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     }
 
     /**
-     * Loads a layout by name.
+     * Loads a layout by id.
      *
-     * @param name The name of the layout.
+     * @param id The id of the layout.
      * @param onLoadedCallback The function called if the layout has been loaded.
      */
-    LayoutLoader.prototype.load = function (name, onLoadedCallback) {
-        var url = 'layouts/' + name + '.html';
-        this.layout = new Layout(name);
+    LayoutLoader.prototype.load = function (id, onLoadedCallback) {
+        var url = 'layouts/' + id + '.html';
+        this.layout = new Layout(id);
         Loader.prototype.loadResource(url, this.layout, onLoadedCallback, this.loadHtml);
     };
 
@@ -428,14 +428,14 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     }
 
     /**
-     * Loads workspaces by name.
+     * Loads workspaces by id.
      *
-     * @param name The name of the workspace.
+     * @param id The id of the workspace.
      * @param onLoadedCallback The function called if the workspace has been loaded.
      */
-    WorkspaceLoader.prototype.load = function (name, onLoadedCallback) {
-        var configUrl = 'workspaces/' + name + '.json';
-        this.workspace = new Workspace(name);
+    WorkspaceLoader.prototype.load = function (id, onLoadedCallback) {
+        var configUrl = 'workspaces/' + id + '.json';
+        this.workspace = new Workspace(id);
 
         function loadWorkspaceConfig(url, onResourceLoadedCallback) {
             this.onResourceLoadedCallback = onResourceLoadedCallback;
@@ -471,16 +471,16 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         }
 
         function loadWidgets() {
-            // k: widgetname, v: viewTarget
+            // k: widgetId, v: viewTarget
             var widgetsToLoad = Object.create(null);
             if (!this.config.hasOwnProperty('mainWorkspace') || !this.config.mainWorkspace) {
-                log(this.config.name + ' does not have a main workspace!');
+                log(this.config.id + ' does not have a main workspace!');
                 return;
             }
             widgetsToLoad[this.config.mainWorkspace] = 'mainWorkspace';
 
             if (this.config.hasOwnProperty('widgets') && Object.keys(this.config.widgets).length > 0) {
-                log(this.config.name + ' has free widgets');
+                log(this.config.id + ' has free widgets');
                 for (var widget in this.config.widgets) {
                     if (this.config.widgets.hasOwnProperty(widget)) {
                         widgetsToLoad[widget] = this.config.widgets[widget];
@@ -489,25 +489,25 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
             }
 
             this.numberOfWidgets = Object.keys(widgetsToLoad).length;
-            log(this.config.name + ' has ' + this.numberOfWidgets + ' widgets');
+            log(this.config.id + ' has ' + this.numberOfWidgets + ' widgets');
 
             var loadCallback = function (widget) {
-                widget.viewTarget = widgetsToLoad[widget.name];
+                widget.viewTarget = widgetsToLoad[widget.id];
                 this.workspace.widgets.push(widget);
                 this.numberOfWidgetsLoaded += 1;
                 onDependencyLoaded.call(this);
             }.bind(this);
 
-            for (var widgetName in widgetsToLoad) {
+            for (var widgetId in widgetsToLoad) {
                 var widgetLoader = new WidgetLoader();
-                widgetLoader.load(widgetName, loadCallback);
+                widgetLoader.load(widgetId, loadCallback);
             }
 
         }
 
         function onDependencyLoaded() {
             if (this.layoutLoaded && this.numberOfWidgets == this.numberOfWidgetsLoaded) {
-                log('Workspace ' + this.workspace.name + ' has been loaded');
+                log('Workspace ' + this.workspace.id + ' has been loaded');
                 this.onResourceLoadedCallback();
             }
         }
