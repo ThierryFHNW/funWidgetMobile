@@ -1,0 +1,106 @@
+<link rel="import" href="../bower_components/core-menu-button/core-menu-button.html">
+<link rel="import" href="../bower_components/core-icon-button/core-icon-button.html">
+<link rel="import" href="../bower_components/core-dropdown/core-dropdown.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
+
+<polymer-element name="awall-menu">
+    <template>
+        <style>
+            #menu, core-dropdown {
+                background-color: #f2f2f2;
+                border: 2px solid #000000;
+                margin: 0;
+            }
+
+            core-dropdown {
+                z-index: 200;
+                min-width: 15em;
+            }
+
+            #menuContent {
+                padding: 1em;
+            }
+
+            #close {
+                float: right;
+            }
+        </style>
+        <core-menu-button>
+            <core-icon-button icon="menu" id="menu"></core-icon-button>
+            <core-dropdown class="dropdown" halign="right" backdrop autoCloseDisabled
+                           closeSelector="#close">
+                <core-icon-button icon="close" id="close"></core-icon-button>
+                <div id="menuContent">
+                    <awall-menu-widget-toggles></awall-menu-widget-toggles>
+                    <awall-menu-meeting-links></awall-menu-meeting-links>
+                </div>
+            </core-dropdown>
+        </core-menu-button>
+    </template>
+    <script>
+        Polymer({});
+    </script>
+</polymer-element>
+
+<polymer-element name="awall-menu-widget-toggles">
+    <template>
+        <h3>Widgets</h3>
+        <awall-menu-widget-toggle name="Team dummy"></awall-menu-widget-toggle>
+        <awall-menu-widget-toggle name="Bugs dummy" isVisible="false"></awall-menu-widget-toggle>
+        <awall-menu-widget-toggle name="Tags dummy"></awall-menu-widget-toggle>
+    </template>
+    <script>
+        Polymer({});
+    </script>
+</polymer-element>
+
+<polymer-element name="awall-menu-widget-toggle">
+    <template>
+        <style>
+            :host {
+                padding: 0.5em 0.2em;
+            }
+        </style>
+        <div center horizontal layout>
+            <div flex>{{name}}</div>
+            <paper-toggle-button checked?="{{isVisible}}" on-tap="{{onTap}}"></paper-toggle-button>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            publish: {
+                name: "",
+                isVisible: true
+            },
+            onTap: function (event) {
+                // stop propagation of the event so the dropdown does not close
+                event.stopPropagation();
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="awall-menu-meeting-links">
+    <template>
+        <style>
+            :host {
+                padding: 0.5em 0.2em;
+            }
+
+            a {
+                text-decoration: none;
+            }
+
+            a:hover {
+                font-weight: bold;
+                text-decoration: underline;
+                color: green;
+            }
+        </style>
+        <h3>Meetings</h3>
+        <a href="/">Taskboard dummy link</a>
+    </template>
+    <script>
+        Polymer({});
+    </script>
+</polymer-element>
