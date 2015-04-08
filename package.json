@@ -33,6 +33,7 @@
     "karma-script-launcher": "*",
     "load-grunt-tasks": "*",
     "requirejs": "*",
-    "time-grunt": "*"
+    "time-grunt": "*",
+    "grunt-newer": "~1.1.0"
   }
 }

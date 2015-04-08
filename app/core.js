@@ -461,11 +461,11 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 console.error('Error, the workspace config has no path attribute!');
                 return;
             }
+            this.workspace.path = config.path;
 
-            // set name, description and path
+            // set name and description
             this.workspace.name = config.name || "";
             this.workspace.description = config.description || "";
-            this.workspace.path = config.path;
 
             // load layout
             if (!this.config.hasOwnProperty('layout')) {
