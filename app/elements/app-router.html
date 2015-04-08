@@ -3,9 +3,9 @@
         <app-globals id="globals"></app-globals>
     </template>
     <script>
-        function Route(urlPath, workspaceConfig) {
+        function Route(urlPath, workspace) {
             console.log('+++ Adding route: ' + urlPath);
-            this.workspaceConfig = workspaceConfig;
+            this.workspace = workspace;
             this.matcher = routeMatcher(urlPath);
         }
 
@@ -38,7 +38,7 @@
                     if (this.routeParams !== null) {
                         console.log('found a route for ' + location.hash);
                         this.$.globals.setRouteParams(this.routeParams);
-                        route.workspaceConfig.show();
+                        route.workspace.show();
                         break;
                     }
                 }

@@ -14,7 +14,7 @@ define('core-routing', function () {
         /**
          * Enable routing for the application.
          *
-         * @param urlPathToWorkspaceConfig Map of URLs to WorkspaceConfig objects.
+         * @param urlPathToWorkspaceConfig Map of URLs to Workspace objects.
          */
         enable: function (urlPathToWorkspaceConfig) {
             var routers = document.getElementsByTagName('app-router');
@@ -35,12 +35,12 @@ define('core-routing', function () {
 define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
     /**
-     * Represents a workspace-configuration.
+     * Represents a workspace.
      *
-     * @param name The name of the workspace-config.
+     * @param name The name of the workspace.
      * @constructor
      */
-    function WorkspaceConfig(name) {
+    function Workspace(name) {
         this.name = name;
         this.path = null;
         this.layout = {};
@@ -86,13 +86,13 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     heir.inherit(Element, EventEmitter, true);
     heir.inherit(Widget, EventEmitter, true);
     heir.inherit(Layout, EventEmitter, true);
-    heir.inherit(WorkspaceConfig, EventEmitter, true);
+    heir.inherit(Workspace, EventEmitter, true);
 
 
     /**
      * Shows the workspace. Builds it if necessary.
      */
-    WorkspaceConfig.prototype.show = function () {
+    Workspace.prototype.show = function () {
         var WORKSPACE_ID = 'workspace';
 
         if (this.workspace === null) {
@@ -113,7 +113,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      *
      * @returns {HTMLElement} The root node of the workspace.
      */
-    WorkspaceConfig.prototype.build = function () {
+    Workspace.prototype.build = function () {
         var workspace = document.createElement('workspace-layout-' + this.layout.name);
         this.widgets.forEach(function (widget) {
             var templates = widget.document.querySelectorAll('template.content');
@@ -184,7 +184,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     };
 
     // All Loaders inherit from Loader
-    heir.inherit(WorkspaceConfigLoader, Loader, true);
+    heir.inherit(WorkspaceLoader, Loader, true);
     heir.inherit(LayoutLoader, Loader, true);
     heir.inherit(ElementLoader, Loader, true);
     heir.inherit(WidgetLoader, Loader, true);
@@ -414,12 +414,12 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
 
     /**
-     * Workspace-config loader.
+     * Workspace loader.
      *
      * @constructor
      */
-    function WorkspaceConfigLoader() {
-        this.workspaceConfig = {};
+    function WorkspaceLoader() {
+        this.workspace = {};
         this.layoutLoaded = false;
         this.numberOfWidgets = null;
         this.numberOfWidgetsLoaded = 0;
@@ -428,14 +428,14 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     }
 
     /**
-     * Loads workspace-configs by name.
+     * Loads workspaces by name.
      *
-     * @param name The name of the workspace-config.
-     * @param onLoadedCallback The function called if the workspace-config has been loaded.
+     * @param name The name of the workspace.
+     * @param onLoadedCallback The function called if the workspace has been loaded.
      */
-    WorkspaceConfigLoader.prototype.load = function (name, onLoadedCallback) {
-        var configUrl = 'workspace-configs/' + name + '.json';
-        this.workspaceConfig = new WorkspaceConfig(name);
+    WorkspaceLoader.prototype.load = function (name, onLoadedCallback) {
+        var configUrl = 'workspaces/' + name + '.json';
+        this.workspace = new Workspace(name);
 
         function loadWorkspaceConfig(url, onResourceLoadedCallback) {
             this.onResourceLoadedCallback = onResourceLoadedCallback;
@@ -450,11 +450,11 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 console.error('Error, the workspace config has no path attribute!');
                 return;
             }
-            this.workspaceConfig.path = config.path;
+            this.workspace.path = config.path;
 
             // load layout
             if (!this.config.hasOwnProperty('layout')) {
-                console.error('Loading failed: WorkspaceConfig has no layout!');
+                console.error('Loading failed: Workspace has no layout!');
                 return;
             }
             var layoutLoader = new LayoutLoader();
@@ -466,7 +466,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
         function layoutLoaded(layout) {
             this.layoutLoaded = true;
-            this.workspaceConfig.layout = layout;
+            this.workspace.layout = layout;
             onDependencyLoaded.call(this);
         }
 
@@ -493,7 +493,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
             var loadCallback = function (widget) {
                 widget.viewTarget = widgetsToLoad[widget.name];
-                this.workspaceConfig.widgets.push(widget);
+                this.workspace.widgets.push(widget);
                 this.numberOfWidgetsLoaded += 1;
                 onDependencyLoaded.call(this);
             }.bind(this);
@@ -507,24 +507,24 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
         function onDependencyLoaded() {
             if (this.layoutLoaded && this.numberOfWidgets == this.numberOfWidgetsLoaded) {
-                log('WorkspaceConfig ' + this.workspaceConfig.name + ' has been loaded');
+                log('Workspace ' + this.workspace.name + ' has been loaded');
                 this.onResourceLoadedCallback();
             }
         }
 
 
-        Loader.prototype.loadResource(configUrl, this.workspaceConfig, onLoadedCallback, loadWorkspaceConfig.bind(this));
+        Loader.prototype.loadResource(configUrl, this.workspace, onLoadedCallback, loadWorkspaceConfig.bind(this));
     };
 
 
     return {
         /**
-         * Creates a workspace-config loader.
+         * Creates a workspace loader.
          *
-         * @returns {WorkspaceConfigLoader}
+         * @returns {WorkspaceLoader}
          */
-        createWorkspaceConfigLoader: function () {
-            return new WorkspaceConfigLoader();
+        createWorkspaceLoader: function () {
+            return new WorkspaceLoader();
         }
     };
 
