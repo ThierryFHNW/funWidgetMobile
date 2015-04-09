@@ -1,32 +1,10 @@
-DEBUG = false;
-log = function (msg) {
+var DEBUG = false;
+var log = function (msg) {
     if (DEBUG) {
         console.log(msg);
     }
 };
 
-/**
- * Handles the URLs and the routing.
- */
-define('core-routing', function () {
-
-    return {
-        /**
-         * Enable routing for the application.
-         *
-         * @param urlPathToWorkspaceConfig Map of URLs to Workspace objects.
-         */
-        enable: function (urlPathToWorkspaceConfig) {
-            var routers = document.getElementsByTagName('app-core');
-            console.dir(routers);
-            if (routers.length < 1) {
-                console.error('Error, no app-core elements available. Import the app-core.html somewhere.');
-                return;
-            }
-            routers[0].setRoutes(urlPathToWorkspaceConfig);
-        }
-    };
-});
 
 /**
  * Loads the workspace configs and the dependent resources.
@@ -45,11 +23,31 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.id = id;
         this.name = name || "";
         this.description = description || "";
-        this.path = null;
         this.layout = {};
         this.widgets = [];
         this.rootNode = null;
+        this.matcher = null;
+        this._path = null;
+        Object.defineProperty(this, 'path', {
+            get: function () {
+                return this._path;
+            },
+            set: function (newPath) {
+                this._path = newPath;
+                this.matcher = routeMatcher(newPath);
+            }
+        });
+
+        // defined as property so direct access from polymer is possible
+        Object.defineProperty(this, 'parsedPath', {
+            get: function () {
+                // create app-core element to access the global route parameters.
+                var appCoreElement = document.createElement('app-core');
+                return '#' + this.matcher.stringify(appCoreElement.routeParams);
+            }
+        })
     }
+
 
     /**
      * Represents a layout.
@@ -134,6 +132,20 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         });
         return workspace;
     };
+
+    /**
+     * Parses the location.hash and returns the parameters as an object if it matches the path of the workspace.
+     * @returns {Object} containing the variables of the path as key and the value of the variables as value
+     *      or null of the location.hash does no match the path.
+     */
+    Workspace.prototype.getPathParameters = function () {
+        var locationHash = location.hash;
+        if (locationHash.indexOf('#') === 0) {
+            locationHash = locationHash.substring(1);
+        }
+        return this.matcher.parse(locationHash);
+    };
+
 
     /**
      * Simple cache class to hold other objects.
