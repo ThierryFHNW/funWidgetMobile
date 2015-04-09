@@ -1,0 +1,116 @@
+<polymer-element name="app-core" hidden>
+    <script>
+        (function () {
+
+            // List of Route instances
+            var routes = [];
+            // Object with the path-variable (e.g. projectId) as key and the actual value as value.
+            var routeParams = {};
+            // indicates whether all the workspaces have been loaded.
+            var workspacesLoaded = false;
+
+            var workspaces = [];
+
+            var activeWorkspace = null;
+
+
+            function Route(urlPath, workspace) {
+                console.log('+++ Adding route: ' + urlPath);
+                this.workspace = workspace;
+                this.matcher = routeMatcher(urlPath);
+            }
+
+            Route.prototype.parse = function (hashLocation) {
+                if (hashLocation.indexOf('#') === 0) {
+                    hashLocation = hashLocation.substring(1);
+                }
+                return this.matcher.parse(hashLocation);
+            };
+
+
+            /**
+             * Callback function.
+             * To be called when the fragment identifier (hashchange) has been changed.
+             */
+            function routeChanged() {
+                for (var i = 0; i < routes.length; i++) {
+                    var route = routes[i];
+                    var newParams = route.parse(location.hash);
+                    if (newParams !== null) {
+                        console.log('found a route for ' + location.hash);
+                        routeParams = newParams;
+                        activeWorkspace = route.workspace;
+                        activeWorkspace.show();
+                        break;
+                    }
+                }
+            }
+
+            window.addEventListener('hashchange', routeChanged);
+
+
+            function loadWorkspaces() {
+                require(['config', 'core-loader', 'core-routing'], function (config, loader, router) {
+                    // Map k: url path, v: workspace
+                    var urlPathToWorkspace = {};
+                    var numberOfWorkspacesLoaded = 0;
+
+                    config.workspaces.forEach(function (workspaceId) {
+                        var workspaceLoader = loader.createWorkspaceLoader();
+                        workspaceLoader.load(workspaceId, function (workspace) {
+                            console.log('*** loaded workspace ' + workspaceId);
+                            workspaces.push(workspace);
+                            urlPathToWorkspace[workspace.path] = workspace;
+                            onWorkspacesLoaded();
+                        });
+                    });
+
+                    function onWorkspacesLoaded() {
+                        numberOfWorkspacesLoaded += 1;
+                        // all workspaces loaded?
+                        if (config.workspaces.length == numberOfWorkspacesLoaded) {
+                            workspacesLoaded = true;
+                            // enable url path workspace resolution
+                            router.enable(urlPathToWorkspace);
+                        }
+                    }
+                });
+            }
+
+            Polymer({
+                ready: function () {
+                    if (!workspacesLoaded) {
+                        loadWorkspaces();
+                    }
+                },
+                /**
+                 * Set the routes for the application.
+                 * @param urlPathToWorkspaceConfig A map of URL-paths to Workspaces
+                 */
+                setRoutes: function (urlPathToWorkspaceConfig) {
+                    var newRoutes = [];
+                    for (var urlPath in urlPathToWorkspaceConfig) {
+                        newRoutes.push(new Route(urlPath, urlPathToWorkspaceConfig[urlPath]));
+                    }
+                    routes = newRoutes;
+                    routeChanged();
+                },
+                get routeParams() {
+                    return routeParams;
+                },
+                get workspaces() {
+                    return workspaces.filter(function (space) {
+                        /*
+                         * Each "workspace" has at least one widget in the main space.
+                         * Real workspaces thus have at least 2 widgets.
+                         */
+                        return space.widgets.length > 1;
+                    });
+                },
+                get activeWorkspace() {
+                    return activeWorkspace;
+                }
+            });
+        })();
+    </script>
+</polymer-element>

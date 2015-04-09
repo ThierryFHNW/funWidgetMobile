@@ -14,25 +14,58 @@
 
             core-dropdown {
                 z-index: 200;
-                min-width: 15em;
+                min-width: 20em;
             }
 
             #menuContent {
-                padding: 1em;
+                padding: 0.2em 1em;
             }
 
             #close {
                 float: right;
             }
+
+            a {
+                text-decoration: none;
+            }
+
+            a:hover {
+                font-weight: bold;
+                text-decoration: underline;
+                color: green;
+            }
+
+            ul {
+                padding: 0;
+            }
+
+            li {
+                margin: 0;
+                list-style: none;
+            }
+
+            li, awall-menu-widget-toggle::shadow .toggle {
+                padding: 0.75em 0.2em;
+            }
         </style>
         <core-menu-button>
             <core-icon-button icon="menu" id="menu"></core-icon-button>
-            <core-dropdown class="dropdown" halign="right" backdrop autoCloseDisabled
-                           closeSelector="#close">
+            <core-dropdown class="dropdown" halign="right" backdrop autoCloseDisabled closeSelector="#close">
                 <core-icon-button icon="close" id="close"></core-icon-button>
                 <div id="menuContent">
-                    <awall-menu-widget-toggles></awall-menu-widget-toggles>
-                    <awall-menu-meeting-links></awall-menu-meeting-links>
+                    <h3>Widgets</h3>
+                    <template repeat="{{widget in $.globals.activeWorkspace.widgets}}">
+                        <awall-menu-widget-toggle name="{{widget.name}}"></awall-menu-widget-toggle>
+                    </template>
+                    <h3>Workspaces</h3>
+                    <ul>
+                        <template repeat="{{workspace in $.globals.workspaces}}">
+                            <a href="/">
+                                <li>{{workspace.name}}</li>
+                            </a>
+                        </template>
+                    </ul>
+                    <app-core id="globals"></app-core>
                 </div>
             </core-dropdown>
         </core-menu-button>
@@ -42,26 +75,10 @@
     </script>
 </polymer-element>
 
-<polymer-element name="awall-menu-widget-toggles">
-    <template>
-        <h3>Widgets</h3>
-        <awall-menu-widget-toggle name="Team dummy"></awall-menu-widget-toggle>
-        <awall-menu-widget-toggle name="Bugs dummy" isVisible="false"></awall-menu-widget-toggle>
-        <awall-menu-widget-toggle name="Tags dummy"></awall-menu-widget-toggle>
-    </template>
-    <script>
-        Polymer({});
-    </script>
-</polymer-element>
 
 <polymer-element name="awall-menu-widget-toggle">
     <template>
-        <style>
-            :host {
-                padding: 0.5em 0.2em;
-            }
-        </style>
-        <div center horizontal layout>
+        <div center horizontal layout class="toggle">
             <div flex>{{name}}</div>
             <paper-toggle-button checked?="{{isVisible}}" on-tap="{{onTap}}"></paper-toggle-button>
         </div>
@@ -77,30 +94,5 @@
                 event.stopPropagation();
             }
         });
-    </script>
-</polymer-element>
-
-<polymer-element name="awall-menu-meeting-links">
-    <template>
-        <style>
-            :host {
-                padding: 0.5em 0.2em;
-            }
-
-            a {
-                text-decoration: none;
-            }
-
-            a:hover {
-                font-weight: bold;
-                text-decoration: underline;
-                color: green;
-            }
-        </style>
-        <h3>Meetings</h3>
-        <a href="/">Taskboard dummy link</a>
-    </template>
-    <script>
-        Polymer({});
     </script>
 </polymer-element>

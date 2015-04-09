@@ -17,14 +17,13 @@ define('core-routing', function () {
          * @param urlPathToWorkspaceConfig Map of URLs to Workspace objects.
          */
         enable: function (urlPathToWorkspaceConfig) {
-            var routers = document.getElementsByTagName('app-router');
-            if (routers.length != 1) {
-                console.error('Error, none or more app-router elements. Exactly one is needed!');
+            var routers = document.getElementsByTagName('app-core');
+            console.dir(routers);
+            if (routers.length < 1) {
+                console.error('Error, no app-core elements available. Import the app-core.html somewhere.');
                 return;
             }
-            var router = routers[0];
-            router.setRoutes(urlPathToWorkspaceConfig);
-            router.routeChanged();
+            routers[0].setRoutes(urlPathToWorkspaceConfig);
         }
     };
 });
@@ -49,7 +48,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.path = null;
         this.layout = {};
         this.widgets = [];
-        this.workspace = null;
+        this.rootNode = null;
     }
 
     /**
@@ -103,17 +102,17 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     Workspace.prototype.show = function () {
         var WORKSPACE_ID = 'workspace';
 
-        if (this.workspace === null) {
-            this.workspace = this.build();
-            this.workspace.setAttribute('id', WORKSPACE_ID);
+        if (this.rootNode === null) {
+            this.rootNode = this.build();
+            this.rootNode.setAttribute('id', WORKSPACE_ID);
         }
 
-        var currentWorkspace = document.getElementById(WORKSPACE_ID);
-        if (currentWorkspace !== null) {
-            document.body.removeChild(currentWorkspace);
+        var activeRootNode = document.getElementById(WORKSPACE_ID);
+        if (activeRootNode !== null) {
+            document.body.removeChild(activeRootNode);
         }
 
-        document.body.appendChild(this.workspace);
+        document.body.appendChild(this.rootNode);
     };
 
     /**

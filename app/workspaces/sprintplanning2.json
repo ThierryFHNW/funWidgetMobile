@@ -5,7 +5,6 @@
   "layout": "touchwall",
   "mainWorkspace": "sprintplanning2",
   "widgets": {
-    "teamview": "widget1",
     "sprintinfo": "widget2"
   }
 }

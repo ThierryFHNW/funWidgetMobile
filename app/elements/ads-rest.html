@@ -1,3 +1,5 @@
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
+
 <polymer-element name="ads-rest-base" hidden>
     <script>
         (function () {
@@ -393,8 +395,6 @@
     <script>
         Polymer({
             publish: {
-                response: [],
-                auto: false,
                 expand: undefined,
                 projectId: undefined
             },
@@ -415,8 +415,6 @@
     <script>
         Polymer({
             publish: {
-                response: [],
-                auto: false,
                 expand: undefined,
                 projectId: undefined
             },
@@ -438,8 +436,6 @@
     <script>
         Polymer({
             publish: {
-                response: [],
-                auto: false,
                 expand: undefined,
                 authorId: undefined,
                 ownerId: undefined,
@@ -480,8 +476,6 @@
     <script>
         Polymer({
             publish: {
-                response: [],
-                auto: false,
                 expand: undefined,
                 authorId: undefined,
                 assigneeId: undefined,
@@ -522,8 +516,6 @@
     <script>
         Polymer({
             publish: {
-                response: [],
-                auto: false,
                 projectId: undefined,
                 taskId: undefined
             },
@@ -553,8 +545,6 @@
     <script>
         Polymer({
             publish: {
-                response: [],
-                auto: false,
                 projectId: undefined,
                 userStoryId: undefined
             },
@@ -582,7 +572,7 @@
 
 <polymer-element name="ads-rest-single" extends="ads-rest-base" hidden>
     <template>
-        <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}/{{resourceId}}" handleAs="json"
+        <core-ajax id="ajax" handleAs="json"
                    params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
     </template>
     <script>
@@ -618,6 +608,7 @@
                 }
             },
             go: function () {
+                this.$.ajax.url = 'http://windows92.cs.technik.fhnw.ch/api/' + this.resource + '/' + this.resourceId;
                 this.setParams();
                 this.$.ajax.go();
             },
@@ -673,12 +664,6 @@
 <polymer-element name="ads-rest-project" extends="ads-rest-single">
     <script>
         Polymer({
-            publish: {
-                response: {},
-                auto: false,
-                expand: undefined,
-                resourceId: undefined
-            },
             resource: 'projects',
             resourceType: 'Project'
         });
@@ -688,12 +673,6 @@
 <polymer-element name="ads-rest-sprint" extends="ads-rest-single">
     <script>
         Polymer({
-            publish: {
-                response: {},
-                auto: false,
-                expand: undefined,
-                resourceId: undefined
-            },
             resource: 'sprints',
             resourceType: 'Sprint'
         });
@@ -703,12 +682,6 @@
 <polymer-element name="ads-rest-person" extends="ads-rest-single">
     <script>
         Polymer({
-            publish: {
-                response: {},
-                auto: false,
-                expand: undefined,
-                resourceId: undefined
-            },
             resource: 'people',
             resourceType: 'Person'
         });
@@ -718,12 +691,6 @@
 <polymer-element name="ads-rest-userstory" extends="ads-rest-single">
     <script>
         Polymer({
-            publish: {
-                response: {},
-                auto: false,
-                expand: undefined,
-                resourceId: undefined
-            },
             resource: 'userstories',
             resourceType: 'UserStory'
         });
@@ -733,12 +700,6 @@
 <polymer-element name="ads-rest-task" extends="ads-rest-single">
     <script>
         Polymer({
-            publish: {
-                response: {},
-                auto: false,
-                expand: undefined,
-                resourceId: undefined
-            },
             resource: 'tasks',
             resourceType: 'Task'
         });
@@ -748,11 +709,6 @@
 <polymer-element name="ads-rest-taskstate" extends="ads-rest-single">
     <script>
         Polymer({
-            publish: {
-                response: {},
-                auto: false,
-                resourceId: undefined
-            },
             resource: 'taskStates',
             resourceType: 'TaskState'
         });
@@ -762,11 +718,6 @@
 <polymer-element name="ads-rest-userstorystate" extends="ads-rest-single">
     <script>
         Polymer({
-            publish: {
-                response: {},
-                auto: false,
-                resourceId: undefined
-            },
             resource: 'userStoryStates',
             resourceType: 'UserStoryState'
         });
