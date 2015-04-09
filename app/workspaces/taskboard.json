@@ -5,7 +5,8 @@
   "layout": "touchwall",
   "mainWorkspace": "taskboard",
   "widgets": {
-    "teamview": "widget1",
-    "sprintinfo": "widget2"
+    "teamview": 1,
+    "dummy1": 2,
+    "sprintinfo": 3
   }
 }

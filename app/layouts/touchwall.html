@@ -2,7 +2,6 @@
 
 <polymer-element name="workspace-layout-touchwall" extends="app-layout">
     <template>
-        <app-globals id="globals"></app-globals>
         <style>
             #container {
                 display: flex;
@@ -50,13 +49,15 @@
         </style>
         <div id="container">
             <header>HEADER</header>
-            
             <div id="body">
                 <div id="widgets">
                     <div class="widgetDropzone hidden" id="widget1"></div>
                     <div class="widgetDropzone hidden" id="widget2"></div>
                     <div class="widgetDropzone hidden" id="widget3"></div>
                     <div class="widgetDropzone hidden" id="widget4"></div>
+                    <div class="widgetDropzone hidden" id="widget5"></div>
+                    <div class="widgetDropzone hidden" id="widget6"></div>
+                    <div class="widgetDropzone hidden" id="widget7"></div>
                     <awall-menu></awall-menu>
                 </div>
                 <div id="mainWorkspace"></div>
@@ -112,11 +113,11 @@
                     }
 
                     function isWidget(id) {
-                        return contains(id, 'widget');
+                        return !contains(id, 'mainWorkspace');
                     }
 
                     if (isWidget(targetId)) {
-                        console.log('is widget or mainWorkspace: ' + targetId);
+                        targetId = 'widget' + targetId;
 
                         var targetDropzone = this.$[targetId];
                         if (targetDropzone === null) {

@@ -25,6 +25,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.description = description || "";
         this.layout = {};
         this.widgets = [];
+        this.widgetViewTargets = {};
         this.rootNode = null;
         this.matcher = null;
         this._path = null;
@@ -45,7 +46,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 var appCoreElement = document.createElement('app-core');
                 return '#' + this.matcher.stringify(appCoreElement.routeParams);
             }
-        })
+        });
     }
 
 
@@ -72,7 +73,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.id = id;
         this.name = name || "";
         this.description = description || "";
-        this.viewTarget = null;
         this.document = {};
         this.elements = [];
     }
@@ -119,18 +119,19 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @returns {HTMLElement} The root node of the workspace.
      */
     Workspace.prototype.build = function () {
-        var workspace = document.createElement('workspace-layout-' + this.layout.id);
+        var workspaceLayout = document.createElement('workspace-layout-' + this.layout.id);
         this.widgets.forEach(function (widget) {
             var templates = widget.document.querySelectorAll('template.content');
-            console.log('widget ' + widget.id + ' has ' + templates.length + ' template(s)');
-            if (templates.length === 0) {
-                console.log('no templates found in the widget ' + widget.id);
+            if (templates.length !== 1) {
+                console.error('No or more templates found in the widget ' + widget.id + '. Exactly one is needed.');
                 return;
             }
-            var content = document.importNode(templates[0].content, true);
-            workspace.addWidget(widget.viewTarget, content);
-        });
-        return workspace;
+            var widgetContent = document.importNode(templates[0].content, true);
+            var viewTarget = this.widgetViewTargets[widget.id];
+            console.log('Adding widget ' + widget.name + ' to ' + viewTarget + ' in ' + this.id);
+            workspaceLayout.addWidget(viewTarget, widgetContent);
+        }, this);
+        return workspaceLayout;
     };
 
     /**
@@ -336,13 +337,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @constructor
      */
     function WidgetLoader() {
-        this.config = {};
-        this.numberOfElements = null;
-        this.numberOfElementsLoaded = 0;
-        this.indexHtmlLoaded = false;
-        this.widget = null;
-        this.onResourceLoadedCallback = function () {
-        };
+
     }
 
     /**
@@ -353,63 +348,71 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      */
     WidgetLoader.prototype.load = function (id, onLoadedCallback) {
         var configUrl = 'widgets/' + id + '/widget.json';
-        this.widget = new Widget(id);
+        var widget = new Widget(id);
+        var config = {};
+        var numberOfElements = null;
+        var numberOfElementsLoaded = 0;
+        var indexHtmlLoaded = false;
+        var onResourceLoadedCallback = function () {
+        };
+
+        function onDependencyLoaded() {
+            if (numberOfElements == numberOfElementsLoaded && indexHtmlLoaded) {
+                log('Widget ' + widget.id + ' has been loaded');
+                onResourceLoadedCallback();
+            }
+        }
+
+        function loadElements(elementArray) {
+            numberOfElements = elementArray.length;
+            log('Widget ' + id + ' has ' + numberOfElements + ' elements');
+            elementArray.forEach(function (elementId) {
+                var loader = new ElementLoader();
+                loader.load(elementId, function (element) {
+                    widget.elements.push(element);
+                    numberOfElementsLoaded += 1;
+                    onDependencyLoaded();
+                });
+            });
+        }
+
+        function loadIndexHtml() {
+            var htmlUrl = 'widgets/' + widget.id + '/index.html';
+            this.loadHtml(htmlUrl, function (e) {
+                console.log('Loaded widget html: ' + e.target.href);
+                indexHtmlLoaded = true;
+                widget.document = e.target.import;
+                onDependencyLoaded();
+            });
+        }
 
 
-        function loadWidget(url, onResourceLoadedCallback) {
-            this.onResourceLoadedCallback = onResourceLoadedCallback;
+        function loadWidget(url, onWidgetLoadedCallback) {
+            onResourceLoadedCallback = onWidgetLoadedCallback;
 
-            this.loadJson(url, function (config) {
-                this.config = config;
+            function configLoaded(loadedConfig) {
+                config = loadedConfig;
 
                 // set name and description
-                this.widget.name = config.name || "";
-                this.widget.description = config.description || "";
+                widget.name = config.name || "";
+                widget.description = config.description || "";
 
                 // load dependencies (elements)
                 if (config.hasOwnProperty('elements')) {
-                    loadElements.call(this, config.elements);
+                    loadElements(config.elements);
                 } else {
-                    log('Widget ' + id + ' has no elements');
+                    console.log('Widget ' + id + ' has no elements');
                 }
 
                 // load index.html
                 loadIndexHtml.call(this);
-            }.bind(this));
-        }
-
-        function loadElements(elementArray) {
-            this.numberOfElements = elementArray.length;
-            log('Widget ' + id + ' has ' + this.numberOfElements + ' elements');
-            elementArray.forEach(function (elementId) {
-                var loader = new ElementLoader();
-                loader.load(elementId, function (element) {
-                    this.widget.elements.push(element);
-                    this.numberOfElementsLoaded += 1;
-                    onDependencyLoaded.call(this);
-                }.bind(this));
-            }.bind(this));
-        }
-
-        function loadIndexHtml() {
-            var htmlUrl = 'widgets/' + this.widget.id + '/index.html';
-            this.loadHtml(htmlUrl, function (e) {
-                console.log('Loaded widget html: ' + e.target.href);
-                this.indexHtmlLoaded = true;
-                this.widget.document = e.target.import;
-                onDependencyLoaded.call(this);
-            }.bind(this));
-        }
-
-        function onDependencyLoaded() {
-            if (this.numberOfElements == this.numberOfElementsLoaded && this.indexHtmlLoaded) {
-                log('Widget ' + this.widget.id + ' has been loaded');
-                this.onResourceLoadedCallback();
             }
+
+            this.loadJson(url, configLoaded.bind(this));
         }
 
 
-        Loader.prototype.loadResource(configUrl, this.widget, onLoadedCallback, loadWidget.bind(this));
+        Loader.prototype.loadResource(configUrl, widget, onLoadedCallback, loadWidget);
     };
 
 
@@ -419,7 +422,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @constructor
      */
     function LayoutLoader() {
-        this.layout = null;
+
     }
 
     /**
@@ -430,8 +433,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      */
     LayoutLoader.prototype.load = function (id, onLoadedCallback) {
         var url = 'layouts/' + id + '.html';
-        this.layout = new Layout(id);
-        Loader.prototype.loadResource(url, this.layout, onLoadedCallback, this.loadHtml);
+        Loader.prototype.loadResource(url, new Layout(id), onLoadedCallback, this.loadHtml);
     };
 
 
@@ -441,12 +443,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @constructor
      */
     function WorkspaceLoader() {
-        this.workspace = {};
-        this.layoutLoaded = false;
-        this.numberOfWidgets = null;
-        this.numberOfWidgetsLoaded = 0;
-        this.onResourceLoadedCallback = function () {
-        };
+
     }
 
     /**
@@ -457,89 +454,95 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      */
     WorkspaceLoader.prototype.load = function (id, onLoadedCallback) {
         var configUrl = 'workspaces/' + id + '.json';
-        this.workspace = new Workspace(id);
+        var config = {};
+        var workspace = new Workspace(id);
+        var layoutLoaded = false;
+        var numberOfWidgets = null;
+        var numberOfWidgetsLoaded = 0;
+        var onResourceLoadedCallback = function () {
+        };
 
-        function loadWorkspaceConfig(url, onResourceLoadedCallback) {
-            this.onResourceLoadedCallback = onResourceLoadedCallback;
-            this.loadJson(url, configLoaded.bind(this));
+
+        function onDependencyLoaded() {
+            if (layoutLoaded && numberOfWidgets == numberOfWidgetsLoaded) {
+                log('Workspace ' + workspace.id + ' has been loaded');
+                onResourceLoadedCallback();
+            }
         }
 
-        function configLoaded(config) {
-            this.config = config;
+        function loadWidgets() {
+            // k: widgetId, v: viewTarget
+            var widgetViewTargets = {};
+            if (!config.hasOwnProperty('mainWorkspace') || !config.mainWorkspace) {
+                console.error(config.name + ' does not have a main workspace!');
+                return;
+            }
+
+            if (config.hasOwnProperty('widgets') && Object.keys(config.widgets).length > 0) {
+                for (var widget in config.widgets) {
+                    widgetViewTargets[widget] = config.widgets[widget];
+                }
+            }
+
+            widgetViewTargets[config.mainWorkspace] = 'mainWorkspace';
+
+            numberOfWidgets = Object.keys(widgetViewTargets).length;
+            console.log(config.name + ' has ' + numberOfWidgets + ' widgets');
+
+            var widgetLoadedCallback = function (widget) {
+                workspace.widgets.push(widget);
+                numberOfWidgetsLoaded += 1;
+                onDependencyLoaded();
+            };
+
+            workspace.widgetViewTargets = widgetViewTargets;
+
+            for (var widgetId in widgetViewTargets) {
+                console.log('Loading widget ' + widgetId);
+                var widgetLoader = new WidgetLoader();
+                widgetLoader.load(widgetId, widgetLoadedCallback);
+            }
+        }
+
+        function configLoaded(loadedConfig) {
+            config = loadedConfig;
 
             // set the URL path
             if (!config.hasOwnProperty('path')) {
                 console.error('Error, the workspace config has no path attribute!');
                 return;
             }
-            this.workspace.path = config.path;
+            workspace.path = config.path;
 
             // set name and description
-            this.workspace.name = config.name || "";
-            this.workspace.description = config.description || "";
+            workspace.name = config.name || "";
+            workspace.description = config.description || "";
 
             // load layout
-            if (!this.config.hasOwnProperty('layout')) {
+            if (!config.hasOwnProperty('layout')) {
                 console.error('Loading failed: Workspace has no layout!');
                 return;
             }
+
+            var layoutLoadedCallback = function (layout) {
+                layoutLoaded = true;
+                workspace.layout = layout;
+                onDependencyLoaded();
+            };
             var layoutLoader = new LayoutLoader();
-            layoutLoader.load(this.config.layout, layoutLoaded.bind(this));
+            layoutLoader.load(config.layout, layoutLoadedCallback);
 
             // load widgets
-            loadWidgets.call(this);
+            loadWidgets();
         }
 
-        function layoutLoaded(layout) {
-            this.layoutLoaded = true;
-            this.workspace.layout = layout;
-            onDependencyLoaded.call(this);
-        }
-
-        function loadWidgets() {
-            // k: widgetId, v: viewTarget
-            var widgetsToLoad = Object.create(null);
-            if (!this.config.hasOwnProperty('mainWorkspace') || !this.config.mainWorkspace) {
-                log(this.config.id + ' does not have a main workspace!');
-                return;
-            }
-            widgetsToLoad[this.config.mainWorkspace] = 'mainWorkspace';
-
-            if (this.config.hasOwnProperty('widgets') && Object.keys(this.config.widgets).length > 0) {
-                log(this.config.id + ' has free widgets');
-                for (var widget in this.config.widgets) {
-                    if (this.config.widgets.hasOwnProperty(widget)) {
-                        widgetsToLoad[widget] = this.config.widgets[widget];
-                    }
-                }
-            }
-
-            this.numberOfWidgets = Object.keys(widgetsToLoad).length;
-            log(this.config.id + ' has ' + this.numberOfWidgets + ' widgets');
-
-            var loadCallback = function (widget) {
-                widget.viewTarget = widgetsToLoad[widget.id];
-                this.workspace.widgets.push(widget);
-                this.numberOfWidgetsLoaded += 1;
-                onDependencyLoaded.call(this);
-            }.bind(this);
-
-            for (var widgetId in widgetsToLoad) {
-                var widgetLoader = new WidgetLoader();
-                widgetLoader.load(widgetId, loadCallback);
-            }
-
-        }
-
-        function onDependencyLoaded() {
-            if (this.layoutLoaded && this.numberOfWidgets == this.numberOfWidgetsLoaded) {
-                log('Workspace ' + this.workspace.id + ' has been loaded');
-                this.onResourceLoadedCallback();
-            }
+        function loadWorkspaceConfig(url, onWorkspaceLoadedCallback) {
+            onResourceLoadedCallback = onWorkspaceLoadedCallback;
+            this.loadJson(url, configLoaded);
         }
 
 
-        Loader.prototype.loadResource(configUrl, this.workspace, onLoadedCallback, loadWorkspaceConfig.bind(this));
+        Loader.prototype.loadResource(configUrl, workspace, onLoadedCallback, loadWorkspaceConfig);
     };
 
 

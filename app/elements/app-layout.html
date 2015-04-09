@@ -2,9 +2,14 @@
     <script>
         Polymer({
             addWidget: function (targetId, content) {
+                console.log('Adding content to ' + targetId);
                 var target = this.shadowRoot.getElementById(targetId);
                 if (target) {
                     if (content) {
+                        if (target.shadowRoot) {
+                            console.error('The target ' + targetId + ' already has a widget!');
+                            return;
+                        }
                         var root = target.createShadowRoot();
                         root.appendChild(content);
                     }
