@@ -36,6 +36,12 @@
                 height: 1em;
                 width: 1em;
             }
+
+            @media only screen and (max-height: 40em) {
+                .extendedContent {
+                    display: none;
+                }
+            }
         </style>
 
         <div id="widget" class="widget">
@@ -50,9 +56,13 @@
                                   on-tap="{{closeEditMode}}"></core-icon-button>
             </div>
 
-            <content select="awall-widget-size-default"></content>
-            <content select="awall-widget-size-full"></content>
-            <content select="awall-widget-editable"></content>
+            <content select="awall-widget-title"></content>
+
+            <div class="extendedContent">
+                <content select="awall-widget-size-default"></content>
+                <content select="awall-widget-size-full"></content>
+                <content select="awall-widget-editable"></content>
+            </div>
 
             <!-- fallback for widgets not using the above sizes with behaviour -->
             <content select="*"></content>
@@ -293,4 +303,18 @@
             }
         });
     </script>
+</polymer-element>
+
+<polymer-element name="awall-widget-title" noscript attributes="icon title">
+    <template>
+        <style>
+            h2 {
+                padding: 0.4em;
+                margin: 0.4em;
+                font-size: 1.2em;
+                font-weight: bold;
+            }
+        </style>
+        <h2>{{title}}</h2>
+    </template>
 </polymer-element>

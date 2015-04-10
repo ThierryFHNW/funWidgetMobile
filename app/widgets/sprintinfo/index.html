@@ -5,9 +5,9 @@
 <polymer-element name="awall-sprintinfo">
     <template>
         <awall-widget>
-            <awall-widget-size-default>
-                <h2>{{sprint.name}}</h2>
+            <awall-widget-title title="{{sprint.name}}"></awall-widget-title>
 
+            <awall-widget-size-default>
                 <p>From {{sprint.startTime | dateFmt}} to {{sprint.endTime | dateFmt}}</p>
             </awall-widget-size-default>
 

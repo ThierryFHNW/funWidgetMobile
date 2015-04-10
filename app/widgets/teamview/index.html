@@ -10,11 +10,13 @@
             }
         </style>
         <awall-widget>
-            <h2>Team</h2>
+            <awall-widget-title title="Team"></awall-widget-title>
 
-            <template repeat="{{person in people}}">
-                <awall-avatarcard user="{{person}}"></awall-avatarcard>
-            </template>
+            <awall-widget-size-default>
+                <template repeat="{{person in people}}">
+                    <awall-avatarcard user="{{person}}"></awall-avatarcard>
+                </template>
+            </awall-widget-size-default>
         </awall-widget>
 
         <app-core id="globals"></app-core>
