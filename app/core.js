@@ -120,6 +120,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      */
     Workspace.prototype.build = function () {
         var workspaceLayout = document.createElement('workspace-layout-' + this.layout.id);
+        this.layout.document = workspaceLayout;
         this.widgets.forEach(function (widget) {
             var templates = widget.document.querySelectorAll('template.content');
             if (templates.length !== 1) {
@@ -129,7 +130,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
             var widgetContent = document.importNode(templates[0].content, true);
             var viewTarget = this.widgetViewTargets[widget.id];
             console.log('Adding widget ' + widget.name + ' to ' + viewTarget + ' in ' + this.id);
-            workspaceLayout.addWidget(viewTarget, widgetContent);
+            workspaceLayout.addWidget(viewTarget, widgetContent, widget);
         }, this);
         return workspaceLayout;
     };

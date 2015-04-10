@@ -102,7 +102,8 @@
             }
 
             Polymer({
-                addWidget: function (targetId, content) {
+                widgetIdToView: {},
+                addWidget: function (targetId, content, widget) {
                     function contains(source, searchTerm) {
                         for (var i in searchTerm) {
                             if (source[i] !== searchTerm[i]) {
@@ -131,7 +132,33 @@
                         enableDropzone(targetDropzone);
                     }
 
+                    this.widgetIdToView[widget.id] = this.$[targetId];
+
                     this.super([targetId, content]);
+                },
+                hideWidget: function (widgetId) {
+                    var widget = this.widgetIdToView[widgetId];
+                    if (widget === undefined) {
+                        console.error('Cannot hide widget with id: ' + widgetId + ', not registered.');
+                        return;
+                    }
+                    widget.classList.add('hidden');
+                },
+                showWidget: function (widgetId) {
+                    var widget = this.widgetIdToView[widgetId];
+                    if (widget === undefined) {
+                        console.error('Cannot show widget with id: ' + widgetId + ', not registered.');
+                        return;
+                    }
+                    widget.classList.remove('hidden');
+                },
+                isWidgetShown: function (widgetId) {
+                    var widget = this.widgetIdToView[widgetId];
+                    if (widget === undefined) {
+                        console.error('Widget with id: ' + widgetId + ' is not registered.');
+                        return;
+                    }
+                    return !widget.classList.contains('hidden');
                 },
                 ready: function () {
                     console.log('workspace-layout touchwall is ready.');

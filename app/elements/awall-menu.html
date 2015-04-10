@@ -55,7 +55,8 @@
                 <div id="menuContent">
                     <h3>Widgets</h3>
                     <template repeat="{{widget in $.globals.activeWorkspace.widgets}}">
-                        <awall-menu-widget-toggle name="{{widget.name}}"></awall-menu-widget-toggle>
+                        <awall-menu-widget-toggle widget="{{widget}}"
+                                                  layout="{{$.globals.activeWorkspace.layout}}"></awall-menu-widget-toggle>
                     </template>
                     <h3>Workspaces</h3>
                     <ul>
@@ -79,19 +80,31 @@
 <polymer-element name="awall-menu-widget-toggle">
     <template>
         <div center horizontal layout class="toggle">
-            <div flex>{{name}}</div>
-            <paper-toggle-button checked?="{{isVisible}}" on-tap="{{onTap}}"></paper-toggle-button>
+            <div flex>{{widget.name}}</div>
+            <paper-toggle-button checked?="{{checked}}" on-tap="{{onTap}}"
+                                 on-change="{{onChange}}"></paper-toggle-button>
         </div>
     </template>
     <script>
         Polymer({
             publish: {
-                name: "",
-                isVisible: true
+                widget: undefined,
+                layout: undefined,
+                checked: true,
+                onChange: undefined
             },
             onTap: function (event) {
                 // stop propagation of the event so the dropdown does not close
                 event.stopPropagation();
+            },
+            onChange: function () {
+                var layoutDoc = this.layout.document;
+                var widgetId = this.widget.id;
+                if (layoutDoc.isWidgetShown(widgetId)) {
+                    layoutDoc.hideWidget(widgetId);
+                } else {
+                    layoutDoc.showWidget(widgetId);
+                }
             }
         });
     </script>
