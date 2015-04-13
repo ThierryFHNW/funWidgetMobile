@@ -37,8 +37,8 @@
                 width: 1em;
             }
 
-            @media only screen and (max-height: 40em) {
-                .extendedContent {
+            @media only screen and (max-height: 40rem) {
+                #extendedContent {
                     display: none;
                 }
             }
@@ -58,7 +58,7 @@
 
             <content select="awall-widget-title"></content>
 
-            <div class="extendedContent">
+            <div id="extendedContent">
                 <content select="awall-widget-size-default"></content>
                 <content select="awall-widget-size-full"></content>
                 <content select="awall-widget-editable"></content>
@@ -101,6 +101,8 @@
             widgetFull: undefined,
             widgetEditable: undefined,
             widgetSizeElements: [],
+            draggableIsFloating: false,
+            extendedContentInitallyHidden: false,
             domReady: function () {
                 var getSingleElement = function (selector) {
                     var found = this.querySelectorAll(selector);
@@ -155,12 +157,21 @@
                         touch.makeDraggable(widget, {
                             revert: false,
                             onstart: function () {
+                                if (!elementThis.draggableIsFloating) {
+                                    elementThis.extendedContentInitallyHidden = elementThis.isExtendedContentHidden();
+                                    elementThis.showExtendedContent();
+                                }
+                                elementThis.draggableIsFloating = true;
                                 elementThis.hideRevertToDock = false;
                             },
                             onend: function (event) {
                                 elementThis.hideRevertToDock = event.interaction.dropped;
                             },
-                            ondrop: function(event) {
+                            ondrop: function (event) {
+                                elementThis.draggableIsFloating = false;
+                                if (elementThis.extendedContentInitallyHidden) {
+                                    elementThis.hideExtendedContent();
+                                }
                                 elementThis.resizeToInitial();
                             }
                         });
@@ -187,6 +198,16 @@
                     }
                 });
             },
+            hideExtendedContent: function () {
+                this.$.extendedContent.style.display = 'none';
+            },
+            showExtendedContent: function () {
+                this.$.extendedContent.style.display = 'inherit';
+            },
+            isExtendedContentHidden: function () {
+                var display = this.$.extendedContent.style.display;
+                return display == 'none' || display == '';
+            },
             resizeToInitial: function () {
                 var widget = this.$.widget;
                 var elementThis = this;
@@ -198,6 +219,12 @@
                 this.hideResizeToInitial = true;
             },
             revertToDock: function () {
+                this.draggableIsFloating = false;
+                if (this.extendedContentInitallyHidden) {
+                    this.hideExtendedContent();
+                }
+                this.hideRevertToDock = true;
+
                 var widget = this.$.widget;
                 var elementThis = this;
                 require(['core-touch'], function (touch) {
@@ -206,7 +233,6 @@
 
                     touch.resetPosition(widget);
                 });
-                this.hideRevertToDock = true;
             },
             widgetSizeChanged: function () {
                 this.widgetSizeElements.forEach(function (widget) {
