@@ -576,7 +576,7 @@ require(['interact'], function (interact) {
                     mode: 'anchor',
                     targets: [],
                     range: Infinity,
-                    relativePoints: [{x: 0.5, y: 0.5}],
+                    relativePoints: [{x:0, y:0}],
                     endOnly: true
                 }
             });
@@ -587,8 +587,8 @@ require(['interact'], function (interact) {
 
                     // record center point when starting a drag
                     event.interactable.startPos = {
-                        x: rect.left + rect.width / 2,
-                        y: rect.top + rect.height / 2
+                        x: rect.left,
+                        y: rect.top
                     };
                     // snap to the start position
                     event.interactable.draggable({
@@ -605,8 +605,8 @@ require(['interact'], function (interact) {
                 // enable snap
                 var dropRect = interact.getElementRect(event.target),
                     dropCenter = {
-                        x: dropRect.left + dropRect.width / 2,
-                        y: dropRect.top + dropRect.height / 2
+                        x: dropRect.left,
+                        y: dropRect.top
                     };
 
                 event.draggable.draggable({
@@ -662,6 +662,13 @@ require(['interact'], function (interact) {
                         // call the callback with the data of the interaction set by the draggable in onstart.
                         onDropCallback(event.interaction.data);
                     }
+
+                    // call ondrop of the draggable
+                    var draggable = event.draggable;
+                    if (draggable.ondrop) {
+                        draggable.ondrop(event);
+                    }
+
                     // reset z-index to the default value
                     event.relatedTarget.style.zIndex = '';
                 },
@@ -724,15 +731,12 @@ require(['interact'], function (interact) {
                 onmove: function () {
                 },
                 onend: function () {
+                },
+                ondrop: function () {
                 }
             });
 
             interact(element).draggable({
-                inertia: {
-                    resistance: 30,
-                    minSpeed: 200,
-                    endSpeed: 100
-                },
                 // call this function on every dragmove event
                 onmove: function (event) {
                     var target = this.target,
@@ -764,6 +768,9 @@ require(['interact'], function (interact) {
                 onstart: function (event) {
                     // attach data to the interaction
                     event.interaction.data = options.data;
+
+                    // attach ondrop callback
+                    event.interactable.ondrop = options.ondrop;
 
                     // clone if set in options
                     if (options.clone) {
@@ -883,8 +890,7 @@ require(['interact'], function (interact) {
                         left: false,
                         bottom: '.resize',
                         right: '.resize'
-                    },
-                    inertia: true
+                    }
                 })
                 .on('resizestart', function (event) {
                     onstart(event.target);

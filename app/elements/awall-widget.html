@@ -159,6 +159,9 @@
                             },
                             onend: function (event) {
                                 elementThis.hideRevertToDock = event.interaction.dropped;
+                            },
+                            ondrop: function(event) {
+                                elementThis.resizeToInitial();
                             }
                         });
                     }
