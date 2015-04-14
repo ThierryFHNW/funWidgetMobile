@@ -159,8 +159,11 @@
                             onstart: function () {
                                 if (!elementThis.draggableIsFloating) {
                                     elementThis.extendedContentInitallyHidden = elementThis.isExtendedContentHidden();
-                                    console.log('dragged out of the info-view, initially hidden: ' + elementThis.extendedContentInitallyHidden);
-                                    elementThis.showExtendedContent();
+                                    if (elementThis.extendedContentInitallyHidden) {
+                                        // set height to extend the widget and show the extended content
+                                        elementThis.$.widget.style.height = 13 + 'em';
+                                        elementThis.showExtendedContent();
+                                    }
                                 }
                                 elementThis.draggableIsFloating = true;
                                 elementThis.hideRevertToDock = false;
@@ -169,11 +172,7 @@
                                 elementThis.hideRevertToDock = event.interaction.dropped;
                             },
                             ondrop: function (event) {
-                                elementThis.draggableIsFloating = false;
-                                if (elementThis.extendedContentInitallyHidden) {
-                                    elementThis.hideExtendedContent();
-                                }
-                                elementThis.resizeToInitial();
+                                elementThis.onDockAction();
                             }
                         });
                     }
@@ -219,20 +218,21 @@
                 this.hideResizeToInitial = true;
             },
             revertToDock: function () {
-                this.draggableIsFloating = false;
-                if (this.extendedContentInitallyHidden) {
-                    this.hideExtendedContent();
-                }
+                this.onDockAction();
                 this.hideRevertToDock = true;
 
                 var widget = this.$.widget;
-                var elementThis = this;
                 require(['core-touch'], function (touch) {
-                    // resize to initial
-                    elementThis.resizeToInitial();
-
                     touch.resetPosition(widget);
                 });
+            },
+            onDockAction: function () {
+                this.draggableIsFloating = false;
+                if (this.extendedContentInitallyHidden) {
+                    this.$.widget.style.height = 3.5 + 'em';
+                    this.hideExtendedContent();
+                }
+                this.resizeToInitial();
             },
             widgetSizeChanged: function () {
                 this.widgetSizeElements.forEach(function (widget) {
