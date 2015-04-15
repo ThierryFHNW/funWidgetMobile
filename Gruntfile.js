@@ -51,11 +51,28 @@ module.exports = function (grunt) {
             // minify js code
             uglify: {
                 options: {
-                    banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+                    banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n',
+                    mangle: false
                 },
                 build: {
-                    src: 'src/<%= pkg.name %>.js',
+                    src: 'app/{,**/}*.js',
                     dest: 'build/<%= pkg.name %>.min.js'
+                }
+            },
+
+            vulcanize: {
+                default: {
+                    options: {
+                        // Task-specific options go here.
+                        inline: true,
+                        csp: false,
+                        strip: false
+
+                    },
+                    files: {
+                        // Target-specific file lists and/or options go here.
+                        'build/index.html': '{,*/}*.html'
+                    }
                 }
             },
 

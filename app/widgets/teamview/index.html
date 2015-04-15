@@ -27,9 +27,6 @@
             attached: function () {
                 this.projectId = this.$.globals.routeParams.projectId;
                 this.$.rest.go();
-                this.async(function() {
-                    console.dir(this.people);
-                }, this, 1200);
             }
         });
     </script>
