@@ -1,11 +1,6 @@
 {
   "name": "Team",
-  "description": "Shows the members of the project.",
-  "elements": [
-    "ads-rest",
-    "awall-avatarcard",
-    "awall-widget"
-  ]
+  "description": "Shows the members of the project."
 }
 
 

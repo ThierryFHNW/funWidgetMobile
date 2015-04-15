@@ -1,10 +1,4 @@
 {
   "name": "Taskboard widget",
-  "description": "",
-  "elements": [
-    "ads-rest",
-    "awall-taskcard",
-    "awall-userstorycard",
-    "awall-form"
-  ]
+  "description": ""
 }

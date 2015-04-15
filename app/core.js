@@ -74,21 +74,9 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.name = name || "";
         this.description = description || "";
         this.document = {};
-        this.elements = [];
-    }
-
-    /**
-     * Represents an element.
-     *
-     * @param id The id of the element. Represents part of the URL.
-     * @constructor
-     */
-    function Element(id) {
-        this.id = id;
     }
 
     // All resource representations inherit from EventEmitter. Gives them addEventListener and emitEvent.
-    heir.inherit(Element, EventEmitter, true);
     heir.inherit(Widget, EventEmitter, true);
     heir.inherit(Layout, EventEmitter, true);
     heir.inherit(Workspace, EventEmitter, true);
@@ -207,7 +195,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     // All Loaders inherit from Loader
     heir.inherit(WorkspaceLoader, Loader, true);
     heir.inherit(LayoutLoader, Loader, true);
-    heir.inherit(ElementLoader, Loader, true);
     heir.inherit(WidgetLoader, Loader, true);
 
 
@@ -312,27 +299,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
 
     /**
-     * Loader for elements.
-     *
-     * @constructor
-     */
-    function ElementLoader() {
-
-    }
-
-    /**
-     * Loads an element by id.
-     *
-     * @param id The id of the element.
-     * @param onLoadedCallback The function to be called if the element has been loaded.
-     */
-    ElementLoader.prototype.load = function (id, onLoadedCallback) {
-        var url = 'elements/' + id + '.html';
-        Loader.prototype.loadResource(url, new Element(id), onLoadedCallback, this.loadHtml);
-    };
-
-
-    /**
      * Loader for widgets.
      *
      * @constructor
@@ -351,30 +317,15 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         var configUrl = 'widgets/' + id + '/widget.json';
         var widget = new Widget(id);
         var config = {};
-        var numberOfElements = null;
-        var numberOfElementsLoaded = 0;
         var indexHtmlLoaded = false;
         var onResourceLoadedCallback = function () {
         };
 
         function onDependencyLoaded() {
-            if (numberOfElements == numberOfElementsLoaded && indexHtmlLoaded) {
+            if (indexHtmlLoaded) {
                 log('Widget ' + widget.id + ' has been loaded');
                 onResourceLoadedCallback();
             }
-        }
-
-        function loadElements(elementArray) {
-            numberOfElements = elementArray.length;
-            log('Widget ' + id + ' has ' + numberOfElements + ' elements');
-            elementArray.forEach(function (elementId) {
-                var loader = new ElementLoader();
-                loader.load(elementId, function (element) {
-                    widget.elements.push(element);
-                    numberOfElementsLoaded += 1;
-                    onDependencyLoaded();
-                });
-            });
         }
 
         function loadIndexHtml() {
@@ -387,7 +338,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
             });
         }
 
-
         function loadWidget(url, onWidgetLoadedCallback) {
             onResourceLoadedCallback = onWidgetLoadedCallback;
 
@@ -397,13 +347,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 // set name and description
                 widget.name = config.name || "";
                 widget.description = config.description || "";
-
-                // load dependencies (elements)
-                if (config.hasOwnProperty('elements')) {
-                    loadElements(config.elements);
-                } else {
-                    console.log('Widget ' + id + ' has no elements');
-                }
 
                 // load index.html
                 loadIndexHtml.call(this);
@@ -576,7 +519,7 @@ require(['interact'], function (interact) {
                     mode: 'anchor',
                     targets: [],
                     range: Infinity,
-                    relativePoints: [{x:0, y:0}],
+                    relativePoints: [{x: 0, y: 0}],
                     endOnly: true
                 }
             });

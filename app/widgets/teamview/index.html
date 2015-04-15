@@ -10,7 +10,7 @@
             }
         </style>
         <awall-widget>
-            <awall-widget-title title="Team"></awall-widget-title>
+            <awall-widget-title value="Team"></awall-widget-title>
 
             <awall-widget-size-default>
                 <template repeat="{{person in people}}">
@@ -27,6 +27,9 @@
             attached: function () {
                 this.projectId = this.$.globals.routeParams.projectId;
                 this.$.rest.go();
+                this.async(function() {
+                    console.dir(this.people);
+                }, this, 1200);
             }
         });
     </script>

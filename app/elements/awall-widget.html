@@ -1,3 +1,5 @@
+<link rel="import" href="../bower_components/core-icon-button/core-icon-button.html">
+
 <polymer-element name="awall-widget">
     <template>
         <style>
@@ -334,7 +336,7 @@
     </script>
 </polymer-element>
 
-<polymer-element name="awall-widget-title" noscript attributes="icon title">
+<polymer-element name="awall-widget-title" noscript attributes="icon value">
     <template>
         <style>
             h2 {
@@ -344,6 +346,6 @@
                 font-weight: bold;
             }
         </style>
-        <h2>{{title}}</h2>
+        <h2>{{value}}</h2>
     </template>
 </polymer-element>

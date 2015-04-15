@@ -1,7 +1,4 @@
 {
   "name": "Sprint selection widget",
-  "description": "",
-  "elements": [
-    "ads-rest"
-  ]
+  "description": ""
 }
