@@ -2,13 +2,13 @@
     <awall-sp2></awall-sp2>
 </template>
 
+<link rel="import" href="../../bower_components/core-media-query/core-media-query.html">
+
 <polymer-element name="awall-sp2">
     <template>
         <style>
             .container {
                 display: flex;
-                flex-direction: row;
-                box-sizing: border-box;
             }
 
             .sprintBacklog {
@@ -27,10 +27,20 @@
             <h2>Sprintplanning 2</h2>
 
             <div class="container">
-                <awall-sprintbacklog userstories="{{userstories}}" class="sprintBacklog"></awall-sprintbacklog>
-                <awall-temptasks class="tempTasks"></awall-temptasks>
+
+                <template if="{{isSmallScreen}}">
+                    <awall-userstory-cardlist userstories="{{userstories}}"></awall-userstory-cardlist>
+                </template>
+
+                <template if="{{!isSmallScreen}}">
+                    <awall-sprintbacklog userstories="{{userstories}}" class="sprintBacklog"></awall-sprintbacklog>
+                    <awall-temptasks class="tempTasks"></awall-temptasks>
+                </template>
+
             </div>
         </awall-widget>
+
+        <core-media-query query="max-height: 40rem" queryMatches="{{isSmallScreen}}"></core-media-query>
         <app-core id="globals"></app-core>
         <ads-rest-userstories id="usEndpoint" sprintId="{{sprintId}}"
                               response="{{userstories}}"></ads-rest-userstories>
@@ -42,7 +52,98 @@
                 this.$.usEndpoint.go();
             }
         });
+    </script>
+</polymer-element>
 
+<polymer-element name="awall-userstory-cardlist" attributes="userstories">
+    <template>
+        <style>
+            core-icon-button {
+                margin: 0.65em;
+            }
+
+            core-icon-button /deep/ core-icon[role=img] {
+                height: 4em;
+                width: 4em;
+                padding: 0.4em;
+            }
+
+            #detailViewContainer {
+                display: flex;
+                flex-direction: row;
+                box-sizing: border-box;
+            }
+
+            #usView {
+                flex: 1 1 50%;
+            }
+
+            #tempTasks {
+                flex: 1 1 50%;
+            }
+
+            #header {
+                display: block;
+            }
+        </style>
+
+        <template if="{{!isDetailView}}" repeat="{{userstory in userstories | orderBy('name')}}">
+            <awall-userstorycard userstory="{{userstory}}" on-tap="{{onTap}}"></awall-userstorycard>
+        </template>
+
+        <div id="detailViewContainer" hidden?="{{!isDetailView}}">
+            <div id="usView">
+                <div id="header">
+                    <core-icon-button icon="undo" on-tap="{{closeDetailView}}"></core-icon-button>
+                    <awall-userstorycard id="selected" userstory="{{selected}}"></awall-userstorycard>
+                </div>
+                <template repeat="{{task in selectedTasks}}">
+                    <awall-taskcard task="{{task}}"></awall-taskcard>
+                </template>
+            </div>
+            <awall-temptasks id="tempTasks"></awall-temptasks>
+        </div>
+
+        <ads-rest-awall id="awall"></ads-rest-awall>
+        <ads-rest-tasks id="tasksRest" userstoryId="{{selected.id}}" response="{{selectedTasks}}"></ads-rest-tasks>
+    </template>
+    <script>
+        Polymer({
+            isDetailView: false,
+            userstory: undefined,
+            onTap: function (event, detail, target) {
+                this.selected = target.userstory_;
+                this.isDetailView = true;
+                this.$.tasksRest.go();
+            },
+            closeDetailView: function () {
+                this.isDetailView = false;
+                // set to undefined so the old data is not displayed to the user.
+                this.selected = undefined;
+                this.selectedTasks = undefined;
+            },
+            isDetailViewChanged: function () {
+                if (this.isDetailView) {
+                    // activate dropzone to save temp task
+                    var taskDropzone = this.$.usView;
+                    var awall = this.$.awall;
+                    var userstory = this.selected;
+                    require(['core-touch'], function (touch) {
+                        touch.makeDropZone(taskDropzone, '.taskcard', function (droppedTask) {
+                            console.log('dropped task');
+                            if (droppedTask.userStory != undefined) {
+                                // is existing task
+                                console.error('Moving a task to another user-story is not possible (backend limitation).');
+                            } else {
+                                // is a temporary task
+                                droppedTask.userStory = userstory;
+                                awall.persistTempTask(droppedTask);
+                            }
+                        });
+                    });
+                }
+            }
+        });
     </script>
 </polymer-element>
 
@@ -107,6 +208,7 @@
                 position: relative;
                 height: 10em;
                 width: 16em;
+                padding-right: 1em;
             }
 
             #upperDropzone, #lowerDropzone {
