@@ -209,13 +209,22 @@
             isExtendedContentHidden: function () {
                 return getComputedStyle(this.$.extendedContent, "").display == 'none';
             },
-            resizeToInitial: function () {
+            /**
+             * Resizes the widget to its initial size.
+             * @param onResizedCallback Called as last operation after the widget has been resized.
+             *    Ensures an operation is executed after the widget has been resized by core-touch.
+             */
+            resizeToInitial: function (onResizedCallback) {
                 var widget = this.$.widget;
                 var elementThis = this;
                 require(['core-touch'], function (touch) {
                     // resize to initial and adjust the height/width
                     touch.resizeToInitial(widget);
                     elementThis.widgetSize = touch.getElementSize(widget);
+
+                    if (onResizedCallback) {
+                        onResizedCallback();
+                    }
                 });
                 this.hideResizeToInitial = true;
             },
@@ -230,11 +239,14 @@
             },
             onDockAction: function () {
                 this.draggableIsFloating = false;
-                if (this.extendedContentInitallyHidden) {
-                    this.$.widget.style.height = 3.5 + 'em';
-                    this.hideExtendedContent();
-                }
-                this.resizeToInitial();
+
+                // resize to initial size then apply the real initial docked size (on smaller screens)
+                this.resizeToInitial(function () {
+                    if (this.extendedContentInitallyHidden) {
+                        this.$.widget.style.height = 3.5 + 'em';
+                        this.hideExtendedContent();
+                    }
+                }.bind(this));
             },
             widgetSizeChanged: function () {
                 this.widgetSizeElements.forEach(function (widget) {
