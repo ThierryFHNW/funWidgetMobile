@@ -809,12 +809,10 @@ require(['interact'], function (interact) {
 
             function onmove(target, dx, dy) {
                 var currentSize = interact.getElementRect(target);
-                var height = target.style.height !== '' ? target.style.height : currentSize.height;
-                var width = target.style.width !== '' ? target.style.width : currentSize.width;
 
                 // add the change in coords to the previous width of the target element
-                var newWidth = parseFloat(width) + dx,
-                    newHeight = parseFloat(height) + dy;
+                var newWidth = parseFloat(currentSize.width) + dx,
+                    newHeight = parseFloat(currentSize.height) + dy;
 
                 // update the element's style only if it's not smaller that the initial size
                 if (newHeight >= target.initialSize.height) {
