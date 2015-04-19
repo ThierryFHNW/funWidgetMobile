@@ -204,7 +204,7 @@
                 this.$.extendedContent.style.display = 'none';
             },
             showExtendedContent: function () {
-                this.$.extendedContent.style.display = 'inherit';
+                this.$.extendedContent.style.display = 'block';
             },
             isExtendedContentHidden: function () {
                 return getComputedStyle(this.$.extendedContent, "").display == 'none';
@@ -243,7 +243,8 @@
                 // resize to initial size then apply the real initial docked size (on smaller screens)
                 this.resizeToInitial(function () {
                     if (this.extendedContentInitallyHidden) {
-                        this.$.widget.style.height = 3.5 + 'em';
+                        // don't set fixed height, set to '' so CSS definition takes over again
+                        this.$.widget.style.height = '';
                         this.hideExtendedContent();
                     }
                 }.bind(this));
