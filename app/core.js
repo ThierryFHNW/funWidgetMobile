@@ -192,30 +192,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.objects = {};
     };
 
-    // All Loaders inherit from Loader
-    heir.inherit(WorkspaceLoader, Loader, true);
-    heir.inherit(LayoutLoader, Loader, true);
-    heir.inherit(WidgetLoader, Loader, true);
-
-
-    /**
-     * Base class of all resource loaders.
-     * @constructor
-     */
-    function Loader() {
-    }
-
-    /**
-     * Cache of loaded resources.
-     * @type {Cache}
-     */
-    Loader.cache = new Cache();
-
-    /**
-     * Cache of currently loading resources.
-     * @type {Cache}
-     */
-    Loader.loading = new Cache();
 
     /**
      * Loads a JSON file.
@@ -226,7 +202,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @param onErrorCallback The function called if the request was unsuccessful.
      *      Parameters: HTTP status code, HTTP status text, response body.
      */
-    Loader.prototype.loadJson = function (url, onSuccessCallback, onErrorCallback) {
+    function _loadJson(url, onSuccessCallback, onErrorCallback) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url);
         xhr.onreadystatechange = function () {
@@ -244,7 +220,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
             }
         };
         xhr.send();
-    };
+    }
 
     /**
      * Loads a HTML page via HTML Import and adds the link to the header of the document.
@@ -252,13 +228,13 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @param url The URL of the HTML document to load.
      * @param onSuccessCallback Function called after the HTML document has been loaded. Parameters: Event.
      */
-    Loader.prototype.loadHtml = function (url, onSuccessCallback) {
+    function _loadHtml(url, onSuccessCallback) {
         var link = document.createElement('link');
         link.rel = 'import';
         link.href = url;
         link.addEventListener('load', onSuccessCallback);
         document.head.appendChild(link);
-    };
+    }
 
     /**
      * Generic loader to fetch resources. Handles which resources have been loaded and which are being loaded.
@@ -268,26 +244,25 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @param emptyObject An instance of the specific Resource.
      * @param onLoadedCallback The function called when the resource has been completely loaded.
      * @param loadActualResource The function to execute if the resource has not been loaded yet or is currently loading.
-     *
      */
-    Loader.prototype.loadResource = function (url, emptyObject, onLoadedCallback, loadActualResource) {
-        if (Loader.cache.contains(url)) {
+    function _loadResource(url, emptyObject, onLoadedCallback, loadActualResource) {
+        if (cache.contains(url)) {
             log('Resource ' + url + ' is cached.');
-            var resource = Loader.cache.get(url);
+            var resource = cache.get(url);
             onLoadedCallback(resource);
-        } else if (Loader.loading.contains(url)) {
+        } else if (loading.contains(url)) {
             log('Resource ' + url + ' is loading.');
-            var loadingResource = Loader.loading.get(url);
+            var loadingResource = loading.get(url);
             loadingResource.addOnceListener('loaded', function () {
                 onLoadedCallback(loadingResource);
             });
         } else {
             log('Resource ' + url + ' is new.');
-            Loader.loading.add(url, emptyObject);
+            loading.add(url, emptyObject);
             loadActualResource.call(this, url, function () {
-                var resource = Loader.loading.get(url);
-                Loader.cache.add(url, resource);
-                Loader.loading.remove(url);
+                var resource = loading.get(url);
+                cache.add(url, resource);
+                loading.remove(url);
 
                 log('Resource ' + url + ' has been loaded');
                 onLoadedCallback(resource);
@@ -295,17 +270,21 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 resource.emitEvent('loaded', resource);
             });
         }
-    };
+    }
 
 
     /**
-     * Loader for widgets.
-     *
-     * @constructor
+     * Cache of loaded resources.
+     * @type {Cache}
      */
-    function WidgetLoader() {
+    var cache = new Cache();
 
-    }
+    /**
+     * Cache of currently loading resources.
+     * @type {Cache}
+     */
+    var loading = new Cache();
+
 
     /**
      * Loads the widget by id.
@@ -313,28 +292,22 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @param id The id of the widget.
      * @param onLoadedCallback The function called if the widget has been loaded.
      */
-    WidgetLoader.prototype.load = function (id, onLoadedCallback) {
+    function _loadWidget(id, onLoadedCallback) {
         var configUrl = 'widgets/' + id + '/widget.json';
         var widget = new Widget(id);
         var config = {};
-        var indexHtmlLoaded = false;
         var onResourceLoadedCallback = function () {
         };
 
-        function onDependencyLoaded() {
-            if (indexHtmlLoaded) {
-                log('Widget ' + widget.id + ' has been loaded');
-                onResourceLoadedCallback();
-            }
-        }
-
         function loadIndexHtml() {
             var htmlUrl = 'widgets/' + widget.id + '/index.html';
-            this.loadHtml(htmlUrl, function (e) {
+            _loadHtml(htmlUrl, function (e) {
                 console.log('Loaded widget html: ' + e.target.href);
                 indexHtmlLoaded = true;
                 widget.document = e.target.import;
-                onDependencyLoaded();
+
+                log('Widget ' + widget.id + ' has been loaded');
+                onResourceLoadedCallback();
             });
         }
 
@@ -352,21 +325,11 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 loadIndexHtml.call(this);
             }
 
-            this.loadJson(url, configLoaded.bind(this));
+            _loadJson(url, configLoaded.bind(this));
         }
 
 
-        Loader.prototype.loadResource(configUrl, widget, onLoadedCallback, loadWidget);
-    };
-
-
-    /**
-     * Loader for layouts.
-     *
-     * @constructor
-     */
-    function LayoutLoader() {
-
+        _loadResource(configUrl, widget, onLoadedCallback, loadWidget);
     }
 
     /**
@@ -375,19 +338,9 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @param id The id of the layout.
      * @param onLoadedCallback The function called if the layout has been loaded.
      */
-    LayoutLoader.prototype.load = function (id, onLoadedCallback) {
+    function _loadLayout(id, onLoadedCallback) {
         var url = 'layouts/' + id + '.html';
-        Loader.prototype.loadResource(url, new Layout(id), onLoadedCallback, this.loadHtml);
-    };
-
-
-    /**
-     * Workspace loader.
-     *
-     * @constructor
-     */
-    function WorkspaceLoader() {
-
+        _loadResource(url, new Layout(id), onLoadedCallback, _loadHtml);
     }
 
     /**
@@ -396,7 +349,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @param id The id of the workspace.
      * @param onLoadedCallback The function called if the workspace has been loaded.
      */
-    WorkspaceLoader.prototype.load = function (id, onLoadedCallback) {
+    function _loadWorkspace(id, onLoadedCallback) {
         var configUrl = 'workspaces/' + id + '.json';
         var config = {};
         var workspace = new Workspace(id);
@@ -443,8 +396,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
             for (var widgetId in widgetViewTargets) {
                 console.log('Loading widget ' + widgetId);
-                var widgetLoader = new WidgetLoader();
-                widgetLoader.load(widgetId, widgetLoadedCallback);
+                _loadWidget(widgetId, widgetLoadedCallback);
             }
         }
 
@@ -473,8 +425,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 workspace.layout = layout;
                 onDependencyLoaded();
             };
-            var layoutLoader = new LayoutLoader();
-            layoutLoader.load(config.layout, layoutLoadedCallback);
+            _loadLayout(config.layout, layoutLoadedCallback);
 
             // load widgets
             loadWidgets();
@@ -482,23 +433,16 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
         function loadWorkspaceConfig(url, onWorkspaceLoadedCallback) {
             onResourceLoadedCallback = onWorkspaceLoadedCallback;
-            this.loadJson(url, configLoaded);
+            _loadJson(url, configLoaded);
         }
 
 
-        Loader.prototype.loadResource(configUrl, workspace, onLoadedCallback, loadWorkspaceConfig);
-    };
+        _loadResource(configUrl, workspace, onLoadedCallback, loadWorkspaceConfig);
+    }
 
 
     return {
-        /**
-         * Creates a workspace loader.
-         *
-         * @returns {WorkspaceLoader}
-         */
-        createWorkspaceLoader: function () {
-            return new WorkspaceLoader();
-        }
+        loadWorkspace: _loadWorkspace
     };
 
 });

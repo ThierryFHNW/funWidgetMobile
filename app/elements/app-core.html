@@ -39,8 +39,7 @@
                     var numberOfWorkspacesLoaded = 0;
 
                     config.workspaces.forEach(function (workspaceId) {
-                        var workspaceLoader = loader.createWorkspaceLoader();
-                        workspaceLoader.load(workspaceId, function (workspace) {
+                        loader.loadWorkspace(workspaceId, function (workspace) {
                             console.log('*** loaded workspace ' + workspaceId);
                             workspaces.push(workspace);
                             urlPathToWorkspace[workspace.path] = workspace;
