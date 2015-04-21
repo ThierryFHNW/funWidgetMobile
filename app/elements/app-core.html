@@ -70,11 +70,8 @@
                 },
                 get workspaces() {
                     return workspaces.filter(function (space) {
-                        /*
-                         * Each "workspace" has at least one widget in the main space.
-                         * Real workspaces thus have at least 2 widgets.
-                         */
-                        return space.widgets.length > 1;
+                        // Real workspaces have at least one widget, otherwise it's a single-page widget
+                        return Object.keys(space.config.widgets).length > 0;
                     });
                 },
                 get activeWorkspace() {

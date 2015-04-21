@@ -14,30 +14,33 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     /**
      * Represents a workspace.
      *
-     * @param id The id of the workspace. Represents part of the URL.
-     * @param name The name of the workspace.
-     * @param description The description of the workspace.
+     * @param id The unique ID of the workspace.
+     * @param config The configuration object.
      * @constructor
      */
-    function Workspace(id, name, description) {
+    function Workspace(id, config) {
         this.id = id;
-        this.name = name || "";
-        this.description = description || "";
-        this.layout = {};
-        this.widgets = [];
-        this.widgetViewTargets = {};
-        this.rootNode = null;
-        this.matcher = null;
-        this._path = null;
-        Object.defineProperty(this, 'path', {
-            get: function () {
-                return this._path;
+        this.config = config;
+
+        // properties derived from the config
+        Object.defineProperties(this, {
+            'name': {
+                value: this.config.name,
+                writable: false
             },
-            set: function (newPath) {
-                this._path = newPath;
-                this.matcher = routeMatcher(newPath);
+            'description': {
+                value: this.config.description,
+                writable: false
             }
         });
+
+        this.layout = undefined;
+        this.widgets = [];
+
+        this.widgetViewTargets = {};
+
+        // path and URL-matcher
+        this.matcher = routeMatcher(this.config.path);
 
         // defined as property so direct access from polymer is possible
         Object.defineProperty(this, 'parsedPath', {
@@ -83,26 +86,117 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
 
     /**
-     * Shows the workspace. Builds it if necessary.
+     * Loads the dependencies of the workspace (layout and widgets).
+     *
+     * @param onLoadedCallback Called once all dependencies have been loaded.
      */
-    Workspace.prototype.show = function () {
-        var WORKSPACE_ID = 'workspace';
+    Workspace.prototype.load = function (onLoadedCallback) {
+        var layoutLoaded = false;
+        var widgetsLoaded = false;
 
-        if (this.rootNode === null) {
-            this.rootNode = this.build();
-            this.rootNode.setAttribute('id', WORKSPACE_ID);
-        }
+        var onLoaded = function () {
+            if (layoutLoaded && widgetsLoaded) {
+                onLoadedCallback();
+            }
+        };
 
-        var activeRootNode = document.getElementById(WORKSPACE_ID);
-        if (activeRootNode !== null) {
-            document.body.removeChild(activeRootNode);
-        }
+        this.loadLayout(function () {
+            layoutLoaded = true;
+            onLoaded();
+        });
 
-        document.body.appendChild(this.rootNode);
+        this.loadWidgets(function () {
+            widgetsLoaded = true;
+            onLoaded();
+        });
+
     };
 
     /**
-     * Builds and loads the workspace.
+     * Loads all the widgets of this workspace.
+     *
+     * @param onLoadedCallback Called once all widgets have been loaded.
+     */
+    Workspace.prototype.loadWidgets = function (onLoadedCallback) {
+        if (this.widgets.length > 0) {
+            console.log('Widgets for workspace ' + this.name + ' already loaded.');
+            onLoadedCallback();
+        } else {
+            var numberOfWidgets;
+            var numberOfWidgetsLoaded = 0;
+
+            // k: widgetId, v: viewTarget
+            var widgetViewTargets = {};
+
+            if (this.config.hasOwnProperty('widgets') && Object.keys(this.config.widgets).length > 0) {
+                for (var widget in this.config.widgets) {
+                    widgetViewTargets[widget] = this.config.widgets[widget];
+                }
+            }
+
+            widgetViewTargets[this.config.mainWorkspace] = 'mainWorkspace';
+
+            numberOfWidgets = Object.keys(widgetViewTargets).length;
+            console.log(this.name + ' has ' + numberOfWidgets + ' widgets');
+
+            var widgetLoadedCallback = function (widget) {
+                this.widgets.push(widget);
+                numberOfWidgetsLoaded += 1;
+                if (numberOfWidgets === numberOfWidgetsLoaded) {
+                    onLoadedCallback();
+                }
+            };
+
+            this.widgetViewTargets = widgetViewTargets;
+
+            for (var widgetId in widgetViewTargets) {
+                console.log('Loading widget ' + widgetId);
+                _loadWidget(widgetId, widgetLoadedCallback.bind(this));
+            }
+        }
+
+    };
+
+    /**
+     * Loads the layout of the workspace.
+     *
+     * @param onLoadedCallback Called once the layout has been loaded.
+     */
+    Workspace.prototype.loadLayout = function (onLoadedCallback) {
+        if (this.layout !== undefined) {
+            console.log('Layout for workspace ' + this.name + ' already loaded.');
+            onLoadedCallback();
+        } else {
+            _loadLayout(this.config.layout, function (layout) {
+                this.layout = layout;
+                if (isFunction(onLoadedCallback)) {
+                    onLoadedCallback();
+                }
+            }.bind(this));
+        }
+    };
+
+    /**
+     * Shows the workspace. Loads the workspace and populates the layout.
+     */
+    Workspace.prototype.show = function () {
+        this.load(function () {
+            var workspaceId = 'workspace';
+            var rootNode = this.build();
+            rootNode.setAttribute('id', workspaceId);
+
+            // remove current active workspace
+            var activeRootNode = document.getElementById(workspaceId);
+            if (activeRootNode !== null) {
+                document.body.removeChild(activeRootNode);
+            }
+
+            document.body.appendChild(rootNode);
+        }.bind(this));
+    };
+
+    /**
+     * Builds the workspace. Combines the layout with all the widgets.
      *
      * @returns {HTMLElement} The root node of the workspace.
      */
@@ -125,6 +219,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
     /**
      * Parses the location.hash and returns the parameters as an object if it matches the path of the workspace.
+     *
      * @returns {Object} containing the variables of the path as key and the value of the variables as value
      *      or null of the location.hash does no match the path.
      */
@@ -194,6 +289,19 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
 
 
     /**
+     * Cache of loaded resources.
+     * @type {Cache}
+     */
+    var cache = new Cache();
+
+    /**
+     * Cache of currently loading resources.
+     * @type {Cache}
+     */
+    var loading = new Cache();
+
+
+    /**
      * Loads a JSON file.
      *
      * @param url The URL of the JSON file to load.
@@ -242,7 +350,7 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      *
      * @param url The URL of the resource to fetch.
      * @param emptyObject An instance of the specific Resource.
-     * @param onLoadedCallback The function called when the resource has been completely loaded.
+     * @param onLoadedCallback The function called when the resource has been completely loaded. The loaded resource is supplied as first argument to this function.
      * @param loadActualResource The function to execute if the resource has not been loaded yet or is currently loading.
      */
     function _loadResource(url, emptyObject, onLoadedCallback, loadActualResource) {
@@ -271,19 +379,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
             });
         }
     }
-
-
-    /**
-     * Cache of loaded resources.
-     * @type {Cache}
-     */
-    var cache = new Cache();
-
-    /**
-     * Cache of currently loading resources.
-     * @type {Cache}
-     */
-    var loading = new Cache();
 
 
     /**
@@ -328,7 +423,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
             _loadJson(url, configLoaded.bind(this));
         }
 
-
         _loadResource(configUrl, widget, onLoadedCallback, loadWidget);
     }
 
@@ -343,106 +437,95 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         _loadResource(url, new Layout(id), onLoadedCallback, _loadHtml);
     }
 
+
     /**
-     * Loads workspaces by id.
-     *
-     * @param id The id of the workspace.
-     * @param onLoadedCallback The function called if the workspace has been loaded.
+     * Loads a workspace configuration by ID.
+     * @param id The unique ID of the workspace (name of the JSON-file without .json)
+     * @param onSuccessCallback Called once the config has been loaded. The loaded config is supplied as first parameter to this function.
      */
-    function _loadWorkspace(id, onLoadedCallback) {
+    function _loadConfig(id, onSuccessCallback) {
         var configUrl = 'workspaces/' + id + '.json';
-        var config = {};
-        var workspace = new Workspace(id);
-        var layoutLoaded = false;
-        var numberOfWidgets = null;
-        var numberOfWidgetsLoaded = 0;
-        var onResourceLoadedCallback = function () {
-        };
-
-
-        function onDependencyLoaded() {
-            if (layoutLoaded && numberOfWidgets == numberOfWidgetsLoaded) {
-                log('Workspace ' + workspace.id + ' has been loaded');
-                onResourceLoadedCallback();
-            }
-        }
-
-        function loadWidgets() {
-            // k: widgetId, v: viewTarget
-            var widgetViewTargets = {};
-            if (!config.hasOwnProperty('mainWorkspace') || !config.mainWorkspace) {
-                console.error(config.name + ' does not have a main workspace!');
-                return;
-            }
-
-            if (config.hasOwnProperty('widgets') && Object.keys(config.widgets).length > 0) {
-                for (var widget in config.widgets) {
-                    widgetViewTargets[widget] = config.widgets[widget];
+        _loadJson(configUrl, function (loadedConfig) {
+            if (isValidWorkspaceConfig(loadedConfig)) {
+                if (isNotFunction(onSuccessCallback)) {
+                    console.error('Supplied callback is not a function.');
+                    return;
                 }
+                onSuccessCallback(loadedConfig);
             }
+        });
+    }
 
-            widgetViewTargets[config.mainWorkspace] = 'mainWorkspace';
-
-            numberOfWidgets = Object.keys(widgetViewTargets).length;
-            console.log(config.name + ' has ' + numberOfWidgets + ' widgets');
-
-            var widgetLoadedCallback = function (widget) {
-                workspace.widgets.push(widget);
-                numberOfWidgetsLoaded += 1;
-                onDependencyLoaded();
-            };
-
-            workspace.widgetViewTargets = widgetViewTargets;
-
-            for (var widgetId in widgetViewTargets) {
-                console.log('Loading widget ' + widgetId);
-                _loadWidget(widgetId, widgetLoadedCallback);
+    /**
+     * Verifies the workspace config.
+     *
+     * @param config The workspace config to check.
+     * @returns {boolean} true if the config is valid, false otherwiese.
+     */
+    function isValidWorkspaceConfig(config) {
+        var valid = true;
+        var requiredProperties = [
+            'name',
+            'path',
+            'layout',
+            'mainWorkspace'
+        ];
+        requiredProperties.forEach(function (property) {
+            if (!config.hasOwnProperty(property)) {
+                console.error('Error, the workspace config has no ' + property + ' attribute!');
+                valid = false;
             }
-        }
+        });
+        return valid;
+    }
 
-        function configLoaded(loadedConfig) {
-            config = loadedConfig;
+    /**
+     * Check if a given variable is not a function.
+     *
+     * @param func The variable to check.
+     * @returns {boolean} true if the variable is not a function.
+     */
+    function isNotFunction(func) {
+        return !isFunction(func);
+    }
 
-            // set the URL path
-            if (!config.hasOwnProperty('path')) {
-                console.error('Error, the workspace config has no path attribute!');
-                return;
-            }
-            workspace.path = config.path;
-
-            // set name and description
-            workspace.name = config.name || "";
-            workspace.description = config.description || "";
-
-            // load layout
-            if (!config.hasOwnProperty('layout')) {
-                console.error('Loading failed: Workspace has no layout!');
-                return;
-            }
-
-            var layoutLoadedCallback = function (layout) {
-                layoutLoaded = true;
-                workspace.layout = layout;
-                onDependencyLoaded();
-            };
-            _loadLayout(config.layout, layoutLoadedCallback);
-
-            // load widgets
-            loadWidgets();
-        }
-
-        function loadWorkspaceConfig(url, onWorkspaceLoadedCallback) {
-            onResourceLoadedCallback = onWorkspaceLoadedCallback;
-            _loadJson(url, configLoaded);
-        }
-
-
-        _loadResource(configUrl, workspace, onLoadedCallback, loadWorkspaceConfig);
+    /**
+     * Check if the given variable is a function.
+     *
+     * @param func The variable to check.
+     * @returns {boolean} true if the variable is a function.
+     */
+    function isFunction(func) {
+        return typeof func == 'function';
     }
 
 
     return {
-        loadWorkspace: _loadWorkspace
+        /**
+         * Load a workspace by ID or directly with a config.
+         *
+         * @param idOrConfig The ID of the workspace to load or the config object.
+         * @param onSuccessCallback Called once the workspace has been loaded.
+         */
+        loadWorkspace: function (idOrConfig, onSuccessCallback) {
+            if (isNotFunction(onSuccessCallback)) {
+                console.error('Supplied callback is not a function.');
+                return;
+            }
+
+            if (typeof idOrConfig !== 'object') {
+                _loadConfig(idOrConfig, function (config) {
+                    if (isValidWorkspaceConfig(config)) {
+                        onSuccessCallback(new Workspace(idOrConfig, config));
+                    }
+                });
+            } else {
+                if (isValidWorkspaceConfig(idOrConfig)) {
+                    var generatedId = Math.random().toString(36).substr(2, 5);
+                    onSuccessCallback(new Workspace(generatedId, idOrConfig));
+                }
+            }
+        }
     };
 
 });
