@@ -280,6 +280,12 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     var loading = new Cache();
 
 
+    /**
+     * Represents data that is loaded from a server that can be cached.
+     *
+     * @param url The URL of the resource.
+     * @constructor
+     */
     function Resource(url) {
         this.url = url;
         this.data = undefined;

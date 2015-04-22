@@ -36,17 +36,11 @@
     </template>
     <script>
         Polymer({
-            ready: function () {
-                console.log('ready');
-            },
             attached: function () {
-                console.log('attached');
-                console.log(this.$.globals.routeParams);
                 this.$.rest.resourceId = this.$.globals.routeParams.sprintId;
                 this.$.rest.go();
             },
             detached: function () {
-                console.log('detached');
                 this.sprint = null;
             }
         });

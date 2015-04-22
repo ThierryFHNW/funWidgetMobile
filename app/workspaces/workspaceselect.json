@@ -4,7 +4,7 @@
   "path": "/project/:projectId/sprint/:sprintId",
   "layout": "single",
   "widgets": {
-    "mainWorkspace": {
+    "workspaceselect": {
       "position": "main"
     }
   }
