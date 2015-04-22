@@ -77,6 +77,9 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.name = name || "";
         this.description = description || "";
         this.document = {};
+        this.position = undefined;
+        this.hidden = false;
+        this.width = 1;
     }
 
     // All resource representations inherit from EventEmitter. Gives them addEventListener and emitEvent.
@@ -122,34 +125,25 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
             console.log('Widgets for workspace ' + this.name + ' already loaded.');
             onLoadedCallback();
         } else {
-            var numberOfWidgets;
+            var numberOfWidgets = Object.keys(this.config.widgets).length;
             var numberOfWidgetsLoaded = 0;
 
-            // k: widgetId, v: viewTarget
-            var widgetViewTargets = {};
-
-            if (this.config.hasOwnProperty('widgets') && Object.keys(this.config.widgets).length > 0) {
-                for (var widget in this.config.widgets) {
-                    widgetViewTargets[widget] = this.config.widgets[widget];
-                }
-            }
-
-            widgetViewTargets[this.config.mainWorkspace] = 'mainWorkspace';
-
-            numberOfWidgets = Object.keys(widgetViewTargets).length;
-            console.log(this.name + ' has ' + numberOfWidgets + ' widgets');
-
             var widgetLoadedCallback = function (widget) {
+                // set properties from workspace config
+                var widgetConfig = this.config.widgets[widget.id];
+                widget.position = widgetConfig.position;
+                widget.width = widgetConfig.width;
+                widget.hidden = widgetConfig.hidden;
+
                 this.widgets.push(widget);
+
                 numberOfWidgetsLoaded += 1;
                 if (numberOfWidgets === numberOfWidgetsLoaded) {
                     onLoadedCallback();
                 }
             };
 
-            this.widgetViewTargets = widgetViewTargets;
-
-            for (var widgetId in widgetViewTargets) {
+            for (var widgetId in this.config.widgets) {
                 console.log('Loading widget ' + widgetId);
                 _loadWidget(widgetId, widgetLoadedCallback.bind(this));
             }
@@ -209,10 +203,9 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 console.error('No or more templates found in the widget ' + widget.id + '. Exactly one is needed.');
                 return;
             }
-            var widgetContent = document.importNode(templates[0].content, true);
-            var viewTarget = this.widgetViewTargets[widget.id];
-            console.log('Adding widget ' + widget.name + ' to ' + viewTarget + ' in ' + this.id);
-            workspaceLayout.addWidget(viewTarget, widgetContent, widget);
+            var widgetNode = document.importNode(templates[0].content, true);
+            console.log('Adding widget ' + widget.name + ' to ' + widget.position + ' in ' + this.id);
+            workspaceLayout.addWidget(widget, widgetNode);
         }, this);
         return workspaceLayout;
     };
@@ -463,19 +456,46 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @returns {boolean} true if the config is valid, false otherwiese.
      */
     function isValidWorkspaceConfig(config) {
+        console.log('Checking validity of workspace config for: ' + config.name);
         var valid = true;
         var requiredProperties = [
             'name',
             'path',
             'layout',
-            'mainWorkspace'
+            'widgets'
         ];
         requiredProperties.forEach(function (property) {
             if (!config.hasOwnProperty(property)) {
-                console.error('Error, the workspace config has no ' + property + ' attribute!');
+                console.error('Error, the workspace config has no ' + property + ' property!');
                 valid = false;
             }
         });
+        if (valid) {
+            if (Object.keys(config.widgets).length === 0) {
+                console.error('At least one widget must be defined in the workspace config for ' + config.name);
+            }
+            // check if exactly one widget has position = main and all have the required properties
+            var numOfMainPositions = 0;
+            for (var widgetId in config.widgets) {
+                var widgetCfg = config.widgets[widgetId];
+                if (!widgetCfg.hasOwnProperty('position')) {
+                    valid = false;
+                    console.error('Property position is missing in widget-definition ' + widgetId);
+                } else {
+                    if (widgetCfg.position === 'main') {
+                        numOfMainPositions += 1;
+                    }
+                }
+            }
+            if (numOfMainPositions === 0) {
+                valid = false;
+                console.error('No widget is defined with position main in widget-definition ' + widgetId);
+            }
+            if (numOfMainPositions > 1) {
+                valid = false;
+                console.error('More than one widget has been defined with position main in widget-definition ' + widgetId);
+            }
+        }
         return valid;
     }
 
@@ -514,12 +534,12 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
             }
 
             if (typeof idOrConfig !== 'object') {
+                console.log('Load workspace by ID: ' + idOrConfig);
                 _loadConfig(idOrConfig, function (config) {
-                    if (isValidWorkspaceConfig(config)) {
-                        onSuccessCallback(new Workspace(idOrConfig, config));
-                    }
+                    onSuccessCallback(new Workspace(idOrConfig, config));
                 });
             } else {
+                console.log('Load workspace by config: ' + idOrConfig.name);
                 if (isValidWorkspaceConfig(idOrConfig)) {
                     var generatedId = Math.random().toString(36).substr(2, 5);
                     onSuccessCallback(new Workspace(generatedId, idOrConfig));

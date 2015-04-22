@@ -3,10 +3,24 @@
   "description": "",
   "path": "/project/:projectId/sprint/:sprintId/taskboard",
   "layout": "touchwall",
-  "mainWorkspace": "taskboard",
   "widgets": {
-    "teamview": 1,
-    "dummy1": 2,
-    "sprintinfo": 3
+    "taskboard": {
+      "position": "main"
+    },
+    "teamview": {
+      "position": 1,
+      "width": 1,
+      "hidden": false
+    },
+    "dummy1": {
+      "position": 2,
+      "width": 1,
+      "hidden": false
+    },
+    "sprintinfo": {
+      "position": 3,
+      "width": 1,
+      "hidden": false
+    }
   }
 }

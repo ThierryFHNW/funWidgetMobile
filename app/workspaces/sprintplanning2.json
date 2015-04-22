@@ -3,11 +3,40 @@
   "description": "Allows to plan the sprint collaboratively.",
   "path": "/project/:projectId/sprint/:sprintId/sp2",
   "layout": "touchwall",
-  "mainWorkspace": "sprintplanning2",
   "widgets": {
-    "teamview": 3,
-    "sprintinfo": 1,
-    "dummy1": 4,
-    "dummy2": 2
+    "sprintplanning2": {
+      "position": "main",
+      "hidden": false
+    },
+    "teamview": {
+      "position": 3,
+      "width": 1,
+      "hidden": false
+    },
+    "sprintinfo": {
+      "position": 1,
+      "width": 1,
+      "hidden": false
+    },
+    "dummy1": {
+      "position": 4,
+      "width": 1,
+      "hidden": true
+    },
+    "dummy2": {
+      "position": 2,
+      "width": 1,
+      "hidden": false
+    },
+    "dummy3": {
+      "position": 5,
+      "width": 1,
+      "hidden": false
+    },
+    "dummy4": {
+      "position": 6,
+      "width": 1,
+      "hidden": false
+    }
   }
 }

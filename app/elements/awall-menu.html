@@ -83,7 +83,7 @@
     <template>
         <div center horizontal layout class="toggle">
             <div flex>{{widget.name}}</div>
-            <paper-toggle-button checked?="{{checked}}" on-tap="{{onTap}}"
+            <paper-toggle-button checked?="{{!widget.hidden}}" on-tap="{{onTap}}"
                                  on-change="{{onChange}}"></paper-toggle-button>
         </div>
     </template>
@@ -92,7 +92,6 @@
             publish: {
                 widget: undefined,
                 layout: undefined,
-                checked: true,
                 onChange: undefined
             },
             onTap: function (event) {
@@ -100,12 +99,12 @@
                 event.stopPropagation();
             },
             onChange: function () {
+                this.widget.hidden = !this.widget.hidden;
                 var layoutDoc = this.layout.document;
-                var widgetId = this.widget.id;
-                if (layoutDoc.isWidgetShown(widgetId)) {
-                    layoutDoc.hideWidget(widgetId);
+                if (this.widget.hidden) {
+                    layoutDoc.hideWidget(this.widget);
                 } else {
-                    layoutDoc.showWidget(widgetId);
+                    layoutDoc.showWidget(this.widget);
                 }
             }
         });

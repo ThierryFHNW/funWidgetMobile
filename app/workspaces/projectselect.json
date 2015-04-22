@@ -3,7 +3,9 @@
   "description": "Allows to select the project.",
   "path": ".*",
   "layout": "single",
-  "mainWorkspace": "projectselect",
   "widgets": {
+    "projectselect": {
+      "position": "main"
+    }
   }
 }

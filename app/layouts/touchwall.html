@@ -44,7 +44,7 @@
                 }
             }
 
-            #mainWorkspace {
+            #widgetmain {
                 position: relative;
                 height: 100%;
                 width: 100%;
@@ -67,7 +67,7 @@
                     <div class="widgetDropzone hidden" id="widget7"></div>
                     <awall-menu></awall-menu>
                 </div>
-                <div id="mainWorkspace"></div>
+                <div id="widgetmain"></div>
             </div>
 
             <footer>FOOTER</footer>
@@ -110,23 +110,11 @@
 
             Polymer({
                 widgetIdToView: {},
-                addWidget: function (targetId, content, widget) {
-                    function contains(source, searchTerm) {
-                        for (var i in searchTerm) {
-                            if (source[i] !== searchTerm[i]) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
+                addWidget: function (widget, widgetNode) {
+                    var targetId = 'widget' + widget.position;
+                    this.widgetIdToView[widget.id] = this.$[targetId];
 
-                    function isWidget(id) {
-                        return !contains(id, 'mainWorkspace');
-                    }
-
-                    if (isWidget(targetId)) {
-                        targetId = 'widget' + targetId;
-
+                    if (widget.position !== 'main') {
                         var targetDropzone = this.$[targetId];
                         if (targetDropzone === null) {
                             console.error('Parent dropzone for ' + targetId + ' not found');
@@ -139,33 +127,35 @@
                         enableDropzone(targetDropzone);
                     }
 
-                    this.widgetIdToView[widget.id] = this.$[targetId];
+                    this.setView(targetId, widgetNode);
 
-                    this.super([targetId, content]);
+                    if(widget.hidden) {
+                        this.hideWidget(widget);
+                    }
                 },
-                hideWidget: function (widgetId) {
-                    var widget = this.widgetIdToView[widgetId];
-                    if (widget === undefined) {
-                        console.error('Cannot hide widget with id: ' + widgetId + ', not registered.');
+                hideWidget: function (widget) {
+                    var widgetView = this.widgetIdToView[widget.id];
+                    if (widgetView === undefined) {
+                        console.error('Cannot hide widget with id: ' + widget.id + ', not registered.');
                         return;
                     }
-                    widget.classList.add('hidden');
+                    widgetView.classList.add('hidden');
                 },
-                showWidget: function (widgetId) {
-                    var widget = this.widgetIdToView[widgetId];
-                    if (widget === undefined) {
-                        console.error('Cannot show widget with id: ' + widgetId + ', not registered.');
+                showWidget: function (widget) {
+                    var widgetView = this.widgetIdToView[widget.id];
+                    if (widgetView === undefined) {
+                        console.error('Cannot show widget with id: ' + widget.id + ', not registered.');
                         return;
                     }
-                    widget.classList.remove('hidden');
+                    widgetView.classList.remove('hidden');
                 },
-                isWidgetShown: function (widgetId) {
-                    var widget = this.widgetIdToView[widgetId];
-                    if (widget === undefined) {
-                        console.error('Widget with id: ' + widgetId + ' is not registered.');
+                isWidgetShown: function (widget) {
+                    var widgetView = this.widgetIdToView[widget.id];
+                    if (widgetView === undefined) {
+                        console.error('Widget with id: ' + widget.id + ' is not registered.');
                         return;
                     }
-                    return !widget.classList.contains('hidden');
+                    return !widgetView.classList.contains('hidden');
                 },
                 ready: function () {
                     console.log('workspace-layout touchwall is ready.');

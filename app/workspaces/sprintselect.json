@@ -3,7 +3,9 @@
   "description": "Allows to select the sprint.",
   "path": "/project/:projectId",
   "layout": "single",
-  "mainWorkspace": "sprintselect",
   "widgets": {
+    "sprintselect": {
+      "position": "main"
+    }
   }
 }

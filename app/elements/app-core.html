@@ -40,7 +40,6 @@
 
                     config.workspaces.forEach(function (workspaceId) {
                         loader.loadWorkspace(workspaceId, function (workspace) {
-                            console.log('*** loaded workspace ' + workspaceId);
                             workspaces.push(workspace);
                             urlPathToWorkspace[workspace.path] = workspace;
                             onWorkspacesLoaded();
@@ -71,7 +70,7 @@
                 get workspaces() {
                     return workspaces.filter(function (space) {
                         // Real workspaces have at least one widget, otherwise it's a single-page widget
-                        return Object.keys(space.config.widgets).length > 0;
+                        return Object.keys(space.config.widgets).length > 1;
                     });
                 },
                 get activeWorkspace() {

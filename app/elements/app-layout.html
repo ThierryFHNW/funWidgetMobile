@@ -1,17 +1,20 @@
 <polymer-element name="app-layout">
     <script>
         Polymer({
-            addWidget: function (targetId, content) {
+            addWidget: function(widget, widgetNode) {
+                this.setView('widget' + widget.position, widgetNode);
+            },
+            setView: function(targetId, node) {
                 console.log('Adding content to ' + targetId);
                 var target = this.shadowRoot.getElementById(targetId);
                 if (target) {
-                    if (content) {
+                    if (node) {
                         if (target.shadowRoot) {
                             console.error('The target ' + targetId + ' already has a widget!');
                             return;
                         }
                         var root = target.createShadowRoot();
-                        root.appendChild(content);
+                        root.appendChild(node);
                     }
                 } else {
                     console.error('Element not found: ' + targetId);
