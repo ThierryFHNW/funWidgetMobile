@@ -1,11 +1,3 @@
-var DEBUG = false;
-var log = function (msg) {
-    if (DEBUG) {
-        console.log(msg);
-    }
-};
-
-
 /**
  * Loads the workspace configs and the dependent resources.
  */
@@ -81,12 +73,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
         this.hidden = false;
         this.width = 1;
     }
-
-    // All resource representations inherit from EventEmitter. Gives them addEventListener and emitEvent.
-    heir.inherit(Widget, EventEmitter, true);
-    heir.inherit(Layout, EventEmitter, true);
-    heir.inherit(Workspace, EventEmitter, true);
-
 
     /**
      * Loads the dependencies of the workspace (layout and widgets).
@@ -294,6 +280,13 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     var loading = new Cache();
 
 
+    function Resource(url) {
+        this.url = url;
+        this.data = undefined;
+    }
+
+    heir.inherit(Resource, EventEmitter, true);
+
     /**
      * Loads a JSON file.
      *
@@ -304,23 +297,49 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      *      Parameters: HTTP status code, HTTP status text, response body.
      */
     function _loadJson(url, onSuccessCallback, onErrorCallback) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4) {   // DONE
-                if (xhr.status == 200) {  // HTTP OK
-                    var data = JSON.parse(xhr.responseText);
-                    if (typeof onSuccessCallback === 'function') {
+        if (isNotFunction(onSuccessCallback)) {
+            console.error('The supplied success-callback must be a function.');
+            return;
+        }
+        if (cache.contains(url)) {
+            console.log('Resource ' + url + ' is cached.');
+            onSuccessCallback(cache.get(url).data);
+        } else if (loading.contains(url)) {
+            console.log('Resource ' + url + ' is loading.');
+            var loadingResource = loading.get(url);
+            loadingResource.addOnceListener('loaded', function () {
+                onSuccessCallback(loadingResource.data);
+            });
+        } else {
+            console.log('Resource ' + url + ' is new.');
+            loading.add(url, new Resource(url));
+
+            // load the JSON file
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {   // DONE
+                    if (xhr.status == 200) {  // HTTP OK
+                        var data = JSON.parse(xhr.responseText);
+                        var resource = loading.get(url);
+                        resource.data = data;
+                        cache.add(url, resource);
+                        loading.remove(resource);
+
+                        console.log('Resource ' + url + ' has been loaded');
                         onSuccessCallback(data);
-                    }
-                } else {
-                    if (typeof onErrorCallback === 'function') {
-                        onErrorCallback(xhr.status, xhr.statusText, xhr.responseText);
+                        // notify the listeners added while the element was loading
+                        resource.emitEvent('loaded', data);
+
+                    } else {
+                        if (isFunction(onErrorCallback)) {
+                            onErrorCallback(xhr.status, xhr.statusText, xhr.responseText);
+                        }
                     }
                 }
-            }
-        };
-        xhr.send();
+            };
+            xhr.send();
+        }
     }
 
     /**
@@ -330,47 +349,12 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @param onSuccessCallback Function called after the HTML document has been loaded. Parameters: Event.
      */
     function _loadHtml(url, onSuccessCallback) {
+        // Does not need to be optimized with a cache, that is already done by the browser, given that we use a HTML link element..
         var link = document.createElement('link');
         link.rel = 'import';
         link.href = url;
         link.addEventListener('load', onSuccessCallback);
         document.head.appendChild(link);
-    }
-
-    /**
-     * Generic loader to fetch resources. Handles which resources have been loaded and which are being loaded.
-     * So that no resource is loaded more than once.
-     *
-     * @param url The URL of the resource to fetch.
-     * @param emptyObject An instance of the specific Resource.
-     * @param onLoadedCallback The function called when the resource has been completely loaded. The loaded resource is supplied as first argument to this function.
-     * @param loadActualResource The function to execute if the resource has not been loaded yet or is currently loading.
-     */
-    function _loadResource(url, emptyObject, onLoadedCallback, loadActualResource) {
-        if (cache.contains(url)) {
-            log('Resource ' + url + ' is cached.');
-            var resource = cache.get(url);
-            onLoadedCallback(resource);
-        } else if (loading.contains(url)) {
-            log('Resource ' + url + ' is loading.');
-            var loadingResource = loading.get(url);
-            loadingResource.addOnceListener('loaded', function () {
-                onLoadedCallback(loadingResource);
-            });
-        } else {
-            log('Resource ' + url + ' is new.');
-            loading.add(url, emptyObject);
-            loadActualResource.call(this, url, function () {
-                var resource = loading.get(url);
-                cache.add(url, resource);
-                loading.remove(url);
-
-                log('Resource ' + url + ' has been loaded');
-                onLoadedCallback(resource);
-                // notify the listeners added while the element was loading
-                resource.emitEvent('loaded', resource);
-            });
-        }
     }
 
 
@@ -381,42 +365,38 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      * @param onLoadedCallback The function called if the widget has been loaded.
      */
     function _loadWidget(id, onLoadedCallback) {
-        var configUrl = 'widgets/' + id + '/widget.json';
         var widget = new Widget(id);
-        var config = {};
-        var onResourceLoadedCallback = function () {
-        };
 
-        function loadIndexHtml() {
-            var htmlUrl = 'widgets/' + widget.id + '/index.html';
-            _loadHtml(htmlUrl, function (e) {
-                console.log('Loaded widget html: ' + e.target.href);
-                indexHtmlLoaded = true;
-                widget.document = e.target.import;
+        var indexHtmlLoaded = false;
+        var widgetConfigLoaded = false;
 
-                log('Widget ' + widget.id + ' has been loaded');
-                onResourceLoadedCallback();
-            });
-        }
-
-        function loadWidget(url, onWidgetLoadedCallback) {
-            onResourceLoadedCallback = onWidgetLoadedCallback;
-
-            function configLoaded(loadedConfig) {
-                config = loadedConfig;
-
-                // set name and description
-                widget.name = config.name || "";
-                widget.description = config.description || "";
-
-                // load index.html
-                loadIndexHtml.call(this);
+        function onPartLoaded() {
+            if (indexHtmlLoaded && widgetConfigLoaded) {
+                console.log('Widget ' + widget.id + ' has been loaded');
+                onLoadedCallback(widget);
             }
-
-            _loadJson(url, configLoaded.bind(this));
         }
 
-        _loadResource(configUrl, widget, onLoadedCallback, loadWidget);
+        // load index.html of widget
+        var htmlUrl = 'widgets/' + widget.id + '/index.html';
+        _loadHtml(htmlUrl, function (e) {
+            indexHtmlLoaded = true;
+
+            widget.document = e.target.import;
+            onPartLoaded();
+        });
+
+        // load config
+        var configUrl = 'widgets/' + id + '/widget.json';
+        _loadJson(configUrl, function (config) {
+            widgetConfigLoaded = true;
+
+            widget.name = config.name || "";
+            widget.description = config.description || "";
+
+            onPartLoaded();
+        });
+
     }
 
     /**
@@ -427,7 +407,9 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      */
     function _loadLayout(id, onLoadedCallback) {
         var url = 'layouts/' + id + '.html';
-        _loadResource(url, new Layout(id), onLoadedCallback, _loadHtml);
+        _loadHtml(url, function () {
+            onLoadedCallback(new Layout(id));
+        });
     }
 
 
