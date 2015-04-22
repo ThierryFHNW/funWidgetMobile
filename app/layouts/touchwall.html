@@ -30,7 +30,7 @@
             }
 
             .widgetDropzone {
-                flex: 1 1 22%;
+                flex: 1 1 10%;
                 margin-right: 0.3em;
                 margin-bottom: 0.3em;
                 height: 13em;
@@ -65,6 +65,9 @@
                     <div class="widgetDropzone hidden" id="widget5"></div>
                     <div class="widgetDropzone hidden" id="widget6"></div>
                     <div class="widgetDropzone hidden" id="widget7"></div>
+                    <div class="widgetDropzone hidden" id="widget8"></div>
+                    <div class="widgetDropzone hidden" id="widget9"></div>
+                    <div class="widgetDropzone hidden" id="widget10"></div>
                     <awall-menu></awall-menu>
                 </div>
                 <div id="widgetmain"></div>
@@ -112,24 +115,34 @@
                 widgetIdToView: {},
                 addWidget: function (widget, widgetNode) {
                     var targetId = 'widget' + widget.position;
-                    this.widgetIdToView[widget.id] = this.$[targetId];
+                    var targetView = this.$[targetId];
 
+                    if (targetView === null) {
+                        console.error('No element with the ID ' + targetId + ' exists, cannot add widget ' + widget.id);
+                        return;
+                    }
+
+                    this.widgetIdToView[widget.id] = targetView;
+
+                    // adjust the width of the widget
+                    if (widget.width > 1) {
+                        // widget may be max. 50% of width
+                        var widgetWidth = widget.width > 5 ? 5 : widget.width;
+                        this.$[targetId].style.flexBasis = (10 * widgetWidth) + '%';
+                    }
+
+                    // enable dropzone for all widgets except main widget
                     if (widget.position !== 'main') {
-                        var targetDropzone = this.$[targetId];
-                        if (targetDropzone === null) {
-                            console.error('Parent dropzone for ' + targetId + ' not found');
-                            return;
-                        }
-                        // show the dropzone if a widget is present
-                        targetDropzone.classList.remove('hidden');
+                            // show the dropzone if a widget is present
+                            targetView.classList.remove('hidden');
 
-                        // activate dropzones
-                        enableDropzone(targetDropzone);
+                            // activate dropzone
+                            enableDropzone(targetView);
                     }
 
                     this.setView(targetId, widgetNode);
 
-                    if(widget.hidden) {
+                    if (widget.hidden) {
                         this.hideWidget(widget);
                     }
                 },
@@ -156,9 +169,6 @@
                         return;
                     }
                     return !widgetView.classList.contains('hidden');
-                },
-                ready: function () {
-                    console.log('workspace-layout touchwall is ready.');
                 }
             });
         })();

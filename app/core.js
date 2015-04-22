@@ -190,7 +190,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 return;
             }
             var widgetNode = document.importNode(templates[0].content, true);
-            console.log('Adding widget ' + widget.name + ' to ' + widget.position + ' in ' + this.id);
             workspaceLayout.addWidget(widget, widgetNode);
         }, this);
         return workspaceLayout;

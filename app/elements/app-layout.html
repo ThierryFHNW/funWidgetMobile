@@ -5,7 +5,6 @@
                 this.setView('widget' + widget.position, widgetNode);
             },
             setView: function(targetId, node) {
-                console.log('Adding content to ' + targetId);
                 var target = this.shadowRoot.getElementById(targetId);
                 if (target) {
                     if (node) {
