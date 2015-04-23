@@ -48,11 +48,11 @@
                 /**
                  * Switch to disable draggability of the element.
                  *
-                 * @attribute disableDraggable
+                 * @attribute noDrag
                  * @type boolean
                  * @default false
                  */
-                disableDraggable: false
+                noDrag: false
             },
             domReady: function () {
                 // capture variables
@@ -60,7 +60,7 @@
                 var task = this.task;
 
                 // make draggable
-                if (!this.disableDraggable) {
+                if (!this.noDrag) {
                     require(['core-touch'], function (touch) {
                         touch.makeDraggable(container, {
                             clone: true,

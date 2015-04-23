@@ -77,19 +77,19 @@
                 /**
                  * Switch to disable draggability of the element.
                  *
-                 * @attribute disableDraggable
+                 * @attribute noDrag
                  * @type boolean
                  * @default false
                  */
-                disableDraggable: false,
+                noDrag: false,
                 /**
                  * Switch to disable resizability of the element.
                  *
-                 * @attribute disableResizable
+                 * @attribute noResize
                  * @type boolean
                  * @default false
                  */
-                disableResizable: false
+                noResize: false
             },
             hideResizeToInitial: true,
             hideRevertToDock: true,
@@ -143,7 +143,6 @@
                     }.bind(this);
                 }
 
-
                 // enable touch interaction
                 var elementThis = this;
                 require(['core-touch'], function (touch) {
@@ -155,7 +154,7 @@
                     elementThis.width = size.width;
 
                     // make draggable
-                    if (!elementThis.disableDraggable) {
+                    if (!elementThis.noDrag) {
                         touch.makeDraggable(widget, {
                             revert: false,
                             onstart: function () {
@@ -180,7 +179,7 @@
                     }
 
                     // make resizable
-                    if (!elementThis.disableResizable) {
+                    if (!elementThis.noResize) {
                         touch.makeResizable(widget, {
                             onstart: function () {
                                 elementThis.hideResizeToInitial = false;

@@ -23,7 +23,7 @@
                 padding-left: 0.8em;
             }
         </style>
-        <awall-widget disableDraggable disableResizable>
+        <awall-widget noDrag noResize>
             <h2>Sprintplanning 2</h2>
 
             <div class="container">
@@ -88,7 +88,7 @@
         </style>
 
         <template if="{{!isDetailView}}" repeat="{{userstory in userstories | orderBy('name')}}">
-            <awall-userstorycard userstory="{{userstory}}" on-tap="{{onTap}}"></awall-userstorycard>
+            <awall-userstorycard userstory="{{userstory}}" on-tap="{{onTap}}" noDrag></awall-userstorycard>
         </template>
 
         <div id="detailViewContainer" hidden?="{{!isDetailView}}">
@@ -232,7 +232,7 @@
             }
         </style>
         <td id="usDropzone">
-            <awall-userstorycard userstory="{{userstory}}" disableDraggable></awall-userstorycard>
+            <awall-userstorycard userstory="{{userstory}}" noDrag></awall-userstorycard>
             <div id="upperDropzone"></div>
             <div id="lowerDropzone"></div>
         </td>

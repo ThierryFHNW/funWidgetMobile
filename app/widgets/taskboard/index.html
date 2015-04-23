@@ -37,7 +37,7 @@
                 font-weight: normal;
             }
         </style>
-        <awall-widget disableDraggable disableResizable>
+        <awall-widget noDrag noResize>
             <h2>Taskboard</h2>
 
             <core-icon-button icon="add" on-tap="{{addUserStoryTabHandler}}">Add User Story</core-icon-button>
@@ -56,7 +56,7 @@
                 <template repeat="{{userstory in userstories | orderBy('priority')}}">
                     <tr>
                         <td class="story-column">
-                            <awall-userstorycard userstory="{{userstory}}" disableDraggable></awall-userstorycard>
+                            <awall-userstorycard userstory="{{userstory}}" noDrag></awall-userstorycard>
                         </td>
                         <template repeat="{{state in taskstates | sortStates}}">
                             <td>
