@@ -128,7 +128,7 @@
                     if (widget.width > 1) {
                         // widget may be max. 50% of width
                         var widgetWidth = widget.width > 5 ? 5 : widget.width;
-                        this.$[targetId].style.flexBasis = (10 * widgetWidth) + '%';
+                        targetView.style.flexBasis = (10 * widgetWidth) + '%';
                     }
 
                     // enable dropzone for all widgets except main widget

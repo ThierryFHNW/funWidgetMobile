@@ -272,12 +272,6 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
      */
     var cache = new Cache();
 
-    /**
-     * Cache of currently loading resources.
-     * @type {Cache}
-     */
-    var loading = new Cache();
-
 
     /**
      * Represents data that is loaded from a server that can be cached.
@@ -291,6 +285,11 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
     }
 
     heir.inherit(Resource, EventEmitter, true);
+
+    Resource.prototype.isLoaded = function() {
+        return this.data !== undefined;
+    };
+
 
     /**
      * Loads a JSON file.
@@ -306,18 +305,21 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
             console.error('The supplied success-callback must be a function.');
             return;
         }
+
         if (cache.contains(url)) {
-            console.log('Resource ' + url + ' is cached.');
-            onSuccessCallback(cache.get(url).data);
-        } else if (loading.contains(url)) {
-            console.log('Resource ' + url + ' is loading.');
-            var loadingResource = loading.get(url);
-            loadingResource.addOnceListener('loaded', function () {
-                onSuccessCallback(loadingResource.data);
-            });
+            var resource = cache.get(url);
+            if(resource.isLoaded()) {
+                console.log('Resource ' + url + ' is cached.');
+                onSuccessCallback(resource.data);
+            } else {
+                console.log('Resource ' + url + ' is loading.');
+                resource.addOnceListener('loaded', function () {
+                    onSuccessCallback(loadingResource.data);
+                });
+            }
         } else {
             console.log('Resource ' + url + ' is new.');
-            loading.add(url, new Resource(url));
+            cache.add(url, new Resource(url));
 
             // load the JSON file
             var xhr = new XMLHttpRequest();
@@ -326,16 +328,13 @@ define('core-loader', ['heir', 'eventEmitter'], function (heir, EventEmitter) {
                 if (xhr.readyState == 4) {   // DONE
                     if (xhr.status == 200) {  // HTTP OK
                         var data = JSON.parse(xhr.responseText);
-                        var resource = loading.get(url);
+                        var resource = cache.get(url);
                         resource.data = data;
-                        cache.add(url, resource);
-                        loading.remove(resource);
 
                         console.log('Resource ' + url + ' has been loaded');
                         onSuccessCallback(data);
                         // notify the listeners added while the element was loading
                         resource.emitEvent('loaded', data);
-
                     } else {
                         if (isFunction(onErrorCallback)) {
                             onErrorCallback(xhr.status, xhr.statusText, xhr.responseText);
