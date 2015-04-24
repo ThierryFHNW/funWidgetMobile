@@ -10,19 +10,14 @@
         <img id="img" class="avatar" src="{{user.avatar}}" alt="{{user.name}}" title="{{user.name}}">
     </template>
     <script>
-        Polymer({
-            domReady: function () {
-                // capture variables
-                var img = this.$.img;
-                var draggableData = this.user;
-
-                require(['core-touch'], function (touch) {
-                    touch.makeDraggable(img, {
-                        clone: true,
-                        data: draggableData
-                    });
+        Polymer(Polymer.mixin({
+            ready: function () {
+                var data = this.user;
+                this.touch.makeDraggable(this.$.img, {
+                    clone: true,
+                    data: data
                 });
             }
-        });
+        }, window.coreMixin));
     </script>
 </polymer-element>

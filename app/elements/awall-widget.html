@@ -72,7 +72,7 @@
         </div>
     </template>
     <script>
-        Polymer({
+        Polymer(Polymer.mixin({
             publish: {
                 /**
                  * Switch to disable draggability of the element.
@@ -144,60 +144,72 @@
                 }
 
                 // enable touch interaction
-                var elementThis = this;
-                require(['core-touch'], function (touch) {
-                    var widget = elementThis.$.widget;
 
-                    // set the initial size of the widget
-                    var size = touch.getElementSize(widget);
-                    elementThis.height = size.height;
-                    elementThis.width = size.width;
+                var widget = this.$.widget;
+                // set the initial size of the widget
+                this.height = widget.offsetHeight;
+                this.width = widget.offsetWidth;
 
-                    // make draggable
-                    if (!elementThis.noDrag) {
-                        touch.makeDraggable(widget, {
-                            revert: false,
-                            onstart: function () {
-                                if (!elementThis.draggableIsFloating) {
-                                    elementThis.extendedContentInitallyHidden = elementThis.isExtendedContentHidden();
-                                    if (elementThis.extendedContentInitallyHidden) {
-                                        // set height to extend the widget and show the extended content
-                                        elementThis.$.widget.style.height = 13 + 'em';
-                                        elementThis.showExtendedContent();
-                                    }
-                                }
-                                elementThis.draggableIsFloating = true;
-                                elementThis.hideRevertToDock = false;
-                            },
-                            onend: function (event) {
-                                elementThis.hideRevertToDock = event.interaction.dropped;
-                            },
-                            ondrop: function (event) {
-                                elementThis.onDockAction();
+                // make draggable
+                if (!this.noDrag) {
+
+                    var onDragStart = function () {
+                        if (!this.draggableIsFloating) {
+                            this.extendedContentInitallyHidden = this.isExtendedContentHidden();
+                            if (this.extendedContentInitallyHidden) {
+                                // set height to extend the widget and show the extended content
+                                this.$.widget.style.height = 13 + 'em';
+                                this.showExtendedContent();
                             }
-                        });
-                    }
+                        }
+                        this.draggableIsFloating = true;
+                        this.hideRevertToDock = false;
+                    }.bind(this);
 
-                    // make resizable
-                    if (!elementThis.noResize) {
-                        touch.makeResizable(widget, {
-                            onstart: function () {
-                                elementThis.hideResizeToInitial = false;
-                            },
-                            onmove: function () {
-                                if (!this.disableMove()) {
-                                    elementThis.widgetSize = touch.getElementSize(widget);
-                                }
-                            },
-                            disableMove: function () {
-                                return elementThis.hideRevertToDock;
-                            },
-                            onend: function () {
-                                elementThis.hideResizeToInitial = touch.isInitialSize(widget);
-                            }
-                        });
-                    }
-                });
+                    var onDragEnd = function (event) {
+                        this.hideRevertToDock = event.interaction.dropped;
+                    }.bind(this);
+
+                    var onDragDrop = function () {
+                        this.onDockAction();
+                    }.bind(this);
+
+                    this.touch.makeDraggable(widget, {
+                        revert: false,
+                        onstart: onDragStart,
+                        onend: onDragEnd,
+                        ondrop: onDragDrop
+                    });
+                }
+
+                // make resizable
+                if (!this.noResize) {
+                    var onResizeStart = function () {
+                        this.hideResizeToInitial = false;
+                    }.bind(this);
+
+                    var onResizeDisableMove = function () {
+                        return this.hideRevertToDock;
+                    }.bind(this);
+
+                    var onResizeMove = function () {
+                        if (!onResizeDisableMove) {
+                            this.widgetSize = this.touch.getElementSize(widget);
+                        }
+                    }.bind(this);
+
+                    var onResizeEnd = function () {
+                        this.hideResizeToInitial = this.touch.isInitialSize(widget);
+                    }.bind(this);
+
+
+                    this.touch.makeResizable(widget, {
+                        onstart: onResizeStart,
+                        onmove: onResizeMove,
+                        disableMove: onResizeDisableMove,
+                        onend: onResizeEnd
+                    });
+                }
             },
             hideExtendedContent: function () {
                 this.$.extendedContent.style.display = 'none';
@@ -214,27 +226,20 @@
              *    Ensures an operation is executed after the widget has been resized by core-touch.
              */
             resizeToInitial: function (onResizedCallback) {
-                var widget = this.$.widget;
-                var elementThis = this;
-                require(['core-touch'], function (touch) {
-                    // resize to initial and adjust the height/width
-                    touch.resizeToInitial(widget);
-                    elementThis.widgetSize = touch.getElementSize(widget);
+                // resize to initial and adjust the height/width
+                this.touch.resizeToInitial(this.$.widget);
+                this.widgetSize = this.touch.getElementSize(this.$.widget);
 
-                    if (onResizedCallback) {
-                        onResizedCallback();
-                    }
-                });
+                if (typeof onResizedCallback === 'function') {
+                    onResizedCallback();
+                }
                 this.hideResizeToInitial = true;
             },
             revertToDock: function () {
                 this.onDockAction();
                 this.hideRevertToDock = true;
 
-                var widget = this.$.widget;
-                require(['core-touch'], function (touch) {
-                    touch.resetPosition(widget);
-                });
+                this.touch.resetPosition(this.$.widget);
             },
             onDockAction: function () {
                 this.draggableIsFloating = false;
@@ -271,7 +276,7 @@
                 this.widgetFull.show();
                 this.widgetDefault.hide();
             }
-        });
+        }, window.coreMixin));
     </script>
 </polymer-element>
 

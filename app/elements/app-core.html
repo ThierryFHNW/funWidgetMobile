@@ -32,36 +32,29 @@
             window.addEventListener('hashchange', routeChanged);
 
 
-            function loadWorkspaces() {
-                require(['config', 'core-loader'], function (config, loader) {
-                    // Map k: url path, v: workspace
-                    var urlPathToWorkspace = {};
-                    var numberOfWorkspacesLoaded = 0;
-
-                    config.workspaces.forEach(function (workspaceId) {
-                        loader.loadWorkspace(workspaceId, function (workspace) {
-                            workspaces.push(workspace);
-                            urlPathToWorkspace[workspace.path] = workspace;
-                            onWorkspacesLoaded();
-                        });
-                    });
-
-                    function onWorkspacesLoaded() {
-                        numberOfWorkspacesLoaded += 1;
-                        // all workspaces loaded?
-                        if (config.workspaces.length == numberOfWorkspacesLoaded) {
-                            workspacesLoaded = true;
-                            // load the workspace according to URL
-                            routeChanged();
-                        }
-                    }
-                });
-            }
-
-            Polymer({
+            Polymer(Polymer.mixin({
                 ready: function () {
                     if (!workspacesLoaded) {
-                        loadWorkspaces();
+                        // Map k: url path, v: workspace
+                        var urlPathToWorkspace = {};
+                        var numberOfWorkspacesLoaded = 0;
+
+                        this.config.workspaces.forEach(function (workspaceId) {
+                            this.core.loadWorkspace(workspaceId, function (workspace) {
+                                workspaces.push(workspace);
+                                urlPathToWorkspace[workspace.path] = workspace;
+
+                                numberOfWorkspacesLoaded += 1;
+                                // all workspaces loaded?
+                                if (this.config.workspaces.length == numberOfWorkspacesLoaded) {
+                                    workspacesLoaded = true;
+                                    // load the workspace according to URL
+                                    routeChanged();
+                                }
+                            }.bind(this));
+                        }, this);
+
+
                     }
                 },
                 get routeParams() {
@@ -76,7 +69,7 @@
                 get activeWorkspace() {
                     return activeWorkspace;
                 }
-            });
+            }, window.coreMixin));
         })();
     </script>
 </polymer-element>

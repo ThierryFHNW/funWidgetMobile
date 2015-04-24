@@ -77,100 +77,65 @@
         </div>
     </template>
     <script>
-        (function () {
+        Polymer(Polymer.mixin({
+            widgetIdToView: {},
+            addWidget: function (widget, widgetNode) {
+                var targetId = 'widget' + widget.position;
+                var targetView = this.$[targetId];
 
-            function switchWidgets(shadowRootA, shadowRootB) {
-                var rootAContent = [];
-                [].forEach.call(shadowRootA.children, function (e) {
-                    rootAContent.push(e);
-                });
-
-                var rootBContent = [];
-                [].forEach.call(shadowRootB.children, function (e) {
-                    rootBContent.push(e);
-                });
-
-                [].forEach.call(rootBContent, function (e) {
-                    shadowRootA.appendChild(e);
-                });
-
-                [].forEach.call(rootAContent, function (e) {
-                    shadowRootB.appendChild(e);
-                });
-            }
-
-            function enableDropzone(dropzoneElement) {
-                require(['core-touch'], function (touch) {
-                    touch.makeDropZone(dropzoneElement, '.widget');
-//                    touch.on(dropzoneElement, 'drop', function (event) {
-//                        switchWidgets(event.relatedTarget.shadowRoot, event.target.children[0].shadowRoot);
-//                        // reposition draggables
-//                        touch.resetPosition(event.relatedTarget);
-//                        touch.resetPosition(event.target.children[0]);
-//                    });
-                });
-            }
-
-            Polymer({
-                widgetIdToView: {},
-                addWidget: function (widget, widgetNode) {
-                    var targetId = 'widget' + widget.position;
-                    var targetView = this.$[targetId];
-
-                    if (targetView === null) {
-                        console.error('No element with the ID ' + targetId + ' exists, cannot add widget ' + widget.id);
-                        return;
-                    }
-
-                    this.widgetIdToView[widget.id] = targetView;
-
-                    // adjust the width of the widget
-                    if (widget.width > 1) {
-                        // widget may be max. 50% of width
-                        var widgetWidth = widget.width > 5 ? 5 : widget.width;
-                        targetView.style.flexBasis = (10 * widgetWidth) + '%';
-                    }
-
-                    // enable dropzone for all widgets except main widget
-                    if (widget.position !== 'main') {
-                            // show the dropzone if a widget is present
-                            targetView.classList.remove('hidden');
-
-                            // activate dropzone
-                            enableDropzone(targetView);
-                    }
-
-                    this.setView(targetId, widgetNode);
-
-                    if (widget.hidden) {
-                        this.hideWidget(widget);
-                    }
-                },
-                hideWidget: function (widget) {
-                    var widgetView = this.widgetIdToView[widget.id];
-                    if (widgetView === undefined) {
-                        console.error('Cannot hide widget with id: ' + widget.id + ', not registered.');
-                        return;
-                    }
-                    widgetView.classList.add('hidden');
-                },
-                showWidget: function (widget) {
-                    var widgetView = this.widgetIdToView[widget.id];
-                    if (widgetView === undefined) {
-                        console.error('Cannot show widget with id: ' + widget.id + ', not registered.');
-                        return;
-                    }
-                    widgetView.classList.remove('hidden');
-                },
-                isWidgetShown: function (widget) {
-                    var widgetView = this.widgetIdToView[widget.id];
-                    if (widgetView === undefined) {
-                        console.error('Widget with id: ' + widget.id + ' is not registered.');
-                        return;
-                    }
-                    return !widgetView.classList.contains('hidden');
+                if (targetView === null) {
+                    console.error('No element with the ID ' + targetId + ' exists, cannot add widget ' + widget.id);
+                    return;
                 }
-            });
-        })();
+
+                this.widgetIdToView[widget.id] = targetView;
+
+                // adjust the width of the widget
+                if (widget.width > 1) {
+                    // widget may be max. 50% of width
+                    var widgetWidth = widget.width > 5 ? 5 : widget.width;
+                    targetView.style.flexBasis = (10 * widgetWidth) + '%';
+                }
+
+                // enable dropzone for all widgets except main widget
+                if (widget.position !== 'main') {
+                    // show the dropzone if a widget is present
+                    targetView.classList.remove('hidden');
+
+                    // activate dropzone
+                    this.touch.makeDropzone(targetView, '.widget');
+                }
+
+                this.setView(targetId, widgetNode);
+
+                if (widget.hidden) {
+                    this.hideWidget(widget);
+                }
+            },
+            hideWidget: function (widget) {
+                var widgetView = this.widgetIdToView[widget.id];
+                if (widgetView === undefined) {
+                    console.error('Cannot hide widget with id: ' + widget.id + ', not registered.');
+                    return;
+                }
+                widgetView.classList.add('hidden');
+            },
+            showWidget: function (widget) {
+                var widgetView = this.widgetIdToView[widget.id];
+                if (widgetView === undefined) {
+                    console.error('Cannot show widget with id: ' + widget.id + ', not registered.');
+                    return;
+                }
+                widgetView.classList.remove('hidden');
+            },
+            isWidgetShown: function (widget) {
+                var widgetView = this.widgetIdToView[widget.id];
+                if (widgetView === undefined) {
+                    console.error('Widget with id: ' + widget.id + ' is not registered.');
+                    return;
+                }
+                return !widgetView.classList.contains('hidden');
+            }
+        }, window.coreMixin));
     </script>
 </polymer-element>

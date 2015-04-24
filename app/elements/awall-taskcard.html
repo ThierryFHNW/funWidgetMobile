@@ -41,7 +41,7 @@
         </div>
     </template>
     <script>
-        Polymer({
+        Polymer(Polymer.mixin({
             publish: {
                 task: undefined,
 
@@ -55,22 +55,17 @@
                 noDrag: false
             },
             domReady: function () {
-                // capture variables
-                var container = this.$.container;
-                var task = this.task;
-
                 // make draggable
                 if (!this.noDrag) {
-                    require(['core-touch'], function (touch) {
-                        touch.makeDraggable(container, {
-                            clone: true,
-                            data: task
-                        });
+                    var data = this.task;
+                    this.touch.makeDraggable(this.$.container, {
+                        clone: true,
+                        data: data
                     });
                 }
 
             }
-        });
+        }, window.coreMixin));
     </script>
 </polymer-element>
 
@@ -84,27 +79,17 @@
         Polymer({
             domReady: function () {
                 this.super();
-                // capture variables
-                var container = this.$.container;
-                var task = this.task;
-                var rest = this.$.rest;
-                var form = this.$.form;
 
-                // dropzone for avatars
-                require(['core-touch'], function (touch) {
-                    touch.makeDropZone(container, '.avatar', function (data) {
-                        task.assignee = data;
-                        rest.save(task);
-                    });
-                });
+                this.touch.makeDropzone(this.$.container, '.avatar', function (data) {
+                    this.task.assignee = data;
+                    console.log('saving task');
+                    console.dir(this.$.rest);
+                    this.$.rest.save(this.task);
+                }.bind(this));
 
-                // doubletap to show form
-                require(['core-touch'], function (touch) {
-                    touch.onDoubleTap(container, function (event) {
-                        form.open();
-                    });
-                });
-
+                this.touch.onDoubleTap(this.$.container, function (event) {
+                    this.$.form.open();
+                }.bind(this));
             }
         });
     </script>
@@ -130,17 +115,10 @@
         Polymer({
             domReady: function () {
                 this.super();
-                // capture variables
-                var container = this.$.container;
-                var form = this.$.form;
 
-                // doubletap to show form
-                require(['core-touch'], function (touch) {
-                    touch.onDoubleTap(container, function (event) {
-                        form.open();
-                    });
-                });
-
+                this.touch.onDoubleTap(this.$.container, function (event) {
+                    this.$.form.open();
+                }.bind(this));
             }
         });
     </script>

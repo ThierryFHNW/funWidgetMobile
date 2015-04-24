@@ -108,7 +108,7 @@
         <ads-rest-tasks id="tasksRest" userstoryId="{{selected.id}}" response="{{selectedTasks}}"></ads-rest-tasks>
     </template>
     <script>
-        Polymer({
+        Polymer(Polymer.mixin({
             isDetailView: false,
             userstory: undefined,
             onTap: function (event, detail, target) {
@@ -125,25 +125,19 @@
             isDetailViewChanged: function () {
                 if (this.isDetailView) {
                     // activate dropzone to save temp task
-                    var taskDropzone = this.$.usView;
-                    var awall = this.$.awall;
-                    var userstory = this.selected;
-                    require(['core-touch'], function (touch) {
-                        touch.makeDropZone(taskDropzone, '.taskcard', function (droppedTask) {
-                            console.log('dropped task');
-                            if (droppedTask.userStory != undefined) {
-                                // is existing task
-                                console.error('Moving a task to another user-story is not possible (backend limitation).');
-                            } else {
-                                // is a temporary task
-                                droppedTask.userStory = userstory;
-                                awall.persistTempTask(droppedTask);
-                            }
-                        });
-                    });
+                    this.makeDropzone(this.$.usView, '.taskcard', function (droppedTask) {
+                        if (droppedTask.userStory != undefined) {
+                            // is existing task
+                            console.error('Moving a task to another user-story is not possible (backend limitation).');
+                        } else {
+                            // is a temporary task
+                            droppedTask.userStory = this.selected;
+                            this.$.awall.persistTempTask(droppedTask);
+                        }
+                    }.bind(this));
                 }
             }
-        });
+        }, window.coreMixin));
     </script>
 </polymer-element>
 
@@ -247,19 +241,10 @@
         <ads-rest-userstory id="rest"></ads-rest-userstory>
     </template>
     <script>
-        Polymer({
+        Polymer(Polymer.mixin({
             userstoriesChanged: function () {
-                // capture variables
-                var awall = this.$.awall;
-                var rest = this.$.rest;
-                var taskDropzone = this.$.taskDropzone;
-                var userstory = this.userstory;
-                var userstories = this.userstories;
-                var upperDropzone = this.$.upperDropzone;
-                var lowerDropzone = this.$.lowerDropzone;
 
-
-                function applyPriority(sourcePriority, newPriority, droppedUs, allUs) {
+                var applyPriority = function(sourcePriority, newPriority, droppedUs, allUs) {
 
                     function getSortedUsWithPriority(array) {
                         return array.filter(function (value) {
@@ -294,7 +279,7 @@
 
                     var sortedUs = getSortedUsWithPriority(allUs);
 
-                    var index = sortedUs.indexOf(userstory);
+                    var index = sortedUs.indexOf(this.userstory);
                     console.dir(sortedUs);
                     if (index == -1) {
                         console.error('index not found.');
@@ -306,38 +291,36 @@
                     // take appropriate action to persist changes
                     index = sourcePriority != newPriority ? index + 1 : index;
                     reorder(sortedUs, newPriority, index).forEach(function (item) {
-                        rest.save(item);
+                        this.$.rest.save(item);
                     });
-                    rest.save(droppedUs);
-                }
+                    this.$.rest.save(droppedUs);
+                }.bind(this);
 
                 // enable dropzones
-                require(['core-touch'], function (touch) {
-                    touch.makeDropZone(upperDropzone, '.userstorycard', function (droppedUs) {
-                        var sourcePriority = userstory.priority;
-                        var newPriority = sourcePriority;
-                        applyPriority(sourcePriority, newPriority, droppedUs, userstories);
-                    });
+                this.touch.makeDropzone(this.$.upperDropzone, '.userstorycard', function (droppedUs) {
+                    var sourcePriority = this.userstory.priority;
+                    var newPriority = sourcePriority;
+                    applyPriority(sourcePriority, newPriority, droppedUs, this.userstories);
+                }.bind(this));
 
-                    touch.makeDropZone(lowerDropzone, '.userstorycard', function (droppedUs) {
-                        var sourcePriority = userstory.priority;
-                        var newPriority = sourcePriority + 1;
-                        applyPriority(sourcePriority, newPriority, droppedUs, userstories);
-                    });
+                this.touch.makeDropzone(this.$.lowerDropzone, '.userstorycard', function (droppedUs) {
+                    var sourcePriority = this.userstory.priority;
+                    var newPriority = sourcePriority + 1;
+                    applyPriority(sourcePriority, newPriority, droppedUs, this.userstories);
+                }.bind(this));
 
-                    touch.makeDropZone(taskDropzone, '.taskcard', function (droppedTask) {
-                        if (droppedTask.userStory != undefined) {
-                            // is existing task
-                            console.error('Moving a task to another user-story is not possible (backend limitation).');
-                        } else {
-                            // is a temporary task
-                            droppedTask.userStory = userstory;
-                            awall.persistTempTask(droppedTask);
-                        }
-                    });
-                });
+                this.touch.makeDropzone(this.$.taskDropzone, '.taskcard', function (droppedTask) {
+                    if (droppedTask.userStory != undefined) {
+                        // is existing task
+                        console.error('Moving a task to another user-story is not possible (backend limitation).');
+                    } else {
+                        // is a temporary task
+                        droppedTask.userStory = this.userstory;
+                        this.$.awall.persistTempTask(droppedTask);
+                    }
+                }.bind(this));
             }
-        });
+        }, window.coreMixin));
     </script>
 </polymer-element>
 

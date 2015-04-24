@@ -38,9 +38,6 @@ module.exports = function (grunt) {
                         'app/index.html'
                     ],
                     exclude: [
-                        'bower_components/eventEmitter/EventEmitter.js',
-                        'bower_components/heir/heir.js',
-
                         // polymer
                         'bower_components/webcomponentsjs/webcomponents.js',
                         'bower_components/polymer/polymer.js'
