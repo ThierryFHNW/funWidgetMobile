@@ -91,19 +91,57 @@
                  */
                 noResize: false
             },
+            /*
+             * Hide the specific button.
+             */
             hideResizeToInitial: true,
             hideRevertToDock: true,
             hideEditMode: true,
             hideCloseEditMode: true,
+            /**
+             *  The current size of the widget (is propagated to the widget-size elements.
+             */
             widgetSize: {
                 height: 0,
                 width: 0
             },
+            /**
+             * Initial size when docked.
+             */
+            dockedSize: {
+                style: {
+                    height: '',
+                    width: ''
+                },
+                real: {
+                    height: '',
+                    width: ''
+                }
+            },
+            /**
+             * The initial size when the widget is floating.
+             * Differs from initial docked size when displayed on smaller screens.
+             */
+            floatingInitialSize: {
+                height: 0,
+                width: 0
+            },
+            isDocked: true,
+            dockedStateChange: false,
+
+            /*
+             *  The different custom elements for the extended size and editable view
+             */
             widgetDefault: undefined,
             widgetFull: undefined,
             widgetEditable: undefined,
-            widgetSizeElements: [],
-            draggableIsFloating: false,
+            /**
+             * The custom elements that are used by the current widget.
+             */
+            activeElements: [],
+            /**
+             * Whether the extended content (full size/ editable view) are initially hidden.
+             */
             extendedContentInitallyHidden: false,
             domReady: function () {
                 var getSingleElement = function (selector) {
@@ -119,7 +157,7 @@
                 this.widgetFull = getSingleElement('awall-widget-size-full');
                 this.widgetEditable = getSingleElement('awall-widget-editable');
 
-                this.widgetSizeElements = [this.widgetDefault, this.widgetFull, this.widgetEditable].filter(function (widget) {
+                this.activeElements = [this.widgetDefault, this.widgetFull, this.widgetEditable].filter(function (widget) {
                     return widget !== undefined && widget !== null;
                 });
 
@@ -143,31 +181,40 @@
                     }.bind(this);
                 }
 
-                // enable touch interaction
-
                 var widget = this.$.widget;
-                // set the initial size of the widget
-                this.height = widget.offsetHeight;
-                this.width = widget.offsetWidth;
+                // save the initial size of the docked widget
+                this.dockedSize = {
+                    style: {
+                        height: widget.style.height,
+                        width: widget.style.width
+                    },
+                    real: this.getRealWidgetSize()
+                };
+
 
                 // make draggable
                 if (!this.noDrag) {
-
                     var onDragStart = function () {
-                        if (!this.draggableIsFloating) {
+                        if (this.isDocked) {
                             this.extendedContentInitallyHidden = this.isExtendedContentHidden();
                             if (this.extendedContentInitallyHidden) {
                                 // set height to extend the widget and show the extended content
                                 this.$.widget.style.height = 13 + 'em';
                                 this.showExtendedContent();
                             }
+                            this.dockedStateChange = true;
                         }
-                        this.draggableIsFloating = true;
+                        this.isDocked = false;
                         this.hideRevertToDock = false;
                     }.bind(this);
 
                     var onDragEnd = function (event) {
                         this.hideRevertToDock = event.interaction.dropped;
+                        if (this.dockedStateChange) {
+                            console.log('this.dockedStateChange');
+                            this.floatingInitialSize = this.getRealWidgetSize();
+                            this.dockedStateChange = false;
+                        }
                     }.bind(this);
 
                     var onDragDrop = function () {
@@ -189,17 +236,18 @@
                     }.bind(this);
 
                     var onResizeDisableMove = function () {
+                        // disable resize when docked
                         return this.hideRevertToDock;
                     }.bind(this);
 
                     var onResizeMove = function () {
-                        if (!onResizeDisableMove) {
-                            this.widgetSize = this.touch.getElementSize(widget);
+                        if (!onResizeDisableMove()) {
+                            this.widgetSize = this.getRealWidgetSize();
                         }
                     }.bind(this);
 
                     var onResizeEnd = function () {
-                        this.hideResizeToInitial = this.touch.isInitialSize(widget);
+                        this.hideResizeToInitial = this.isInitialSize();
                     }.bind(this);
 
 
@@ -211,6 +259,9 @@
                     });
                 }
             },
+            isInitialSize: function () {
+                return this.touch.compareDimensions(this.getRealWidgetSize(), this.dockedSize.real);
+            },
             hideExtendedContent: function () {
                 this.$.extendedContent.style.display = 'none';
             },
@@ -218,44 +269,62 @@
                 this.$.extendedContent.style.display = 'block';
             },
             isExtendedContentHidden: function () {
-                return getComputedStyle(this.$.extendedContent, "").display == 'none';
+                return getComputedStyle(this.$.extendedContent, null).display == 'none';
             },
             /**
              * Resizes the widget to its initial size.
-             * @param onResizedCallback Called as last operation after the widget has been resized.
-             *    Ensures an operation is executed after the widget has been resized by core-touch.
              */
-            resizeToInitial: function (onResizedCallback) {
-                // resize to initial and adjust the height/width
-                this.touch.resizeToInitial(this.$.widget);
-                this.widgetSize = this.touch.getElementSize(this.$.widget);
+            resizeToInitial: function () {
+                var widgetStyle = this.$.widget.style;
+                var styleSize = this.floatingInitialSize;
+                console.log(widgetStyle.height);
+                widgetStyle.height = styleSize.height + 'px';
+                widgetStyle.width = styleSize.width + 'px';
 
-                if (typeof onResizedCallback === 'function') {
-                    onResizedCallback();
-                }
+                // update real widget size
+                this.widgetSize = this.getRealWidgetSize();
+
                 this.hideResizeToInitial = true;
+            },
+            resizeToDocked: function () {
+                // resize to initial and adjust the height/width
+                var widgetStyle = this.$.widget.style;
+                var styleSize = this.dockedSize.style;
+                widgetStyle.height = styleSize.height;
+                widgetStyle.width = styleSize.width;
+
+                // update real widget size
+                this.widgetSize = this.getRealWidgetSize();
+
+                this.hideResizeToInitial = true;
+            },
+            getRealWidgetSize: function () {
+                var widget = this.$.widget;
+                return {
+                    height: widget.offsetHeight,
+                    width: widget.offsetWidth
+                };
             },
             revertToDock: function () {
                 this.onDockAction();
                 this.hideRevertToDock = true;
 
-                this.touch.resetPosition(this.$.widget);
+                this.touch.resetDraggablePosition(this.$.widget);
             },
             onDockAction: function () {
-                this.draggableIsFloating = false;
+                this.isDocked = true;
 
                 // resize to initial size then apply the real initial docked size (on smaller screens)
-                this.resizeToInitial(function () {
-                    if (this.extendedContentInitallyHidden) {
-                        // don't set fixed height, set to '' so CSS definition takes over again
-                        this.$.widget.style.height = '';
-                        this.hideExtendedContent();
-                    }
-                }.bind(this));
+                this.resizeToDocked();
+                if (this.extendedContentInitallyHidden) {
+                    // don't set fixed height, set to '' so CSS definition takes over again
+                    this.$.widget.style.height = '';
+                    this.hideExtendedContent();
+                }
             },
             widgetSizeChanged: function () {
-                this.widgetSizeElements.forEach(function (widget) {
-                    widget.setDimensions(this.widgetSize.height, this.widgetSize.width);
+                this.activeElements.forEach(function (widget) {
+                    widget.setDimensions(this.widgetSize);
                 }, this);
             },
             showEditMode: function () {
@@ -320,9 +389,9 @@
                 this.hidden = true;
                 this.onHide();
             },
-            setDimensions: function (height, width) {
-                this.height = height;
-                this.width = width;
+            setDimensions: function (dimensions) {
+                this.height = dimensions.height;
+                this.width = dimensions.width;
                 this.evaluateVisibility();
             }
         });

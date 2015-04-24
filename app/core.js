@@ -540,7 +540,7 @@ window.appMixin = app;
      * To be called when the fragment identifier (hashchange) has been changed.
      */
     function routeChanged() {
-        workspaces.values().some(function(workspace) {
+        workspaces.values().some(function (workspace) {
             var newParams = workspace.getPathParameters();
             if (newParams !== null) {
                 console.log('Found a route for ' + location.hash);
@@ -588,7 +588,7 @@ window.appMixin = app;
             if (typeof idOrConfig !== 'object') {
                 console.log('Load workspace by ID: ' + idOrConfig);
                 // check if already loaded
-                if(workspaces.contains(idOrConfig)) {
+                if (workspaces.contains(idOrConfig)) {
                     onSuccessCallback(workspaces.get(idOrConfig));
                 } else {
                     _loadConfig(idOrConfig, function (config) {
@@ -627,7 +627,7 @@ window.appMixin = app;
  */
 (function (scope) {
 
-    function _draggableEnableSnapping(element, revertToStart) {
+    function draggableEnableSnapping(element, revertToStart) {
         // snap to dropzone
         interact(element).draggable({
             snap: {
@@ -658,7 +658,7 @@ window.appMixin = app;
         }
     }
 
-    function _dropZoneEnableSnapping(element) {
+    function dropZoneEnableSnapping(element) {
         interact(element).on('dragenter', function (event) {
             // enable snap
             var dropRect = interact.getElementRect(event.target),
@@ -689,7 +689,7 @@ window.appMixin = app;
      * @param acceptSelector The CSS selector a draggable must have in order to be accepted by this drop-zone.
      * @param onDropCallback Called when a draggable has been accepted and dropped in this dropzone.
      */
-    function _makeDropZone(element, acceptSelector, onDropCallback) {
+    function makeDropZone(element, acceptSelector, onDropCallback) {
         interact(element).dropzone({
             // only accept elements matching this CSS selector
             accept: acceptSelector,
@@ -744,7 +744,7 @@ window.appMixin = app;
             }
         });
 
-        _dropZoneEnableSnapping(element);
+        dropZoneEnableSnapping(element);
     }
 
     /**
@@ -779,7 +779,7 @@ window.appMixin = app;
      *          onend: function called on end of dragging.
      *
      */
-    function _makeDraggable(element, options) {
+    function makeDraggable(element, options) {
         options = mergeOptions(options, {
             clone: false,
             data: null,
@@ -862,25 +862,14 @@ window.appMixin = app;
             }
         });
 
-        _draggableEnableSnapping(element, options.revert);
-    }
-
-    /**
-     * Adds an event listener to the draggable or the drop-zone.
-     * See the interact.js documentation for a list of events.
-     * @param element The element to register the listener on.
-     * @param event The name of the event.
-     * @param callback The function that is called on the event.
-     */
-    function _on(element, event, callback) {
-        interact(element).on(event, callback);
+        draggableEnableSnapping(element, options.revert);
     }
 
     /**
      * reset the postion of the element.
      * @param target The element to reposition
      */
-    function _resetPosition(target) {
+    function resetPosition(target) {
         // translate the element
         target.style.webkitTransform =
             target.style.transform =
@@ -901,7 +890,7 @@ window.appMixin = app;
      *          onend: function called on end of resizing.
      *          disableMove: function to control the move function of the resizable: return true to disable resizing temporarily.
      */
-    function _makeResizable(element, options) {
+    function makeResizable(element, options) {
 
         options = mergeOptions(options, {
             onstart: function () {
@@ -986,60 +975,62 @@ window.appMixin = app;
     }
 
     /**
-     * Resets the size of the widget to initial size.
-     * @param target The element to resize to initial size.
+     * Enable double-tap on the given element.
+     *
+     * @param element The element to enable double-tap on.
+     * @param callback The function called when double-tapped.
      */
-    function _resizeToInitial(target) {
-        if (target.initialSize) {
-            target.style.height = target.initialSize.height + 'px';
-            target.style.width = target.initialSize.width + 'px';
-        }
+    function onDoubletap(element, callback) {
+        interact(element).on('doubletap', callback);
     }
 
     /**
-     * Check the element if it's current size is equal or very close to the initial size.
-     * @param target The element to check.
-     * @returns boolean true if the current size is the initial size, false otherwise.
+     * Compares two values with a given deviation.
+     *
+     * @param a First value.
+     * @param b Second value.
+     * @param deviation The allowed deviation when comparing the two values.
+     * @returns {boolean} true if the fist and second value lie within the given deviation of each other.
      */
-    function _isInitialSize(target) {
-        var currentSize = interact.getElementRect(target);
-        var initialSize = target.initialSize;
-
-        // exactly
-        if (initialSize.height == currentSize.height && initialSize.width == currentSize.width) {
-            return true;
-        }
-
-        function near(a, b, maxDistance) {
-            for (var distance = 1; distance <= maxDistance; distance++) {
-                if (a + distance == b || a - distance == b) {
-                    return true;
-                }
+    function near(a, b, deviation) {
+        for (var distance = 1; distance <= Math.abs(deviation); distance++) {
+            if (a + distance == b || a - distance == b) {
+                return true;
             }
-            return false;
         }
-
-        // allow for some margin because the values may already be rounded
-        return near(initialSize.height, currentSize.height, 1) && near(initialSize.width, currentSize.width, 1);
+        return false;
     }
 
-    function _getElementSize(target) {
-        return interact.getElementRect(target);
+    /**
+     * Compare dimensions.
+     *
+     * @param dimA Object with height and width.
+     * @param dimB Object with height and width.
+     * @param deviation (optional, defaults to 0) The allowed deviation when comparing the two values.
+     * @returns {boolean}
+     */
+    function compareDimensions(dimA, dimB, deviation) {
+        deviation = deviation || 0;
+
+        // exactly
+        if (dimA.height == dimB.height && dimA.width == dimB.width) {
+            return true;
+        } else if (deviation !== 0) {
+            // allow a deviation because the values may already be rounded
+            return near(dimA.height, dimB.height, deviation) && near(dimA.width, dimB.width, deviation);
+        }
+        // deviation is 0 and does not match
+        return false;
     }
 
 
     scope.touch = {
-        makeDraggable: _makeDraggable,
-        makeDropzone: _makeDropZone,
-        on: _on,
-        resetPosition: _resetPosition,
-        onDoubleTap: function (element, callback) {
-            interact(element).on('doubletap', callback);
-        },
-        makeResizable: _makeResizable,
-        resizeToInitial: _resizeToInitial,
-        isInitialSize: _isInitialSize,
-        getElementSize: _getElementSize
+        makeDraggable: makeDraggable,
+        makeDropzone: makeDropZone,
+        makeResizable: makeResizable,
+        onDoubletap: onDoubletap,
+        resetDraggablePosition: resetPosition,
+        compareDimensions: compareDimensions
     };
 
 })(app);

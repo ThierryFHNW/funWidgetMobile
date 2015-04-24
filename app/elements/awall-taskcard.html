@@ -87,7 +87,7 @@
                     this.$.rest.save(this.task);
                 }.bind(this));
 
-                this.touch.onDoubleTap(this.$.container, function (event) {
+                this.touch.onDoubletap(this.$.container, function (event) {
                     this.$.form.open();
                 }.bind(this));
             }
@@ -116,7 +116,7 @@
             domReady: function () {
                 this.super();
 
-                this.touch.onDoubleTap(this.$.container, function (event) {
+                this.touch.onDoubletap(this.$.container, function (event) {
                     this.$.form.open();
                 }.bind(this));
             }
