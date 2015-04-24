@@ -7,7 +7,7 @@
     <!-- bower:css -->
     <!-- endbower -->
 
-    <link rel="stylesheet" shim-shadowdom href="main.css">
+    <link rel="stylesheet" href="main.css">
 
     <!-- bower:js -->
     <script src="bower_components/interact/interact.js"></script>
@@ -15,10 +15,12 @@
     <script src="bower_components/eventEmitter/EventEmitter.js"></script>
     <!-- endbower -->
 
+    <script src="bower_components/javascript-route-matcher/dist/ba-routematcher.js"></script>
+
     <script src="core.js"></script>
 
     <link rel="import" href="bower_components/polymer-filters/polymer-filters.html">
-    <script src="bower_components/javascript-route-matcher/dist/ba-routematcher.js"></script>
+
     <link rel="import" href="elements/ads-rest.html">
     <link rel="import" href="elements/app-core.html">
     <link rel="import" href="elements/app-field.html">
@@ -32,9 +34,27 @@
 
 
 </head>
-<body unresolved>
+<body>
 
-<app-core></app-core>
+<script>
+
+    var workspaces = [
+        'projectselect',
+        'sprintselect',
+        'workspaceselect',
+        'sprintplanning2',
+        'taskboard'
+    ];
+
+    // Application is started here
+    window.addEventListener('load', function () {
+
+        workspaces.forEach(function (workspaceId) {
+            app.core.loadWorkspace(workspaceId);
+        }, this);
+
+    });
+</script>
 
 
 </body>

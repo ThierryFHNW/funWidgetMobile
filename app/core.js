@@ -1,22 +1,17 @@
-var core = {};
-window.coreMixin = core;
+/**
+ * Contains all core functions for the application.
+ * @type {{object}}
+ */
+var app = {};
 
-// configuration of the available workspaces
-(function (scope) {
-
-    scope.config = {
-        workspaces: [
-            'projectselect',
-            'sprintselect',
-            'workspaceselect',
-            'sprintplanning2',
-            'taskboard'
-        ]
-    };
-
-})(core);
+// Make the app globally accessible for Polymer as mixin
+window.appMixin = app;
 
 
+/**
+ * The core of the application.
+ * Accessible through app.core
+ */
 (function (scope) {
 
     /**
@@ -44,8 +39,6 @@ window.coreMixin = core;
 
         this.layout = undefined;
         this.widgets = [];
-
-        this.widgetViewTargets = {};
 
         // path and URL-matcher
         this.matcher = routeMatcher(this.config.path);
@@ -281,12 +274,32 @@ window.coreMixin = core;
         this.objects = {};
     };
 
+    /**
+     * Get all the keys of all pairs in the cache.
+     *
+     * @returns {Array} With all the keys.
+     */
+    Cache.prototype.keys = function () {
+        return Object.keys(this.objects);
+    };
+
+    /**
+     * Get all the cached values.
+     *
+     * @returns {Array} With all values.
+     */
+    Cache.prototype.values = function () {
+        return this.keys().map(function (key) {
+            return this.objects[key];
+        }, this);
+    };
+
 
     /**
      * Cache of loaded resources.
      * @type {Cache}
      */
-    var cache = new Cache();
+    var resourceCache = new Cache();
 
 
     /**
@@ -322,8 +335,8 @@ window.coreMixin = core;
             return;
         }
 
-        if (cache.contains(url)) {
-            var resource = cache.get(url);
+        if (resourceCache.contains(url)) {
+            var resource = resourceCache.get(url);
             if (resource.isLoaded()) {
                 console.log('Resource ' + url + ' is cached.');
                 onSuccessCallback(resource.data);
@@ -335,7 +348,7 @@ window.coreMixin = core;
             }
         } else {
             console.log('Resource ' + url + ' is new.');
-            cache.add(url, new Resource(url));
+            resourceCache.add(url, new Resource(url));
 
             // load the JSON file
             var xhr = new XMLHttpRequest();
@@ -344,7 +357,7 @@ window.coreMixin = core;
                 if (xhr.readyState == 4) {   // DONE
                     if (xhr.status == 200) {  // HTTP OK
                         var data = JSON.parse(xhr.responseText);
-                        var resource = cache.get(url);
+                        var resource = resourceCache.get(url);
                         resource.data = data;
 
                         console.log('Resource ' + url + ' has been loaded');
@@ -518,45 +531,99 @@ window.coreMixin = core;
      * @returns {boolean} true if the variable is a function.
      */
     function isFunction(func) {
-        return typeof func == 'function';
+        return typeof func === 'function';
     }
 
+
+    /**
+     * Callback function.
+     * To be called when the fragment identifier (hashchange) has been changed.
+     */
+    function routeChanged() {
+        workspaces.values().some(function(workspace) {
+            var newParams = workspace.getPathParameters();
+            if (newParams !== null) {
+                console.log('Found a route for ' + location.hash);
+                routeParams = newParams;
+                if (activeWorkspace !== workspace) {
+                    activeWorkspace = workspace;
+                    activeWorkspace.show();
+                }
+                return true;
+            }
+        });
+
+    }
+
+    // Object with the path-variable (e.g. projectId) as key and the actual value as value.
+    var routeParams = {};
+
+    // List of loaded workspaces.
+    var workspaces = new Cache();
+
+    // The currently displayed workspace.
+    var activeWorkspace = null;
+
+    // Add global #-change listener
+    window.addEventListener('hashchange', routeChanged);
 
     scope.core = {
         /**
          * Load a workspace by ID or directly with a config.
          *
          * @param idOrConfig The ID of the workspace to load or the config object.
-         * @param onSuccessCallback Called once the workspace has been loaded.
+         * @param onSuccessCallback (optional) Called once the workspace has been loaded.
          */
         loadWorkspace: function (idOrConfig, onSuccessCallback) {
-            if (isNotFunction(onSuccessCallback)) {
-                console.error('Supplied callback is not a function.');
-                return;
-            }
+
+            var onLoaded = function (id, config) {
+                var workspace = new Workspace(id, config);
+                workspaces.add(id, workspace);
+                routeChanged();
+                if (isFunction(onSuccessCallback)) {
+                    onSuccessCallback(workspace);
+                }
+            };
 
             if (typeof idOrConfig !== 'object') {
                 console.log('Load workspace by ID: ' + idOrConfig);
-                _loadConfig(idOrConfig, function (config) {
-                    onSuccessCallback(new Workspace(idOrConfig, config));
-                });
+                // check if already loaded
+                if(workspaces.contains(idOrConfig)) {
+                    onSuccessCallback(workspaces.get(idOrConfig));
+                } else {
+                    _loadConfig(idOrConfig, function (config) {
+                        onLoaded(idOrConfig, config);
+                    });
+                }
             } else {
                 console.log('Load workspace by config: ' + idOrConfig.name);
                 if (isValidWorkspaceConfig(idOrConfig)) {
                     var generatedId = Math.random().toString(36).substr(2, 5);
-                    onSuccessCallback(new Workspace(generatedId, idOrConfig));
+                    onLoaded(generatedId, idOrConfig);
                 }
             }
+
+        },
+        get routeParams() {
+            return routeParams;
+        },
+        get workspaces() {
+            return workspaces.values().filter(function (space) {
+                // Real workspaces have at least one widget, otherwise it's a single-page widget
+                return Object.keys(space.config.widgets).length > 1;
+            });
+        },
+        get activeWorkspace() {
+            return activeWorkspace;
         }
     };
 
-})(core);
+})(app);
 
 
 /**
- * core-touch
- *
- * Provides drag and drop support provided by interact.js.
+ * Functions to create draggables, dropzones and resizeable element.
+ * Accessible through app.touch
  */
 (function (scope) {
 
@@ -975,4 +1042,4 @@ window.coreMixin = core;
         getElementSize: _getElementSize
     };
 
-})(core);
+})(app);
