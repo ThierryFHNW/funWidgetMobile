@@ -125,7 +125,7 @@
             isDetailViewChanged: function () {
                 if (this.isDetailView) {
                     // activate dropzone to save temp task
-                    this.makeDropzone(this.$.usView, '.taskcard', function (droppedTask) {
+                    this.touch.makeDropzone(this.$.usView, '.taskcard', function (droppedTask) {
                         if (droppedTask.userStory != undefined) {
                             // is existing task
                             console.error('Moving a task to another user-story is not possible (backend limitation).');
