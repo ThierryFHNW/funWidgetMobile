@@ -572,7 +572,7 @@
 
 <polymer-element name="ads-rest-single" extends="ads-rest-base" hidden>
     <template>
-        <core-ajax id="ajax" handleAs="json"
+        <core-ajax id="ajax" url="http://windows92.cs.technik.fhnw.ch/api/{{resource}}/{{resourceId}}" handleAs="json"
                    params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
     </template>
     <script>
@@ -608,7 +608,6 @@
                 }
             },
             go: function () {
-                this.$.ajax.url = 'http://windows92.cs.technik.fhnw.ch/api/' + this.resource + '/' + this.resourceId;
                 this.setParams();
                 this.$.ajax.go();
             },
