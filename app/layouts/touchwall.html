@@ -68,7 +68,7 @@
                     <div class="widgetDropzone hidden" id="widget8"></div>
                     <div class="widgetDropzone hidden" id="widget9"></div>
                     <div class="widgetDropzone hidden" id="widget10"></div>
-                    <awall-menu></awall-menu>
+                    <awall-menu id="menu"></awall-menu>
                 </div>
                 <div id="widgetmain"></div>
             </div>
@@ -78,8 +78,70 @@
     </template>
     <script>
         Polymer(Polymer.mixin({
+            /**
+             * List of added widgets.
+             */
+            widgets: [],
+            /**
+             * Sorted list of info-view widget (without main widget).
+             * Sorted by position.
+             */
+            sortedInfoViewWidgets: [],
+            /**
+             * Map of widget.id -> view (HTML element)
+             */
             widgetIdToView: {},
+            /**
+             * Minimal widget size in pixel.
+             */
+            minWidgetWidthInPx: 250,
+            /**
+             * Called when widgetsToDispaly changes.
+             * Recalculates which widgets should be shown.
+             */
+            widgetsToDisplayChanged: function () {
+                var totalWidgetWidth = 0;
+                this.sortedInfoViewWidgets.forEach(function (widget) {
+                    if (totalWidgetWidth < this.widgetsToDisplay) {
+                        var widgetHasRoom = (totalWidgetWidth + widget.width) <= this.widgetsToDisplay;
+                        if (widgetHasRoom) {
+                            this.showWidget(widget);
+                            totalWidgetWidth += widget.width;
+                        } else {
+                            this.hideWidget(widget);
+                        }
+                    } else {
+                        this.hideWidget(widget);
+                    }
+                }, this);
+            },
+            domReady: function () {
+                this.sortedInfoViewWidgets = this.widgets.filter(function (widget) {
+                    return widget.position !== 'main';
+                }).sort(function (a, b) {
+                    return a.position >= b.position ? 1 : -1;
+                });
+
+                var onResize = function () {
+                    var availableWidgetWidth = this.$.widgets.clientWidth - this.$.menu.clientWidth;
+                    var newWidgetsToDisplay = Math.floor(availableWidgetWidth / this.minWidgetWidthInPx);
+                    newWidgetsToDisplay = Math.max(newWidgetsToDisplay, 1);
+                    if (newWidgetsToDisplay !== this.widgetsToDisplay) {
+                        this.widgetsToDisplay = newWidgetsToDisplay;
+                    }
+                };
+
+                window.addEventListener('resize', onResize.bind(this));
+                // call to set initial arrangement
+                onResize.call(this);
+            },
+            created: function () {
+                this.widgets = [];
+                this.widgetIdToView = {};
+            },
             addWidget: function (widget, widgetNode) {
+                this.widgets.push(widget);
+
                 var targetId = 'widget' + widget.position;
                 var targetView = this.$[targetId];
 
@@ -118,7 +180,10 @@
                     console.error('Cannot hide widget with id: ' + widget.id + ', not registered.');
                     return;
                 }
-                widgetView.classList.add('hidden');
+                widget.hidden = true;
+                if (!widgetView.classList.contains('hidden')) {
+                    widgetView.classList.add('hidden');
+                }
             },
             showWidget: function (widget) {
                 var widgetView = this.widgetIdToView[widget.id];
@@ -126,6 +191,7 @@
                     console.error('Cannot show widget with id: ' + widget.id + ', not registered.');
                     return;
                 }
+                widget.hidden = false;
                 widgetView.classList.remove('hidden');
             },
             isWidgetShown: function (widget) {
