@@ -23,6 +23,11 @@
                 padding: 0.2em 1em;
             }
 
+            #workspaceOperations {
+                padding-top: 0.2em;
+                display: block;
+            }
+
             #close {
                 float: right;
             }
@@ -55,11 +60,19 @@
             <core-dropdown class="dropdown" halign="right" backdrop autoCloseDisabled closeSelector="#close">
                 <core-icon-button icon="close" id="close"></core-icon-button>
                 <div id="menuContent">
+
+                    <div id="workspaceOperations">
+                        <core-icon-button icon="save" on-tap="{{onSaveWorkspace}}"></core-icon-button>
+                        <core-icon-button icon="restore" on-tap="{{onResetWorkspace}}"
+                                          hidden?="{{!workspaceSaved}}"></core-icon-button>
+                    </div>
+
                     <h3>Widgets</h3>
                     <template repeat="{{widget in $.globals.activeWorkspace.widgets}}">
                         <awall-menu-widget-toggle widget="{{widget}}"
                                                   layout="{{$.globals.activeWorkspace.layout}}"></awall-menu-widget-toggle>
                     </template>
+
                     <h3>Workspaces</h3>
                     <ul>
                         <template repeat="{{workspace in $.globals.workspaces}}">
@@ -74,7 +87,17 @@
         </core-menu-button>
     </template>
     <script>
-        Polymer({});
+        Polymer(Polymer.mixin({
+            domReady: function () {
+                this.workspaceSaved = this.core.isWorkspaceSaved();
+            },
+            onSaveWorkspace: function () {
+                this.workspaceSaved = this.core.saveActiveWorkspace();
+            },
+            onResetWorkspace: function () {
+                this.workspaceSaved = this.core.resetActiveWorkspace();
+            }
+        }, window.appMixin));
     </script>
 </polymer-element>
 

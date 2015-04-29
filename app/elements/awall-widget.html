@@ -211,7 +211,6 @@
                     var onDragEnd = function (event) {
                         this.hideRevertToDock = event.interaction.dropped;
                         if (this.dockedStateChange) {
-                            console.log('this.dockedStateChange');
                             this.floatingInitialSize = this.getRealWidgetSize();
                             this.dockedStateChange = false;
                         }
@@ -277,7 +276,6 @@
             resizeToInitial: function () {
                 var widgetStyle = this.$.widget.style;
                 var styleSize = this.floatingInitialSize;
-                console.log(widgetStyle.height);
                 widgetStyle.height = styleSize.height + 'px';
                 widgetStyle.width = styleSize.width + 'px';
 

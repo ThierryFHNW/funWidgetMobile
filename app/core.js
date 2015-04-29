@@ -471,7 +471,6 @@ window.appMixin = app;
      * @returns {boolean} true if the config is valid, false otherwiese.
      */
     function isValidWorkspaceConfig(config) {
-        console.log('Checking validity of workspace config for: ' + config.name);
         var valid = true;
         var requiredProperties = [
             'name',
@@ -534,6 +533,114 @@ window.appMixin = app;
         return typeof func === 'function';
     }
 
+    /**
+     * Clone an object.
+     *
+     * @param obj The object to clone.
+     */
+    function cloneObject(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    /**
+     * Creates a config from an loaded workspace.
+     *
+     * @param workspace The workspace to generate the config from.
+     * @returns {*} Config object.
+     */
+    function workspaceToConfig(workspace) {
+        // copy current active config from workspace
+        var config = cloneObject(workspace.config);
+
+        /*
+         * Reflect the positional and visibility changes.
+         * (only a fully loaded workspace has widgets populated)
+         */
+        if (workspace.widgets.length > 0) {
+            workspace.widgets.forEach(function (widget) {
+                config.widgets[widget.id] = {
+                    position: widget.position,
+                    width: widget.width,
+                    hidden: widget.hidden
+                };
+            });
+        }
+
+        return config;
+    }
+
+    /**
+     * Load a workspace by ID either from local storage if saved or from the server.
+     *
+     * @param id The ID of the workspace to load.
+     * @param onSuccessCallback (optional) Called once the workspace has been loaded.
+     */
+    function loadWorkspace(id, onSuccessCallback) {
+
+        var onLoaded = function (id, config) {
+            var workspace = new Workspace(id, config);
+            workspaces.add(id, workspace);
+            routeChanged();
+            if (isFunction(onSuccessCallback)) {
+                onSuccessCallback(workspace);
+            }
+        };
+
+        if (workspaces.contains(id)) {
+            console.log('Workspace ' + id + ' already loaded.');
+            if (isFunction(onSuccessCallback)) {
+                onSuccessCallback(workspaces.get(id));
+            }
+        } else {
+            var loadedConfig = JSON.parse(window.localStorage.getItem('workspace_' + id));
+            if (loadedConfig !== null) {
+                console.log('Load workspace ' + id + ' from local storage.');
+                if (isValidWorkspaceConfig(loadedConfig)) {
+                    onLoaded(id, loadedConfig);
+                }
+            } else {
+                console.log('Load workspace ' + id + ' from server.');
+                _loadConfig(id, function (config) {
+                    onLoaded(id, config);
+                });
+            }
+        }
+    }
+
+    /**
+     * Save the workspace config in local storage.
+     *
+     * @param workspace The workspace whose config should be saved.
+     */
+    function saveWorkspace(workspace) {
+        var workspaceConfig = workspaceToConfig(workspace);
+        var stringConfig = JSON.stringify(workspaceConfig);
+        window.localStorage.setItem('workspace_' + workspace.id, stringConfig);
+    }
+
+    /**
+     * Reset the workspace and reload its config.
+     *
+     * @param workspace The workspace whose config should be reloaded from the server.
+     */
+    function resetWorkspace(workspace) {
+        window.localStorage.removeItem('workspace_' + workspace.id);
+        // remove from loaded workspaces
+        workspaces.remove(workspace.id);
+        // load again (should be from the server now)
+        loadWorkspace(workspace.id);
+    }
+
+    /**
+     * Check whether the given workspace's config is saved in local storage.
+     *
+     * @param workspace The workspace
+     * @returns {boolean} true, if save in local storage, false otherwise.
+     */
+    function isWorkspaceInLocalStorage(workspace) {
+        return window.localStorage.getItem('workspace_' + workspace.id) !== null;
+    }
+
 
     /**
      * Callback function.
@@ -543,7 +650,6 @@ window.appMixin = app;
         workspaces.values().some(function (workspace) {
             var newParams = workspace.getPathParameters();
             if (newParams !== null) {
-                console.log('Found a route for ' + location.hash);
                 routeParams = newParams;
                 if (activeWorkspace !== workspace) {
                     activeWorkspace = workspace;
@@ -552,7 +658,6 @@ window.appMixin = app;
                 return true;
             }
         });
-
     }
 
     // Object with the path-variable (e.g. projectId) as key and the actual value as value.
@@ -567,49 +672,40 @@ window.appMixin = app;
     // Add global #-change listener
     window.addEventListener('hashchange', routeChanged);
 
+
+    // exports
+
     scope.core = {
+        loadWorkspace: loadWorkspace,
         /**
-         * Load a workspace by ID or directly with a config.
-         *
-         * @param idOrConfig The ID of the workspace to load or the config object.
-         * @param onSuccessCallback (optional) Called once the workspace has been loaded.
+         * Save the currently active workspace.
+         * @returns {boolean} indicates whether the to active workspace is in local storage.
          */
-        loadWorkspace: function (idOrConfig, onSuccessCallback) {
-
-            var onLoaded = function (id, config) {
-                var workspace = new Workspace(id, config);
-                workspaces.add(id, workspace);
-                routeChanged();
-                if (isFunction(onSuccessCallback)) {
-                    onSuccessCallback(workspace);
-                }
-            };
-
-            if (typeof idOrConfig !== 'object') {
-                console.log('Load workspace by ID: ' + idOrConfig);
-                // check if already loaded
-                if (workspaces.contains(idOrConfig)) {
-                    onSuccessCallback(workspaces.get(idOrConfig));
-                } else {
-                    _loadConfig(idOrConfig, function (config) {
-                        onLoaded(idOrConfig, config);
-                    });
-                }
-            } else {
-                console.log('Load workspace by config: ' + idOrConfig.name);
-                if (isValidWorkspaceConfig(idOrConfig)) {
-                    var generatedId = Math.random().toString(36).substr(2, 5);
-                    onLoaded(generatedId, idOrConfig);
-                }
-            }
-
+        saveActiveWorkspace: function () {
+            saveWorkspace(activeWorkspace);
+            return isWorkspaceInLocalStorage(activeWorkspace);
+        },
+        /**
+         * Reset the saved configuration of the currently active workspace.
+         * @returns {boolean} indicates whether the to active workspace is in local storage.
+         */
+        resetActiveWorkspace: function () {
+            resetWorkspace(activeWorkspace);
+            return isWorkspaceInLocalStorage(activeWorkspace);
+        },
+        /**
+         * Check if the active workspace has its config saved in local storage.
+         * @returns {boolean} true if in local storage, false otherwise.
+         */
+        isWorkspaceSaved: function () {
+            return isWorkspaceInLocalStorage(activeWorkspace);
         },
         get routeParams() {
             return routeParams;
         },
         get workspaces() {
             return workspaces.values().filter(function (space) {
-                // Real workspaces have at least one widget, otherwise it's a single-page widget
+                // Real workspaces more than one widget, otherwise it's a single-page widget
                 return Object.keys(space.config.widgets).length > 1;
             });
         },
@@ -622,7 +718,7 @@ window.appMixin = app;
 
 
 /**
- * Functions to create draggables, dropzones and resizeable element.
+ * Functions to create draggables, dropzones and resizeable elements.
  * Accessible through app.touch
  */
 (function (scope) {
@@ -1023,6 +1119,8 @@ window.appMixin = app;
         return false;
     }
 
+
+    // exports
 
     scope.touch = {
         makeDraggable: makeDraggable,
