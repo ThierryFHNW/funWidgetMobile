@@ -190,7 +190,7 @@ window.appMixin = app;
      * @returns {HTMLElement} The root node of the workspace.
      */
     Workspace.prototype.build = function () {
-        var workspaceLayout = document.createElement('workspace-layout-' + this.layout.id);
+        var workspaceLayout = document.createElement('layout-' + this.layout.id);
         this.layout.document = workspaceLayout;
         this.widgets.forEach(function (widget) {
             var templates = widget.document.querySelectorAll('template.content');

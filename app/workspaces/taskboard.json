@@ -2,7 +2,7 @@
   "name": "Taskboard Workspace",
   "description": "",
   "path": "/project/:projectId/sprint/:sprintId/taskboard",
-  "layout": "touchwall",
+  "layout": "workspace",
   "widgets": {
     "taskboard": {
       "position": "main"
