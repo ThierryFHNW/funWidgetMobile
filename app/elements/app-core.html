@@ -1,6 +1,15 @@
+<link rel="import" href="../bower_components/core-media-query/core-media-query.html">
+
 <polymer-element name="app-core" hidden>
+    <template>
+        <core-media-query query="max-height: 40rem" queryMatches="{{isSmallScreenHeight}}"></core-media-query>
+    </template>
     <script>
         // just a wrapper to use a HTML element in other custom elements.
-        Polymer(Polymer.mixin({}, window.appMixin.core));
+        Polymer(Polymer.mixin({
+            publish : {
+                isSmallScreenHeight: undefined
+            }
+        }, window.appMixin.core));
     </script>
 </polymer-element>

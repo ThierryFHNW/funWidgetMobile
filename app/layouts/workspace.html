@@ -13,7 +13,18 @@
                 color: white;
                 padding: 1em;
                 background-color: #000000;
+            }
+
+            header {
                 display: none;
+            }
+
+            footer {
+                position: fixed;
+                Width: 100%;
+                bottom: 0;
+                height: 2em;
+                z-index: 200;
             }
 
             #body {
@@ -21,6 +32,7 @@
                 padding: 0.3em;
                 display: flex;
                 flex-direction: column;
+                margin-bottom: 4em;
             }
 
             #widgets {
@@ -51,6 +63,11 @@
             .hidden {
                 display: none;
             }
+
+            a {
+                color: white;
+                padding: 0 1em;
+            }
         </style>
         <div id="container">
             <header>HEADER</header>
@@ -71,8 +88,17 @@
                 <div id="widgetmain"></div>
             </div>
 
-            <footer>FOOTER</footer>
+            <template if="{{!$.globals.isSmallScreenHeight}}">
+                <footer>
+                    <template repeat="{{workspace in $.globals.workspaces}}">
+                        <a href="{{workspace.parsedPath}}">
+                            {{workspace.name}}
+                        </a>
+                    </template>
+                </footer>
+            </template>
         </div>
+        <app-core id="globals"></app-core>
     </template>
     <script>
         Polymer(Polymer.mixin({

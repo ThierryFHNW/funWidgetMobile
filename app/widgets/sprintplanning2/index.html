@@ -2,8 +2,6 @@
     <awall-sp2></awall-sp2>
 </template>
 
-<link rel="import" href="../../bower_components/core-media-query/core-media-query.html">
-
 <polymer-element name="awall-sp2">
     <template>
         <style>
@@ -28,11 +26,11 @@
 
             <div class="container">
 
-                <template if="{{isSmallScreen}}">
+                <template if="{{$.globals.isSmallScreenHeight}}">
                     <awall-userstory-cardlist userstories="{{userstories}}"></awall-userstory-cardlist>
                 </template>
 
-                <template if="{{!isSmallScreen}}">
+                    <template if="{{!$.globals.isSmallScreenHeight}}">
                     <awall-sprintbacklog userstories="{{userstories}}" class="sprintBacklog"></awall-sprintbacklog>
                     <awall-temptasks class="tempTasks"></awall-temptasks>
                 </template>
@@ -40,7 +38,6 @@
             </div>
         </awall-widget>
 
-        <core-media-query query="max-height: 40rem" queryMatches="{{isSmallScreen}}"></core-media-query>
         <app-core id="globals"></app-core>
         <ads-rest-userstories id="usEndpoint" sprintId="{{sprintId}}"
                               response="{{userstories}}"></ads-rest-userstories>
