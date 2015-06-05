@@ -177,7 +177,6 @@
             </template>
             </tbody>
         </table>
-        </div>
     </template>
     <script>
         Polymer({
@@ -296,8 +295,7 @@
                 // enable dropzones
                 this.touch.makeDropzone(this.$.upperDropzone, '.userstorycard', function (droppedUs) {
                     var sourcePriority = this.userstory.priority;
-                    var newPriority = sourcePriority;
-                    applyPriority(sourcePriority, newPriority, droppedUs, this.userstories);
+                    applyPriority(sourcePriority, sourcePriority, droppedUs, this.userstories);
                 }.bind(this));
 
                 this.touch.makeDropzone(this.$.lowerDropzone, '.userstorycard', function (droppedUs) {
