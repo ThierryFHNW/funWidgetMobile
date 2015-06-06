@@ -7,12 +7,89 @@ var app = {};
 // Make the app globally accessible for Polymer as mixin
 window.appMixin = app;
 
+/**
+ * Utility functions.
+ * Accessible through app.util
+ */
+(function (scope) {
+
+    /**
+     * Check if a given variable is not a function.
+     *
+     * @param func The variable to check.
+     * @returns {boolean} true if the variable is not a function.
+     */
+    function isNotFunction(func) {
+        return !isFunction(func);
+    }
+
+    /**
+     * Check if the given variable is a function.
+     *
+     * @param func The variable to check.
+     * @returns {boolean} true if the variable is a function.
+     */
+    function isFunction(func) {
+        return typeof func === 'function';
+    }
+
+    /**
+     * Clone an object.
+     *
+     * @param obj The object to clone.
+     */
+    function cloneObject(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    /**
+     * Merge an object. Set the missing attributes in the target object using the ones in the source object.
+     *
+     * @param target The target to merge the source attributes into.
+     * @param source The source object.
+     * @returns {*} The merged object.
+     */
+    function mergeObject(target, source) {
+        if (target === undefined) {
+            target = cloneObject(source);
+        } else {
+            for (var option in source) {
+                if (!(option in target)) {
+                    target[option] = source[option];
+                }
+            }
+        }
+        return target;
+    }
+
+    // exports
+
+    scope.util = {
+        isNotFunction: isNotFunction,
+        isFunction: isFunction,
+        cloneObject: cloneObject,
+        mergeObject: mergeObject
+    };
+
+    /**
+     * Import the utility-functions directly into the given context (this reference).
+     *
+     * @param thisRef The this reference in which the util functions of this module should be directly available.
+     */
+    scope.importUtils = function (thisRef) {
+        mergeObject(thisRef, scope.util);
+    }
+
+})(app);
 
 /**
  * The core of the application.
  * Accessible through app.core
  */
 (function (scope) {
+
+    // import utility functions
+    scope.importUtils(this);
 
     /**
      * Represents a workspace.
@@ -513,34 +590,6 @@ window.appMixin = app;
         return valid;
     }
 
-    /**
-     * Check if a given variable is not a function.
-     *
-     * @param func The variable to check.
-     * @returns {boolean} true if the variable is not a function.
-     */
-    function isNotFunction(func) {
-        return !isFunction(func);
-    }
-
-    /**
-     * Check if the given variable is a function.
-     *
-     * @param func The variable to check.
-     * @returns {boolean} true if the variable is a function.
-     */
-    function isFunction(func) {
-        return typeof func === 'function';
-    }
-
-    /**
-     * Clone an object.
-     *
-     * @param obj The object to clone.
-     */
-    function cloneObject(obj) {
-        return JSON.parse(JSON.stringify(obj));
-    }
 
     /**
      * Creates a config from an loaded workspace.
@@ -723,6 +772,9 @@ window.appMixin = app;
  */
 (function (scope) {
 
+    // import utility functions
+    scope.importUtils(this);
+
     function draggableEnableSnapping(element, revertToStart) {
         // snap to dropzone
         interact(element).draggable({
@@ -803,14 +855,21 @@ window.appMixin = app;
                 // feedback the possibility of a drop
                 dropzoneElement.classList.add('drop-entered');
                 draggableElement.classList.add('can-drop');
+
+                console.log('entered dropzone ' + event.target.id);
             },
             ondragleave: function (event) {
                 // remove the drop feedback style
                 event.target.classList.remove('drop-entered');
                 event.relatedTarget.classList.remove('can-drop');
+
+                console.log('left dropzone ' + event.target.id);
             },
             ondrop: function (event) {
                 event.interaction.dropped = true;
+
+                // reset z-index to the default value
+                event.relatedTarget.style.zIndex = '';
 
                 if (typeof onDropCallback === 'function') {
                     // call the callback with the data of the interaction set by the draggable in onstart.
@@ -823,8 +882,7 @@ window.appMixin = app;
                     draggable.ondrop(event);
                 }
 
-                // reset z-index to the default value
-                event.relatedTarget.style.zIndex = '';
+                console.log('dropzone drop');
             },
             ondropdeactivate: function (event) {
                 // remove active dropzone feedback
@@ -844,25 +902,6 @@ window.appMixin = app;
     }
 
     /**
-     * Merge an object. Set the missing options using the defaults in the given default options.
-     * @param options The options to merge.
-     * @param defaultOptions The default options.
-     * @returns {*} The merged object.
-     */
-    function mergeOptions(options, defaultOptions) {
-        if (options === undefined) {
-            options = defaultOptions.clone();
-        } else {
-            for (var option in defaultOptions) {
-                if (!(option in options)) {
-                    options[option] = defaultOptions[option];
-                }
-            }
-        }
-        return options;
-    }
-
-    /**
      * Makes an element a draggable.
      * @param element The element to make draggable.
      * @param options Options to configure the draggable.
@@ -876,7 +915,7 @@ window.appMixin = app;
      *
      */
     function makeDraggable(element, options) {
-        options = mergeOptions(options, {
+        options = mergeObject(options, {
             clone: false,
             data: null,
             revert: true,
@@ -918,6 +957,8 @@ window.appMixin = app;
                 }
 
                 options.onend(event);
+                console.log('draggable on end ');
+                console.dir(event);
             },
             onstart: function (event) {
                 // attach data to the interaction
@@ -929,16 +970,6 @@ window.appMixin = app;
                 // clone if set in options
                 if (options.clone) {
                     this.target = event.target.cloneNode(true);
-                    // copy style definitions recursively
-                    var applyStyle = function (source, target) {
-                        target.style.cssText = window.getComputedStyle(source, null).cssText;
-                        if (target.childElementCount > 0) {
-                            for (var i = 0; i < source.childElementCount; i++) {
-                                applyStyle(source.children[i], target.children[i]);
-                            }
-                        }
-                    };
-
                     applyStyle(event.target, this.target);
 
                     // set absolute position to pointer
@@ -955,11 +986,31 @@ window.appMixin = app;
                 this.target.classList.add('dragging');
 
                 options.onstart(event);
+                console.log('draggable on start');
+                console.dir(event.target);
+
+
+                var parent = event.target.offsetParent;
+                //
+                //document.body.appendChild(target);
+                //parent.shadowRoot = parent.createShadowRoot();
+                console.dir(parent);
             }
         });
 
         draggableEnableSnapping(element, options.revert);
     }
+
+
+    // copy style definitions recursively
+    function applyStyle(source, target) {
+        target.style.cssText = window.getComputedStyle(source, null).cssText;
+        if (target.childElementCount > 0) {
+            for (var i = 0; i < source.childElementCount; i++) {
+                applyStyle(source.children[i], target.children[i]);
+            }
+        }
+    };
 
     /**
      * reset the postion of the element.
@@ -988,7 +1039,7 @@ window.appMixin = app;
      */
     function makeResizable(element, options) {
 
-        options = mergeOptions(options, {
+        options = mergeObject(options, {
             onstart: function () {
             },
             onmove: function () {
