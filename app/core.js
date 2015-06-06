@@ -834,13 +834,27 @@ window.appMixin = app;
     /**
      * Makes an element a drop-zone for a draggable.
      * @param element The element to make a drop zone.
-     * @param acceptSelector The CSS selector a draggable must have in order to be accepted by this drop-zone.
-     * @param onDropCallback Called when a draggable has been accepted and dropped in this dropzone.
+     * @param options Options to configure the dropzone:
+     *      Available options:
+     *          accept: The CSS selector that is accepted by this dropzone.
+     *          ondrop: Function called when a draggable is dropped.
+     *          onenter: Function called when a draggable enters the dropzone so it can be dropped.
+     *          onleave: Function called when a draggable leaves the dropzone so it cannot be dropped anymore.
      */
-    function makeDropZone(element, acceptSelector, onDropCallback) {
+    function makeDropzone(element, options) {
+        options = mergeObject(options, {
+            accept: '',
+            ondrop: function () {
+            },
+            onenter: function () {
+            },
+            onleave: function () {
+            }
+        });
+
         interact(element).dropzone({
             // only accept elements matching this CSS selector
-            accept: acceptSelector,
+            accept: options.accept,
 
             // listen for drop related events:
             ondropactivate: function (event) {
@@ -856,12 +870,16 @@ window.appMixin = app;
                 dropzoneElement.classList.add('drop-entered');
                 draggableElement.classList.add('can-drop');
 
+                options.onenter();
+
                 console.log('entered dropzone ' + event.target.id);
             },
             ondragleave: function (event) {
                 // remove the drop feedback style
                 event.target.classList.remove('drop-entered');
                 event.relatedTarget.classList.remove('can-drop');
+
+                options.onleave();
 
                 console.log('left dropzone ' + event.target.id);
             },
@@ -871,14 +889,12 @@ window.appMixin = app;
                 // reset z-index to the default value
                 event.relatedTarget.style.zIndex = '';
 
-                if (typeof onDropCallback === 'function') {
-                    // call the callback with the data of the interaction set by the draggable in onstart.
-                    onDropCallback(event.interaction.data);
-                }
+                // call the callback with the data of the interaction set by the draggable in onstart.
+                options.ondrop(event.interaction.data);
 
                 // call ondrop of the draggable
                 var draggable = event.draggable;
-                if (draggable.ondrop) {
+                if (isFunction(draggable.ondrop)) {
                     draggable.ondrop(event);
                 }
 
@@ -1010,7 +1026,7 @@ window.appMixin = app;
                 applyStyle(source.children[i], target.children[i]);
             }
         }
-    };
+    }
 
     /**
      * reset the postion of the element.
@@ -1175,7 +1191,7 @@ window.appMixin = app;
 
     scope.touch = {
         makeDraggable: makeDraggable,
-        makeDropzone: makeDropZone,
+        makeDropzone: makeDropzone,
         makeResizable: makeResizable,
         onDoubletap: onDoubletap,
         resetDraggablePosition: resetPosition,

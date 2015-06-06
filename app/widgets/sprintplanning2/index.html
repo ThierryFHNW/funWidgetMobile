@@ -30,7 +30,7 @@
                     <awall-userstory-cardlist userstories="{{userstories}}"></awall-userstory-cardlist>
                 </template>
 
-                    <template if="{{!$.globals.isSmallScreenHeight}}">
+                <template if="{{!$.globals.isSmallScreenHeight}}">
                     <awall-sprintbacklog userstories="{{userstories}}" class="sprintBacklog"></awall-sprintbacklog>
                     <awall-temptasks class="tempTasks"></awall-temptasks>
                 </template>
@@ -122,16 +122,19 @@
             isDetailViewChanged: function () {
                 if (this.isDetailView) {
                     // activate dropzone to save temp task
-                    this.touch.makeDropzone(this.$.usView, '.taskcard', function (droppedTask) {
-                        if (droppedTask.userStory != undefined) {
-                            // is existing task
-                            console.error('Moving a task to another user-story is not possible (backend limitation).');
-                        } else {
-                            // is a temporary task
-                            droppedTask.userStory = this.selected;
-                            this.$.awall.persistTempTask(droppedTask);
-                        }
-                    }.bind(this));
+                    this.touch.makeDropzone(this.$.usView, {
+                        accept: '.taskcard',
+                        ondrop: function (droppedTask) {
+                            if (droppedTask.userStory != undefined) {
+                                // is existing task
+                                console.error('Moving a task to another user-story is not possible (backend limitation).');
+                            } else {
+                                // is a temporary task
+                                droppedTask.userStory = this.selected;
+                                this.$.awall.persistTempTask(droppedTask);
+                            }
+                        }.bind(this)
+                    });
                 }
             }
         }, window.appMixin));
@@ -241,7 +244,7 @@
         Polymer(Polymer.mixin({
             userstoriesChanged: function () {
 
-                var applyPriority = function(sourcePriority, newPriority, droppedUs, allUs) {
+                var applyPriority = function (sourcePriority, newPriority, droppedUs, allUs) {
 
                     function getSortedUsWithPriority(array) {
                         return array.filter(function (value) {
@@ -294,28 +297,37 @@
                 }.bind(this);
 
                 // enable dropzones
-                this.touch.makeDropzone(this.$.upperDropzone, '.userstorycard', function (droppedUs) {
-                    var sourcePriority = this.userstory.priority;
-                    var newPriority = sourcePriority;
-                    applyPriority(sourcePriority, newPriority, droppedUs, this.userstories);
-                }.bind(this));
+                this.touch.makeDropzone(this.$.upperDropzone, {
+                    accept: '.userstorycard',
+                    ondrop: function (droppedUs) {
+                        var sourcePriority = this.userstory.priority;
+                        var newPriority = sourcePriority;
+                        applyPriority(sourcePriority, newPriority, droppedUs, this.userstories);
+                    }.bind(this)
+                });
 
-                this.touch.makeDropzone(this.$.lowerDropzone, '.userstorycard', function (droppedUs) {
-                    var sourcePriority = this.userstory.priority;
-                    var newPriority = sourcePriority + 1;
-                    applyPriority(sourcePriority, newPriority, droppedUs, this.userstories);
-                }.bind(this));
+                this.touch.makeDropzone(this.$.lowerDropzone, {
+                    accept: '.userstorycard',
+                    ondrop: function (droppedUs) {
+                        var sourcePriority = this.userstory.priority;
+                        var newPriority = sourcePriority + 1;
+                        applyPriority(sourcePriority, newPriority, droppedUs, this.userstories);
+                    }.bind(this)
+                });
 
-                this.touch.makeDropzone(this.$.taskDropzone, '.taskcard', function (droppedTask) {
-                    if (droppedTask.userStory != undefined) {
-                        // is existing task
-                        console.error('Moving a task to another user-story is not possible (backend limitation).');
-                    } else {
-                        // is a temporary task
-                        droppedTask.userStory = this.userstory;
-                        this.$.awall.persistTempTask(droppedTask);
-                    }
-                }.bind(this));
+                this.touch.makeDropzone(this.$.taskDropzone, {
+                    accept: '.taskcard',
+                    ondrop: function (droppedTask) {
+                        if (droppedTask.userStory != undefined) {
+                            // is existing task
+                            console.error('Moving a task to another user-story is not possible (backend limitation).');
+                        } else {
+                            // is a temporary task
+                            droppedTask.userStory = this.userstory;
+                            this.$.awall.persistTempTask(droppedTask);
+                        }
+                    }.bind(this)
+                });
             }
         }, window.appMixin));
     </script>

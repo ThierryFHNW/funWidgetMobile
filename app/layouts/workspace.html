@@ -73,19 +73,19 @@
             <header>HEADER</header>
             <div id="body">
                 <div id="widgets">
-                    <div class="widgetDropzone hidden" id="widget1"></div>
-                    <div class="widgetDropzone hidden" id="widget2"></div>
-                    <div class="widgetDropzone hidden" id="widget3"></div>
-                    <div class="widgetDropzone hidden" id="widget4"></div>
-                    <div class="widgetDropzone hidden" id="widget5"></div>
-                    <div class="widgetDropzone hidden" id="widget6"></div>
-                    <div class="widgetDropzone hidden" id="widget7"></div>
-                    <div class="widgetDropzone hidden" id="widget8"></div>
-                    <div class="widgetDropzone hidden" id="widget9"></div>
-                    <div class="widgetDropzone hidden" id="widget10"></div>
+                    <div class="widgetDropzone hidden" id="widgetDropzone1"></div>
+                    <div class="widgetDropzone hidden" id="widgetDropzone2"></div>
+                    <div class="widgetDropzone hidden" id="widgetDropzone3"></div>
+                    <div class="widgetDropzone hidden" id="widgetDropzone4"></div>
+                    <div class="widgetDropzone hidden" id="widgetDropzone5"></div>
+                    <div class="widgetDropzone hidden" id="widgetDropzone6"></div>
+                    <div class="widgetDropzone hidden" id="widgetDropzone7"></div>
+                    <div class="widgetDropzone hidden" id="widgetDropzone8"></div>
+                    <div class="widgetDropzone hidden" id="widgetDropzone9"></div>
+                    <div class="widgetDropzone hidden" id="widgetDropzone10"></div>
                     <awall-menu id="menu"></awall-menu>
                 </div>
-                <div id="widgetmain"></div>
+                <div id="widgetDropzonemain"></div>
             </div>
 
             <template if="{{!$.globals.isSmallScreenHeight}}">
@@ -166,7 +166,7 @@
             addWidget: function (widget, widgetNode) {
                 this.widgets.push(widget);
 
-                var targetId = 'widget' + widget.position;
+                var targetId = 'widgetDropzone' + widget.position;
                 var targetView = this.$[targetId];
 
                 if (targetView === null) {
@@ -189,7 +189,9 @@
                     targetView.classList.remove('hidden');
 
                     // activate dropzone
-                    this.touch.makeDropzone(targetView, '.widget');
+                    this.touch.makeDropzone(targetView, {
+                        accept: '.widget'
+                    });
                 }
 
                 this.setView(targetId, widgetNode);
