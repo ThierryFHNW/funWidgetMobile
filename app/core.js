@@ -78,7 +78,7 @@ window.appMixin = app;
      */
     scope.importUtils = function (thisRef) {
         mergeObject(thisRef, scope.util);
-    }
+    };
 
 })(app);
 

@@ -101,133 +101,211 @@
         <app-core id="globals"></app-core>
     </template>
     <script>
-        Polymer(Polymer.mixin({
-            /**
-             * List of added widgets.
-             */
-            widgets: [],
-            /**
-             * Sorted list of info-view widget (without main widget).
-             * Sorted by position.
-             */
-            sortedInfoViewWidgets: [],
-            /**
-             * Map of widget.id -> view (HTML element)
-             */
-            widgetIdToView: {},
-            /**
-             * Minimal widget size in pixel.
-             */
-            minWidgetWidthInPx: 250,
-            /**
-             * Called when widgetsToDispaly changes.
-             * Recalculates which widgets should be shown.
-             */
-            widgetsToDisplayChanged: function () {
-                var totalWidgetWidth = 0;
-                this.sortedInfoViewWidgets.forEach(function (widget) {
-                    if (totalWidgetWidth < this.widgetsToDisplay) {
-                        var widgetHasRoom = (totalWidgetWidth + widget.width) <= this.widgetsToDisplay;
-                        if (widgetHasRoom) {
-                            this.showWidget(widget);
-                            totalWidgetWidth += widget.width;
-                        } else {
-                            this.hideWidget(widget);
-                        }
-                    } else {
-                        this.hideWidget(widget);
-                    }
-                }, this);
-            },
-            domReady: function () {
-                this.sortedInfoViewWidgets = this.widgets.filter(function (widget) {
-                    return widget.position !== 'main';
-                }).sort(function (a, b) {
-                    return a.position >= b.position ? 1 : -1;
-                });
+        (function () {
 
-                var onResize = function () {
+            /**
+             * Represents a widget dropzone.
+             */
+            function WidgetDropzone(position, dropzoneElement) {
+                this.position = position;
+                this.dropzoneElement = dropzoneElement;
+            }
+
+            /**
+             * Check whether this dropzone has a widget;
+             *
+             * @returns {boolean} true if it has a widget, false otherwise.
+             */
+            WidgetDropzone.prototype.hasWidget = function () {
+                return this.widget !== undefined && this.widget !== undefined;
+            };
+
+            /**
+             * Sets the widget of the dropzone.
+             *
+             * @param widget The widget object.
+             * @param view The document-fragment with the widget's view.
+             */
+            WidgetDropzone.prototype.setWidget = function (widget, view) {
+                if (this.hasWidget()) {
+                    console.error('This widget dropzone already has a widget.');
+                    return;
+                }
+
+                if (!view) {
+                    console.error('Given view is null or undef.');
+                    return;
+                }
+
+                var target = this.dropzoneElement;
+
+                // create container with shadow root and add the view
+                var container = document.createElement('div');
+                var root = container.createShadowRoot();
+                container.style.height = '100%';
+                root.appendChild(document.importNode(view, true));
+
+                target.appendChild(container);
+
+                if (root.children.length === 0) {
+                    console.error('Failed to add widget ' + widget.id + ' to ' + target.getAttribute('id'));
+                    return;
+                }
+
+                target.classList.remove('hidden');
+
+                this.widget = widget;
+                this.view = view;
+            };
+
+            /**
+             * Removes the widget's view from the dropzone.
+             */
+            WidgetDropzone.prototype.removeWidget = function () {
+                if (!this.hasWidget()) {
+                    console.error('This widget dropzone has no widget to remove.');
+                    return;
+                }
+
+                var target = this.dropzoneElement;
+
+                var container = target.children[0];
+                if (!container) {
+                    console.error('Container-element not found for dropzone ' + target.getAttribute('id'));
+                    return;
+                }
+
+                target.removeChild(container);
+
+                target.classList.add('hidden');
+
+                this.widget = undefined;
+                this.view = undefined;
+            };
+
+
+            Polymer(Polymer.mixin({
+                /**
+                 * List of added widgets.
+                 */
+                widgets: [],
+                /**
+                 * List of dropzones.
+                 */
+                dropzones: [],
+                /**
+                 * Sorted list of info-view widget (without main widget).
+                 * Sorted by position.
+                 */
+                sortedInfoViewWidgets: [],
+                /**
+                 * Map of widget.id -> view (HTML element)
+                 */
+                widgetIdToView: {},
+                /**
+                 * Minimal widget size in pixel.
+                 */
+                minWidgetWidthInPx: 300,
+                /**
+                 * Number of widgets that can be comfortably displayed.
+                 */
+                widgetsToDisplay: 0,
+                /**
+                 * Maximum number of widgets that can be shown.
+                 * Should match the number of dropzones in the DOM-tree.
+                 */
+                maxWidgetsToDisplay: 10,
+                /**
+                 * Called when widgetsToDispaly changes.
+                 * Recalculates which widgets should be shown.
+                 */
+                widgetsToDisplayChanged: function (oldVal, newVal) {
+                    var a, b;
+                    var isRemove = oldVal > newVal;
+                    if (isRemove) {
+                        a = newVal;
+                        b = oldVal;
+                    } else {
+                        a = oldVal;
+                        b = newVal;
+                    }
+
+                    for (var i = a; i < b; i++) {
+                        var dropzone = this.dropzones[i];
+                        if (isRemove) {
+                            dropzone.removeWidget();
+                        } else {
+                            if (!dropzone.hasWidget()) {
+                                var widget = this.sortedInfoViewWidgets[i];
+                                var view = this.widgetIdToView[widget.id];
+                                dropzone.setWidget(widget, view);
+                            }
+                        }
+                    }
+
+                    // adjust the width of the widget
+//                        if (widget.width > 1) {
+//                            // widget may be max. 50% of width
+//                            var widgetWidth = widget.width > 5 ? 5 : widget.width;
+//                            targetView.style.flexBasis = (10 * widgetWidth) + '%';
+//                        }
+
+                },
+                /**
+                 * Calculates the number of widgets to display.
+                 * Sets widgetsToDisplay variable if it has changed.
+                 */
+                evaluateWidgetsToDisplay: function () {
                     var availableWidgetWidth = this.$.widgets.clientWidth - this.$.menu.clientWidth;
                     var newWidgetsToDisplay = Math.floor(availableWidgetWidth / this.minWidgetWidthInPx);
                     newWidgetsToDisplay = Math.max(newWidgetsToDisplay, 1);
                     if (newWidgetsToDisplay !== this.widgetsToDisplay) {
                         this.widgetsToDisplay = newWidgetsToDisplay;
                     }
-                };
+                },
+                domReady: function () {
+                    for (var i = 1; i <= this.maxWidgetsToDisplay; i++) {
+                        var dropzoneElement = this.$['widgetDropzone' + i];
+                        this.dropzones.push(new WidgetDropzone(i, dropzoneElement));
+                        // activate dropzone
+                        this.touch.makeDropzone(dropzoneElement, {
+                            accept: '.widget'
+                        });
+                    }
 
-                window.addEventListener('resize', onResize.bind(this));
-                // call to set initial arrangement
-                onResize.call(this);
-            },
-            created: function () {
-                this.widgets = [];
-                this.widgetIdToView = {};
-            },
-            addWidget: function (widget, widgetNode) {
-                this.widgets.push(widget);
-
-                var targetId = 'widgetDropzone' + widget.position;
-                var targetView = this.$[targetId];
-
-                if (targetView === null) {
-                    console.error('No element with the ID ' + targetId + ' exists, cannot add widget ' + widget.id);
-                    return;
-                }
-
-                this.widgetIdToView[widget.id] = targetView;
-
-                // adjust the width of the widget
-                if (widget.width > 1) {
-                    // widget may be max. 50% of width
-                    var widgetWidth = widget.width > 5 ? 5 : widget.width;
-                    targetView.style.flexBasis = (10 * widgetWidth) + '%';
-                }
-
-                // enable dropzone for all widgets except main widget
-                if (widget.position !== 'main') {
-                    // show the dropzone if a widget is present
-                    targetView.classList.remove('hidden');
-
-                    // activate dropzone
-                    this.touch.makeDropzone(targetView, {
-                        accept: '.widget'
+                    this.sortedInfoViewWidgets = this.widgets.filter(function (widget) {
+                        return widget.position !== 'main';
+                    }).sort(function (a, b) {
+                        return a.position >= b.position ? 1 : -1;
                     });
-                }
 
-                this.setView(targetId, widgetNode);
 
-                if (widget.hidden) {
-                    this.hideWidget(widget);
+                    this.evaluateWidgetsToDisplay();
+                    // add resize listener (called every time the browser window is resized)
+                    window.addEventListener('resize', this.evaluateWidgetsToDisplay.bind(this));
+                },
+                created: function () {
+                    this.widgets = [];
+                    this.widgetIdToView = {};
+                    this.dropzones = [];
+                },
+                addWidget: function (widget, widgetNode) {
+                    this.widgets.push(widget);
+                    this.widgetIdToView[widget.id] = widgetNode;
+
+                    if (widget.position === 'main') {
+                        var targetId = 'widgetDropzone' + widget.position;
+                        var targetView = this.$[targetId];
+
+                        if (targetView === null) {
+                            console.error('No element with the ID ' + targetId + ' exists, cannot add widget ' + widget.id);
+                            return;
+                        }
+
+                        this.setView(targetId, widgetNode);
+                    }
                 }
-            },
-            hideWidget: function (widget) {
-                var widgetView = this.widgetIdToView[widget.id];
-                if (widgetView === undefined) {
-                    console.error('Cannot hide widget with id: ' + widget.id + ', not registered.');
-                    return;
-                }
-                widget.hidden = true;
-                if (!widgetView.classList.contains('hidden')) {
-                    widgetView.classList.add('hidden');
-                }
-            },
-            showWidget: function (widget) {
-                var widgetView = this.widgetIdToView[widget.id];
-                if (widgetView === undefined) {
-                    console.error('Cannot show widget with id: ' + widget.id + ', not registered.');
-                    return;
-                }
-                widget.hidden = false;
-                widgetView.classList.remove('hidden');
-            },
-            isWidgetShown: function (widget) {
-                var widgetView = this.widgetIdToView[widget.id];
-                if (widgetView === undefined) {
-                    console.error('Widget with id: ' + widget.id + ' is not registered.');
-                    return;
-                }
-                return !widgetView.classList.contains('hidden');
-            }
-        }, window.appMixin));
+            }, window.appMixin));
+        })();
     </script>
 </polymer-element>

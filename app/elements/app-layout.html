@@ -4,16 +4,23 @@
             addWidget: function(widget, widgetNode) {
                 this.setView('widget' + widget.position, widgetNode);
             },
-            setView: function(targetId, node) {
+            /**
+             * Sets the given view as the content of the target ID.
+             * Only added if the given target does not have content yet.
+             *
+             * @param targetId The ID of the target element.
+             * @param view The content to set as child element of the target.
+             */
+            setView: function(targetId, view) {
                 var target = this.shadowRoot.getElementById(targetId);
                 if (target) {
-                    if (node) {
+                    if (view) {
                         if (target.shadowRoot) {
                             console.error('The target ' + targetId + ' already has a widget!');
                             return;
                         }
                         var root = target.createShadowRoot();
-                        root.appendChild(node);
+                        root.appendChild(view);
                     }
                 } else {
                     console.error('Element not found: ' + targetId);
