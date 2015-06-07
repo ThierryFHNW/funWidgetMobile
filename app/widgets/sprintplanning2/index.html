@@ -180,7 +180,6 @@
             </template>
             </tbody>
         </table>
-        </div>
     </template>
     <script>
         Polymer({
@@ -301,8 +300,7 @@
                     accept: '.userstorycard',
                     ondrop: function (droppedUs) {
                         var sourcePriority = this.userstory.priority;
-                        var newPriority = sourcePriority;
-                        applyPriority(sourcePriority, newPriority, droppedUs, this.userstories);
+                        applyPriority(sourcePriority, sourcePriority, droppedUs, this.userstories);
                     }.bind(this)
                 });
 
