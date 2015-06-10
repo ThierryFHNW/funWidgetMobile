@@ -1,0 +1,215 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{00}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{}, \showDOI{}, and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showDOI}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showDOI #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showDOI      \undefined \def \showDOI       #1{{\tt DOI:}\penalty0{#1}\ }
+  \fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       #1{#1}          \fi
+
+\bibitem{interactJs}
+{Taye Adeyemi}. 2015.
+\newblock interact.js.
+\newblock \url{http://interactjs.io}.   (2015).
+\newblock
+\newblock
+\shownote{Accessed: 2015-05-30.}
+
+
+\bibitem{polymer}
+{Polymer Authors}. 2015.
+\newblock Polymer.
+\newblock \url{https://www.polymer-project.org}.   (2015).
+\newblock
+\newblock
+\shownote{Accessed: 2015-05-30.}
+
+
+\bibitem{Badam:2014:PCF:2669485.2669518}
+{Sriram~Karthik Badam} {and} {Niklas Elmqvist}. 2014.
+\newblock \showarticletitle{PolyChrome: A Cross-Device Framework for
+  Collaborative Web Visualization}. In {\em Proceedings of the Ninth ACM
+  International Conference on Interactive Tabletops and Surfaces} {\em (ITS
+  '14)}. ACM, New York, NY, USA, 109--118.
+\newblock
+\showISBNx{978-1-4503-2587-5}
+\showDOI{%
+\url{http://dx.doi.org/10.1145/2669485.2669518}}
+
+
+\bibitem{Cockburn:2001}
+{Alistair Cockburn}. 2001.
+\newblock {\em Agile Software Development}.
+\newblock Addison-Wesley Professional.
+\newblock
+\showISBNx{9780201699692}
+
+
+\bibitem{webcomponents.org}
+{WebComponents.org contributors}. 2015.
+\newblock WebComponents.org -- a place to discuss and evolve web component
+  best-practices.
+\newblock \url{http://webcomponents.org}.   (2015).
+\newblock
+\newblock
+\shownote{Accessed: 2015-05-27.}
+
+
+\bibitem{deMelo:6005497}
+{R. de Melo~Oliveira} {and} {A. Goldman}. 2011.
+\newblock \showarticletitle{How to Build an Informative Workspace? An
+  Experience Using Data Collection and Feedback}. In {\em Agile Conference
+  (AGILE), 2011}. 143--146.
+\newblock
+\showDOI{%
+\url{http://dx.doi.org/10.1109/AGILE.2011.33}}
+
+
+\bibitem{deMelo:6480421}
+{Renan de Melo~Oliveira}, {Alfredo Goldman}, {and} {Claudia~O. Melo}. 2013.
+\newblock \showarticletitle{Designing and Managing Agile Informative
+  Workspaces: Discovering and Exploring Patterns}. In {\em System Sciences
+  (HICSS), 2013 46th Hawaii International Conference on}. 4790--4799.
+\newblock
+\showISSN{1530-1605}
+\showDOI{%
+\url{http://dx.doi.org/10.1109/HICSS.2013.171}}
+
+
+\bibitem{websocketRFC}
+{I. Fette} {and} {A. Melnikov}. 2011.
+\newblock The WebSocket Protocol.
+\newblock \url{https://tools.ietf.org/html/rfc6455}.   (December 2011).
+\newblock
+\newblock
+\shownote{Accessed: 2015-05-27.}
+
+
+\bibitem{Ghanam:4599452}
+{Y. Ghanam}, {Xin Wang}, {and} {F. Maurer}. 2008.
+\newblock \showarticletitle{Utilizing Digital Tabletops in Collocated Agile
+  Planning Meetings}. In {\em Agile, 2008. AGILE '08. Conference}. 51--62.
+\newblock
+\showDOI{%
+\url{http://dx.doi.org/10.1109/Agile.2008.13}}
+
+
+\bibitem{udcw:31721}
+{Stevenson Gossage}. 2014.
+\newblock Understanding the Digital Card Wall for Agile Software Development.
+\newblock   (May 2014).
+\newblock
+\newblock
+\shownote{Master thesis.}
+
+
+\bibitem{Haas:2014:TAV:2669485.2669538}
+{Benedikt Haas} {and} {Florian Echtler}. 2014.
+\newblock \showarticletitle{Task Assignment and Visualization on Tabletops and
+  Smartphones}. In {\em Proceedings of the Ninth ACM International Conference
+  on Interactive Tabletops and Surfaces} {\em (ITS '14)}. ACM, New York, NY,
+  USA, 311--316.
+\newblock
+\showISBNx{978-1-4503-2587-5}
+\showDOI{%
+\url{http://dx.doi.org/10.1145/2669485.2669538}}
+
+
+\bibitem{Kropp:2015}
+{Martin Kropp} {and} {Andreas Meier}. 2015.
+\newblock Swiss Agile Study 2014.
+\newblock
+  \url{http://www.swissagilestudy.ch/files/2015/05/SwissAgileStudy2014.pdf}.
+  (May 2015).
+\newblock
+\newblock
+\shownote{Accessed: 2015-05-29.}
+
+
+\bibitem{Mateescu:2015}
+{Roger Burkhard Carmen~Zahn Magdalena~Mateescu, Martin~Kropp}. 2015.
+\newblock aWall – Designing Socio-Cognitive Tools for agile team
+  collaboration with large Multi-Touch Wall Systems.  (October 2015).
+\newblock
+
+
+\bibitem{Pandey:2013:RDT:2525194.2525271}
+{Sumit Pandey}. 2013.
+\newblock \showarticletitle{Responsive Design for Transaction Banking - a
+  Responsible Approach}. In {\em Proceedings of the 11th Asia Pacific
+  Conference on Computer Human Interaction} {\em (APCHI '13)}. ACM, New York,
+  NY, USA, 291--295.
+\newblock
+\showISBNx{978-1-4503-2253-9}
+\showDOI{%
+\url{http://dx.doi.org/10.1145/2525194.2525271}}
+
+
+\bibitem{mediaqueriesW3C}
+{Florian Rivoal}, {Håkon Wium~Lie}, {Tantek Çelik}, {Daniel Glazman}, {and}
+  {Anne van Kesteren}. 2012.
+\newblock Media Queries -- W3C Recommendation.
+\newblock \url{http://www.w3.org/TR/css3-mediaqueries}.   (19 June 2012).
+\newblock
+\newblock
+\shownote{Accessed: 2015-05-27.}
+
+
+\bibitem{Rubart:2014:CMS:2669485.2669551}
+{Jessica Rubart}. 2014.
+\newblock \showarticletitle{A Cooperative Multitouch Scrum Task Board for
+  Synchronous Face-to-Face Collaboration}. In {\em Proceedings of the Ninth ACM
+  International Conference on Interactive Tabletops and Surfaces} {\em (ITS
+  '14)}. ACM, New York, NY, USA, 387--392.
+\newblock
+\showISBNx{978-1-4503-2587-5}
+\showDOI{%
+\url{http://dx.doi.org/10.1145/2669485.2669551}}
+
+
+\bibitem{Stellman:2014}
+{Andrew Stellman} {and} {Jennnifer Greene}. 2014.
+\newblock {\em Learning Agile}.
+\newblock O'Reilly Media.
+\newblock
+\showISBNx{978-1-4493-3192-4}
+
+
+\bibitem{Sukale:2014:PWD:2638728.2638768}
+{Ryan Sukale}, {Olesia Koval}, {and} {Stephen Voida}. 2014.
+\newblock \showarticletitle{The Proxemic Web: Designing for Proxemic
+  Interactions with Responsive Web Design}. In {\em Proceedings of the 2014 ACM
+  International Joint Conference on Pervasive and Ubiquitous Computing: Adjunct
+  Publication} {\em (UbiComp '14 Adjunct)}. ACM, New York, NY, USA, 171--174.
+\newblock
+\showISBNx{978-1-4503-3047-3}
+\showDOI{%
+\url{http://dx.doi.org/10.1145/2638728.2638768}}
+
+
+\end{thebibliography}
