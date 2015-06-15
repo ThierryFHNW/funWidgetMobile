@@ -930,6 +930,7 @@ window.appMixin = app;
      * @param options Options to configure the draggable.
      *      Available options:
      *          clone: boolean  // clones the draggable element and appends it to document.body.
+     *          absolute: boolean // the draggable is handled with absolute units to the viewport independent of the dropzone.
      *          data: object // the data to attach to the interaction. Will be available to the dropzone in ondrop.
      *          revert: boolean // whether to revert back to the start position when not dropped in dropzone.
      *          onstart: function called on start of dragging.
@@ -1021,7 +1022,16 @@ window.appMixin = app;
                     this.target = event.target;
                 }
 
-                if (options.clone || options.absolute) {
+
+                if (options.clone) {
+                    // set absolute position to pointer
+                    var offsets = event.interaction.snapOffsets[0];
+                    this.target.style.position = 'absolute';
+                    this.target.style.left = (event.clientX - offsets.x) + 'px';
+                    this.target.style.top = (event.clientY - offsets.y) + 'px';
+                }
+
+                if (options.absolute) {
                     var compStyle = getComputedStyle(this.target, null);
                     this.target.style.width = compStyle.width;
                     this.target.style.height = compStyle.height;
