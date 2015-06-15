@@ -124,7 +124,8 @@
                     // activate dropzone to save temp task
                     this.touch.makeDropzone(this.$.usView, {
                         accept: '.taskcard',
-                        ondrop: function (droppedTask) {
+                        ondrop: function (e) {
+                            var droppedTask = e.draggableData;
                             if (droppedTask.userStory != undefined) {
                                 // is existing task
                                 console.error('Moving a task to another user-story is not possible (backend limitation).');
@@ -298,24 +299,25 @@
                 // enable dropzones
                 this.touch.makeDropzone(this.$.upperDropzone, {
                     accept: '.userstorycard',
-                    ondrop: function (droppedUs) {
+                    ondrop: function (e) {
                         var sourcePriority = this.userstory.priority;
-                        applyPriority(sourcePriority, sourcePriority, droppedUs, this.userstories);
+                        applyPriority(sourcePriority, sourcePriority, e.draggableData, this.userstories);
                     }.bind(this)
                 });
 
                 this.touch.makeDropzone(this.$.lowerDropzone, {
                     accept: '.userstorycard',
-                    ondrop: function (droppedUs) {
+                    ondrop: function (e) {
                         var sourcePriority = this.userstory.priority;
                         var newPriority = sourcePriority + 1;
-                        applyPriority(sourcePriority, newPriority, droppedUs, this.userstories);
+                        applyPriority(sourcePriority, newPriority, e.draggableData, this.userstories);
                     }.bind(this)
                 });
 
                 this.touch.makeDropzone(this.$.taskDropzone, {
                     accept: '.taskcard',
-                    ondrop: function (droppedTask) {
+                    ondrop: function (e) {
+                        var droppedTask = e.draggableData;
                         if (droppedTask.userStory != undefined) {
                             // is existing task
                             console.error('Moving a task to another user-story is not possible (backend limitation).');

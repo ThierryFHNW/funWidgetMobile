@@ -82,8 +82,8 @@
 
                 this.touch.makeDropzone(this.$.container, {
                     accept: '.avatar',
-                    ondrop: function (data) {
-                        this.task.assignee = data;
+                    ondrop: function (e) {
+                        this.task.assignee = e.draggableData;
                         console.log('saving task');
                         console.dir(this.$.rest);
                         this.$.rest.save(this.task);
