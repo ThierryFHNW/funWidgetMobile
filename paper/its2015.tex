@@ -98,16 +98,12 @@
 \newacronym{spa}{SPA}{single-page application}
 \newacronym{dom}{DOM}{Document Object Mode}
 \newacronym{rwd}{RWD}{responsive web design}
-\newacronym{sp2}{SP2}{second sprint planning}
-
+\newacronym{sp1}{SP1}{sprint planning 1}
+\newacronym{sp2}{SP2}{sprint planning 2}
 
 
 \begin{abstract}
-We present Awall, a responsive web application framework that supports collaborative teamwork using tablets and a large multi-touch wall system. 
-The application was initially developed for large multi-touch walls. 
-Further development revealed the need to interact with the system using a tablet. 
-This presents unique challenges in respect to the UI and the flow of information. 
-We describe Awall's architecture and implementation followed by the implemented application for the second sprint planning meeting in the agile software development process to showcase the responsive and collaborative nature of the application.
+Agile software development is a highly collaborative and communication intensive method in modern software development.  One of its characteristic is the usage of large pin boards with cards where the team does the whole project planning. In this paper we present \textit{aWall}, a responsive web application framework that supports the collaborative teamwork using large multi-touch wall systems and tablets for interacting with the system as a team and as an individual. Combining these two interaction methods present unique challenges with respect to the UI and the ﬂow of information. We describe \textit{aWall}’s Web UI architecture and implementation for a concrete case study to showcase the collaborative nature of the application with special focus on its responsive design approach, interaction and information dissemination in the multi-device environment.
 \end{abstract}
 
 \category{H.5.2.}{Information Interfaces and Presentation (e.g. HCI)}{User Interfaces -- \textit{Interaction styles}}
@@ -122,29 +118,26 @@ We describe Awall's architecture and implementation followed by the implemented 
 Agile promises that a project is finished on time, delivers high quality software, well constructed and maintainable code and that agile teams make the users happy \cite{Stellman:2014}.
 The core of agile is a set of practices and methodologies around self-organizing teams relying on face-to-face communication \cite{Cockburn:2001}.
 According to recent study in Switzerland, 70\% of all IT companies practice agile software development and 83\% of all IT professionals \cite{Kropp:2015}.
-Agile software development projects are split into short iterations usually lasting between 2-4 weeks.
-These iterations are called sprints.
+Agile software development projects are split into short iterations usually lasting between 2-4 weeks. In Scrum these iterations are called sprints.
 % What is SP2?
-The work that needs to be done is described in user stories, a short description of a feature in everyday language.
-User stories are kept in the product backlog and are owned by the product owner.
-At the beginning of a sprint, a set of user stories is selected for the iteration.
-In a meeting called \gls{sp2}, the team then splits these user stories into smaller technical tasks that should not take longer than one workday to complete.
-The traditional way to this is to write paper-notes and attach them to a wall.
-The setup on the wall is called the taskboard and shows the progress of the team during the sprint.
+The user requirements for the software system are described in \textit{user stories}, a brief description of a feature in everyday language.
+All \textit{user stories} are stored in a \textit{product backlog} and are maintained by a \textit{product owner}, who represents the customer to the development team and who is in charge of all requirements.
+Each sprint starts with a \textit{sprint planning meeting}, which is divided in two sub meetings. In the \gls{sp1} meeting, the team and the product owner select those user stories, which will be implemented in the next iteration.
+In the \gls{sp2} meeting, the team then splits the selected user stories into smaller technical tasks, which describe what the developer has to do to implement the user story. These tasks should not take longer than one workday to complete.
+
+The traditional and most often used way to this, is to write the user stories and tasks on cards and attach them on a large pin or magnetic board.
+The setup on the board is called a \textit{taskboard}. This board is typically divided into three columns (ToDO, in progrees, done) which indicate the progress of the individual tasks. This allows the team to easily show the state and progress of the current sprint. While these physical card wall offers many advantages with respect of ease of use and flexibility, it also has major disadvantages compared to digital solutions. However studies that current desktop based digital solutions can hardly fulfill the requirements concerning agile collaboration \cite{udcw:31721} and \cite{Mateescu:2015} .
 
 % paper to digital
-Replacing this paper-based solution with a digital, multi-touch wall requires the application to behave very similar to the paper-based wall. 
-With the same possibilities and interactions.
+Large digital multi-touch wall systems have the potential to be able to replace the physical boards and offering even more possibilities, amongst are also support for distributed team collaboration. However as \cite{udcw:31721} and \cite{Mateescu:2015} shows, they must provide the natural interaction and ease of use as physical boards. 
 % - tablets for collaborative work
-The agile software development process has different meetings. 
-For some the multi-touch wall alone is enough, for others more input sources are required. 
-For that purpose, we think that tablet computers are a good fit because they are smaller and lighter than a laptop and have a multi-touch display. 
-In the collaborative meeting for the \gls{sp2}, where everyone helps in creating tasks for the next iteration, tablets can be used to create the tasks in an interconnected web application.
+In \cite{Mateescu:2015} we present a concept for a large multi-touch wall based agile collaboration platform. The agile software development process has comprises different kind of meetings, which can all be executed at the wall. For some of the meetings a direct interaction with the wall, respectively with the artifacts represented at the wall, seem less appropriate. Other, smaller, input devices like individual developers tablets or even smartphones might be more appropriate. These devices allow the multiple people directly and independently interact with the artifacts on the wall and enter new data or modify existing data during the meeting more comfortable via the tablet device; still everybody immediately seeing the changes made. 
+In the collaborative \gls{sp2} meeting, where everyone helps in creating tasks for the next iteration, tablets can be used to create the tasks in an interconnected web application.
 
 % - responsive web design
 The responsive web design (RWD) approach offers a solution to create one application that provides an optimal viewing experience across a wide variety of different devices with various display-resolutions. 
 % - mobile-first, we: wall -> tablet "wall-first"
-A term often heard in the context of RWD is mobile-fist. 
+A term often heard in the context of RWD is mobile-first. 
 It is an approach to give the mobile site a higher priority and design it with the constraints and capabilities of small-screen devices in mind. 
 Since we already developed the UI for the large multi-touch wall, our challenge was to find a suitable design for the tablet without sacrificing functionality.
 
