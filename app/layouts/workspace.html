@@ -109,78 +109,187 @@
             function WidgetDropzone(position, dropzoneElement) {
                 this.position = position;
                 this.dropzoneElement = dropzoneElement;
+                this.activeWidget = null;
+
+                var createContainer = function (id) {
+                    var container = document.createElement('div');
+                    container.setAttribute('id', id);
+                    this.dropzoneElement.appendChild(container);
+                    return container;
+                }.bind(this);
+
+                this.floatingContainer = createContainer('floatingContainer' + this.position);
+                this.activeContainer = createContainer('activeContainer' + this.position);
+                this.activeContainer.style.height = '100%';
             }
 
-            /**
-             * Check whether this dropzone has a widget;
-             *
-             * @returns {boolean} true if it has a widget, false otherwise.
-             */
-            WidgetDropzone.prototype.hasWidget = function () {
-                return this.widget !== undefined && this.widget !== undefined;
+            WidgetDropzone.prototype.hide = function () {
+                this.dropzoneElement.classList.add('hidden');
             };
 
-            /**
-             * Sets the widget of the dropzone.
-             *
-             * @param widget The widget object.
-             * @param view The document-fragment with the widget's view.
-             */
-            WidgetDropzone.prototype.setWidget = function (widget, view) {
-                if (this.hasWidget()) {
-                    console.error('This widget dropzone already has a widget.');
-                    return;
-                }
-
-                if (!view) {
-                    console.error('Given view is null or undef.');
-                    return;
-                }
-
-                var target = this.dropzoneElement;
-
-                // create container with shadow root and add the view
-                var container = document.createElement('div');
-                var root = container.createShadowRoot();
-                container.style.height = '100%';
-                root.appendChild(document.importNode(view, true));
-
-                target.appendChild(container);
-
-                if (root.children.length === 0) {
-                    console.error('Failed to add widget ' + widget.id + ' to ' + target.getAttribute('id'));
-                    return;
-                }
-
-                target.classList.remove('hidden');
-
-                this.widget = widget;
-                this.view = view;
+            WidgetDropzone.prototype.show = function () {
+                this.dropzoneElement.classList.remove('hidden');
             };
 
-            /**
-             * Removes the widget's view from the dropzone.
-             */
-            WidgetDropzone.prototype.removeWidget = function () {
-                if (!this.hasWidget()) {
-                    console.error('This widget dropzone has no widget to remove.');
-                    return;
+            WidgetDropzone.prototype.addActive = function (widget) {
+                var widgetContainerId = 'widgetContainer_' + widget.id;
+
+                if (widget.view.id != widgetContainerId) {
+                    // create container with shadow root and add the view
+                    var container = document.createElement('div');
+                    container.setAttribute('id', widgetContainerId);
+                    var root = container.createShadowRoot();
+                    container.style.height = '100%';
+                    var widgetView = document.importNode(widget.view, true);
+                    root.appendChild(widgetView);
+                    widget.view = container;
+
+                    // set widget as attribute to the draggable with id='widget'
+                    var shadowRoot = root.children[0].shadowRoot;
+                    var widgetElement = shadowRoot.getElementById('widget');
+                    if (!widgetElement) {
+                        // awall-widget is used in another enclosing element.
+                        widgetElement = shadowRoot.querySelectorAll('awall-widget')[0].shadowRoot.getElementById('widget');
+                    }
+                    if (!widgetElement) {
+                        console.error('Widget element not found');
+                    }
+                    widgetElement.widget = widget;
                 }
 
-                var target = this.dropzoneElement;
+                this.activeContainer.appendChild(widget.view);
 
-                var container = target.children[0];
-                if (!container) {
-                    console.error('Container-element not found for dropzone ' + target.getAttribute('id'));
-                    return;
+                this.activeWidget = widget;
+            };
+
+            WidgetDropzone.prototype.hasActive = function () {
+                return this.activeContainer.children.length > 0;
+            };
+
+            WidgetDropzone.prototype.removeActive = function () {
+                this.activeContainer.removeChild(this.activeContainer.children[0]);
+                var returnValue = this.activeWidget;
+                this.activeWidget = null;
+                return returnValue;
+            };
+
+
+            WidgetDropzone.prototype.removeFloating = function (widget) {
+                for (var i = 0; i < this.floatingContainer.children.length; i++) {
+                    var child = this.floatingContainer.children[i];
+                    if (child.getAttribute('id') == 'widgetContainer_' + widget.id) {
+                        this.floatingContainer.removeChild(child);
+                    }
+                }
+            };
+
+            WidgetDropzone.prototype.activeToFloat = function () {
+                this.activeWidget = null;
+                var child = this.activeContainer.children[0];
+                var view = this.activeContainer.removeChild(child);
+                this.floatingContainer.appendChild(view);
+            };
+
+
+            function DropzoneManager(dropzones, widgets) {
+                this.dropzones = dropzones || [];
+                this.widgets = widgets || [];
+                this.widgetsToDisplay = 0;
+            }
+
+            DropzoneManager.prototype.setWidgetsToDisplay = function (widgetsToDisplay) {
+                var oldVal = this.widgetsToDisplay;
+                var newVal = widgetsToDisplay;
+                this.widgetsToDisplay = widgetsToDisplay;
+
+                var a, b;
+                var isRemove = oldVal > newVal;
+                if (isRemove) {
+                    a = newVal;
+                    b = oldVal;
+                } else {
+                    a = oldVal;
+                    b = newVal;
                 }
 
-                target.removeChild(container);
+                for (var i = a; i < b; i++) {
+                    var dropzone = this.dropzones[i];
+                    if (isRemove) {
+                        dropzone.removeActive();
+                        dropzone.hide();
+                    } else {
+                        var widget = this.widgets[i];
+                        dropzone.addActive(widget);
+                        dropzone.show();
+                    }
+                }
 
-                target.classList.add('hidden');
+                // adjust the width of the widget
+//                        if (widget.width > 1) {
+//                            // widget may be max. 50% of width
+//                            var widgetWidth = widget.width > 5 ? 5 : widget.width;
+//                            targetView.style.flexBasis = (10 * widgetWidth) + '%';
+//                        }
+            };
 
-                this.widget = undefined;
-                this.view = undefined;
+            DropzoneManager.prototype.undock = function (dropzonePosition) {
+                console.log('undock at position ' + dropzonePosition);
+                var dropzone = this.getDropzone(dropzonePosition);
+                dropzone.activeToFloat();
+
+                for (var pos = dropzonePosition; pos < this.dropzones.length; pos++) {
+                    console.log('undock move ' + pos + ' to ' + (pos + 1));
+                    var right = this.getDropzone(pos + 1);
+                    var left = this.getDropzone(pos);
+
+                    if (right.hasActive()) {
+                        var removedWidget = right.removeActive();
+                        left.addActive(removedWidget);
+                    }
+                }
+
+            };
+
+            DropzoneManager.prototype.dock = function (dropzonePosition, widget) {
+                console.log('dock ' + widget.id);
+                var dropzone = this.getDropzone(dropzonePosition);
+                console.dir(widget);
+                if (dropzone.hasActive() && dropzone.activeWidget.id != widget.id) {
+                    for (var pos = this.dropzones.length - 1; pos >= dropzonePosition; pos--) {
+                        console.log('dock move ' + pos + ' to ' + (pos + 1));
+
+                        var right = this.getDropzone(pos + 1);
+                        var left = this.getDropzone(pos);
+
+                        if (right.hasActive()) {
+                            console.log('remove right active');
+                            right.removeActive();
+                        }
+                        if (left.hasActive()) {
+                            console.log('move left to right');
+                            var removedWidget = left.removeActive();
+                            right.addActive(removedWidget);
+                        }
+                    }
+                }
+                this.removeFloating(widget);
+                dropzone.addActive(widget);
+
+            };
+
+            DropzoneManager.prototype.removeFloating = function (widget) {
+                this.dropzones.forEach(function (dropzone) {
+                    dropzone.removeFloating(widget);
+                }, this);
+            };
+
+            DropzoneManager.prototype.getDropzone = function (position) {
+                for (var i = 0; i < this.dropzones.length; i++) {
+                    var dropzone = this.dropzones[i];
+                    if (dropzone.position == position) {
+                        return dropzone;
+                    }
+                }
             };
 
 
@@ -189,19 +298,6 @@
                  * List of added widgets.
                  */
                 widgets: [],
-                /**
-                 * List of dropzones.
-                 */
-                dropzones: [],
-                /**
-                 * Sorted list of info-view widget (without main widget).
-                 * Sorted by position.
-                 */
-                sortedInfoViewWidgets: [],
-                /**
-                 * Map of widget.id -> view (HTML element)
-                 */
-                widgetIdToView: {},
                 /**
                  * Minimal widget size in pixel.
                  */
@@ -220,36 +316,7 @@
                  * Recalculates which widgets should be shown.
                  */
                 widgetsToDisplayChanged: function (oldVal, newVal) {
-                    var a, b;
-                    var isRemove = oldVal > newVal;
-                    if (isRemove) {
-                        a = newVal;
-                        b = oldVal;
-                    } else {
-                        a = oldVal;
-                        b = newVal;
-                    }
-
-                    for (var i = a; i < b; i++) {
-                        var dropzone = this.dropzones[i];
-                        if (isRemove) {
-                            dropzone.removeWidget();
-                        } else {
-                            if (!dropzone.hasWidget()) {
-                                var widget = this.sortedInfoViewWidgets[i];
-                                var view = this.widgetIdToView[widget.id];
-                                dropzone.setWidget(widget, view);
-                            }
-                        }
-                    }
-
-                    // adjust the width of the widget
-//                        if (widget.width > 1) {
-//                            // widget may be max. 50% of width
-//                            var widgetWidth = widget.width > 5 ? 5 : widget.width;
-//                            targetView.style.flexBasis = (10 * widgetWidth) + '%';
-//                        }
-
+                    this.dropzoneManager.setWidgetsToDisplay(newVal);
                 },
                 /**
                  * Calculates the number of widgets to display.
@@ -264,20 +331,40 @@
                     }
                 },
                 domReady: function () {
+
+                    // dropzone callbacks
+                    var onleave = function (e) {
+                        console.log('left dropzone ' + e.data.position + ' with widget ' + e.draggableElement.widget);
+                        this.dropzoneManager.undock(e.data.position);
+                    }.bind(this);
+
+                    var onenter = function (e) {
+                        console.log('entered dropzone ' + e.data.position + ' with widget ' + e.draggableElement.widget);
+                        this.dropzoneManager.dock(e.data.position, e.draggableElement.widget);
+                    }.bind(this);
+
+                    var dropzones = [];
                     for (var i = 1; i <= this.maxWidgetsToDisplay; i++) {
                         var dropzoneElement = this.$['widgetDropzone' + i];
-                        this.dropzones.push(new WidgetDropzone(i, dropzoneElement));
+                        var widgetDropzone = new WidgetDropzone(i, dropzoneElement);
+                        dropzones.push(widgetDropzone);
+
                         // activate dropzone
                         this.touch.makeDropzone(dropzoneElement, {
-                            accept: '.widget'
+                            accept: '.widget',
+                            data: widgetDropzone,
+                            onleave: onleave,
+                            onenter: onenter
                         });
                     }
 
-                    this.sortedInfoViewWidgets = this.widgets.filter(function (widget) {
+                    var sortedInfoViewWidgets = this.widgets.filter(function (widget) {
                         return widget.position !== 'main';
                     }).sort(function (a, b) {
                         return a.position >= b.position ? 1 : -1;
                     });
+
+                    this.dropzoneManager = new DropzoneManager(dropzones, sortedInfoViewWidgets);
 
 
                     this.evaluateWidgetsToDisplay();
@@ -286,12 +373,9 @@
                 },
                 created: function () {
                     this.widgets = [];
-                    this.widgetIdToView = {};
-                    this.dropzones = [];
                 },
-                addWidget: function (widget, widgetNode) {
+                addWidget: function (widget) {
                     this.widgets.push(widget);
-                    this.widgetIdToView[widget.id] = widgetNode;
 
                     if (widget.position === 'main') {
                         var targetId = 'widgetDropzone' + widget.position;
@@ -302,7 +386,7 @@
                             return;
                         }
 
-                        this.setView(targetId, widgetNode);
+                        this.setView(targetId, widget.view);
                     }
                 }
             }, window.appMixin));

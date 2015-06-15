@@ -155,6 +155,7 @@ window.appMixin = app;
         this.name = name || "";
         this.description = description || "";
         this.document = {};
+        this.view = undefined;
         this.position = undefined;
         this.hidden = false;
         this.width = 1;
@@ -275,8 +276,8 @@ window.appMixin = app;
                 console.error('No or more templates found in the widget ' + widget.id + '. Exactly one is needed.');
                 return;
             }
-            var widgetNode = document.importNode(templates[0].content, true);
-            workspaceLayout.addWidget(widget, widgetNode);
+            widget.view = document.importNode(templates[0].content, true);
+            workspaceLayout.addWidget(widget);
         }, this);
         return workspaceLayout;
     };
@@ -844,6 +845,7 @@ window.appMixin = app;
     function makeDropzone(element, options) {
         options = mergeObject(options, {
             accept: '',
+            data: {},
             ondrop: function () {
             },
             onenter: function () {
@@ -870,18 +872,20 @@ window.appMixin = app;
                 dropzoneElement.classList.add('drop-entered');
                 draggableElement.classList.add('can-drop');
 
-                options.onenter();
-
-                console.log('entered dropzone ' + event.target.id);
+                options.onenter({
+                    data: options.data,
+                    draggableElement: draggableElement
+                });
             },
             ondragleave: function (event) {
                 // remove the drop feedback style
                 event.target.classList.remove('drop-entered');
                 event.relatedTarget.classList.remove('can-drop');
 
-                options.onleave();
-
-                console.log('left dropzone ' + event.target.id);
+                options.onleave({
+                    data: options.data,
+                    draggableElement: event.relatedTarget
+                });
             },
             ondrop: function (event) {
                 event.interaction.dropped = true;
@@ -890,7 +894,10 @@ window.appMixin = app;
                 event.relatedTarget.style.zIndex = '';
 
                 // call the callback with the data of the interaction set by the draggable in onstart.
-                options.ondrop(event.interaction.data);
+                options.ondrop({
+                    draggableData: event.interaction.data,
+                    draggableElement: event.relatedTarget
+                });
 
                 // call ondrop of the draggable
                 var draggable = event.draggable;
@@ -935,6 +942,7 @@ window.appMixin = app;
             clone: false,
             data: null,
             revert: true,
+            absolute: false,
             onstart: function () {
             },
             onmove: function () {
@@ -945,6 +953,23 @@ window.appMixin = app;
             }
         });
 
+        // encapsulate the ondrop function to execute other code
+        var onDropOptions = options.ondrop;
+        options.ondrop = function (e) {
+            var target = e.relatedTarget;
+            if (options.absolute) {
+                target.style.position = 'relative';
+                target.style.left = '';
+                target.style.top = '';
+            } else {
+                target.style.webkitTransform =
+                    target.style.transform = '';
+            }
+
+            // execute original ondrop function
+            onDropOptions(e);
+        };
+
         interact(element).draggable({
             // call this function on every dragmove event
             onmove: function (event) {
@@ -954,10 +979,15 @@ window.appMixin = app;
                     y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
                 // translate the element
-                target.style.webkitTransform =
-                    target.style.transform =
-                        'translate(' + x + 'px, ' + y + 'px)';
-
+                if (options.absolute) {
+                    //var style = this.target.style;
+                    this.target.style.left = x + 'px';
+                    this.target.style.top = y + 'px';
+                } else {
+                    target.style.webkitTransform =
+                        target.style.transform =
+                            'translate(' + x + 'px, ' + y + 'px)';
+                }
                 // update the position attributes
                 target.setAttribute('data-x', x);
                 target.setAttribute('data-y', y);
@@ -974,7 +1004,6 @@ window.appMixin = app;
 
                 options.onend(event);
                 console.log('draggable on end ');
-                console.dir(event);
             },
             onstart: function (event) {
                 // attach data to the interaction
@@ -987,14 +1016,25 @@ window.appMixin = app;
                 if (options.clone) {
                     this.target = event.target.cloneNode(true);
                     applyStyle(event.target, this.target);
-
-                    // set absolute position to pointer
-                    this.target.style.left = event.clientX + 'px';
-                    this.target.style.top = event.clientY + 'px';
-                    this.target.style.position = 'absolute';
                     document.body.appendChild(this.target);
                 } else {
                     this.target = event.target;
+                }
+
+                if (options.clone || options.absolute) {
+                    var compStyle = getComputedStyle(this.target, null);
+                    this.target.style.width = compStyle.width;
+                    this.target.style.height = compStyle.height;
+
+                    // set absolute position to pointer
+                    this.target.style.position = 'fixed';
+                    var rect = this.target.getBoundingClientRect();
+                    this.target.style.top = rect.top;
+                    this.target.style.left = rect.left;
+
+                    // set the absolute position as attributes
+                    this.target.setAttribute('data-x', rect.left);
+                    this.target.setAttribute('data-y', rect.top);
                 }
 
                 // make sure the draggable is always over the other elements
@@ -1002,15 +1042,6 @@ window.appMixin = app;
                 this.target.classList.add('dragging');
 
                 options.onstart(event);
-                console.log('draggable on start');
-                console.dir(event.target);
-
-
-                var parent = event.target.offsetParent;
-                //
-                //document.body.appendChild(target);
-                //parent.shadowRoot = parent.createShadowRoot();
-                console.dir(parent);
             }
         });
 
