@@ -28,6 +28,8 @@
 \usepackage{booktabs}
 \usepackage{ccicons}
 %\usepackage{todonotes}
+\usepackage{listings}
+
 
 \usepackage[font=normalsize,labelfont=bf]{caption}
 \usepackage{subcaption}
@@ -69,6 +71,19 @@
 }
 
 \newcommand\todo[1]{~\\\\~\\~\\~\\~\\~\textbf{\huge{\textcolor{red}{#1}}}\\~\\~\\~\\~\\~}
+
+
+% code listing style https://en.wikibooks.org/wiki/LaTeX/Source_Code_Listings
+\lstset{
+	frame=single,
+	numbers=left,
+	numbersep=5pt,
+	breaklines=true,
+	numberstyle=\tiny,
+	basicstyle=\footnotesize,
+	captionpos=b
+}
+
 
 % create a shortcut to typeset table headings
 % \newcommand\tabhead[1]{\small\textbf{#1}}
@@ -374,7 +389,32 @@ To use the REST API, another element only needs to instantiate the appropriate c
 
 \subsection{Configuration}
 
-\todo{JSON config (code)}
+\lstset{caption={Configuration for the \gls{sp2} workspace.},label=lst:sp2-config}
+\begin{lstlisting}[]
+{
+  "name": "Sprint Planning 2 Workspace",
+  "description": "Plan a sprint collaboratively.",
+  "path": "/project/:projectId/sprint/:sprintId/sp2",
+  "layout": "workspace",
+  "widgets": {
+    "sprintplanning2": {
+      "position": "main",
+      "hidden": false
+    },
+    "sprintinfo": {
+      "position": 1,
+      "width": 1,
+      "hidden": false
+    },
+    "teamview": {
+      "position": 2,
+      "width": 2,
+      "hidden": false
+    }
+  }
+}
+\end{lstlisting}
+
 
 %- Workspace config/definition in a json file (widget position, width, hidden)
 The workspaces that make up the web application are configured in JSON files. 
@@ -458,7 +498,24 @@ The default content is also contained in the element\textless{}awall-widget-size
 To fully utilize the resize functionality and support the full layout of a widget, the content for this layout must be placed in the element \textless{}awall-widget-size-full\textgreater.
 The edit mode also has its own element: \textless{}awall-widget-editable\textgreater.
 
-\todo{\textless{}awall-widget\textgreater (code)}
+\lstset{caption={HTML elements for the widgets different views.},label=lst:widget-elements}
+\begin{lstlisting}
+<awall-widget>
+  <awall-widget-title value="Team" />
+
+  <awall-widget-size-default>
+  <!-- Content for default view -->
+  </awall-widget-size-default>
+   
+  <awall-widget-size-full>
+  <!-- Content for full view -->
+  </awall-widget-size-full>
+   
+  <awall-widget-editable>
+  <!-- Content for edit mode -->
+  </awall-widget-editable>
+</awall-widget>
+\end{lstlisting}
  
 All elements except title-only are enclosed in an element whose visibility is controlled by a Media Query.
 As long as the browsers viewport height is smaller than a defined breakpoint, only the title of the widget is shown and the height of the widget is only as high as the title.
