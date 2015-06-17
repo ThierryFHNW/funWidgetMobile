@@ -80,7 +80,8 @@
 	numbersep=5pt,
 	breaklines=true,
 	numberstyle=\tiny,
-	basicstyle=\footnotesize,
+	showstringspaces=false,
+	basicstyle=\small\ttfamily,
 	captionpos=b
 }
 
@@ -117,6 +118,7 @@
 \newacronym{rwd}{RWD}{responsive web design}
 \newacronym{sp1}{SP1}{sprint planning 1}
 \newacronym{sp2}{SP2}{sprint planning 2}
+\newacronym{uri}{URI}{uniform resource identifier}
 
 
 \begin{abstract}
@@ -221,7 +223,7 @@ The UI of \textit{aWall} in Figure~\ref{fig:awall-layout} is built around worksp
 For each meeting there is a workspace configured with the most appropriate widgets.
 Each workspace consists of a main widget that takes most of the available space, numerous independent widgets in a panel at the top of the screen, called info-view, and the workspace-menu with options to configure the workspace.
 
-\begin{figure}
+\begin{figure}[h]
 	\centering
 	\includegraphics[width=\columnwidth]{figures/awall-layout}
 	\caption{UI layout of \textit{aWall} with a main widget for \gls{sp2} on a device larger than a tablet but smaller than the wall.}~\label{fig:awall-layout}
@@ -343,7 +345,7 @@ Supporting these different devices with one code base and adhere to the no scrol
 \subsection{System Overview}
 
 %- System overview (Server, JIRA, REST API)
-The whole system consists of four components:
+The whole system consists of four components, as depicted in Figure~\ref{fig:systemoverview}:
 \begin{itemize}
 	\item \textit{aWall} web application: The \textit{aWall} application is a \gls{spa} and is built using HTML, Javascript and CSS.
 	\item A web server: A web server delivers the \textit{aWall} web application files to clients.
@@ -353,7 +355,11 @@ The whole system consists of four components:
 	Currently, the system uses JIRA \cite{jira} as a backend. JIRA is a bug, issue and project management software used by many software development teams around the world.
 \end{itemize}
 
-\todo{Architecture graphic}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\columnwidth]{figures/systemoverview}
+	\caption{System overview.}~\label{fig:systemoverview}
+\end{figure}
 
 % Awall web app delivered by the web server:
 \textit{aWall} is a \gls{spa}, that means that the website is not rendered by an application server and then sent to the client but is rendered completely on the client.
@@ -389,8 +395,12 @@ To use the REST API, another element only needs to instantiate the appropriate c
 
 \subsection{Configuration}
 
+%- Workspace config/definition in a json file (widget position, width, hidden)
+The workspaces that make up the web application are configured in JSON files, as seen in Listing~\ref{lst:sp2-config}. 
+Apart from a name and the description for the workspace, a path, a layout and widgets must be defined. 
+
 \lstset{caption={Configuration for the \gls{sp2} workspace.},label=lst:sp2-config}
-\begin{lstlisting}[]
+\begin{lstlisting}
 {
   "name": "Sprint Planning 2 Workspace",
   "description": "Plan a sprint collaboratively.",
@@ -416,24 +426,24 @@ To use the REST API, another element only needs to instantiate the appropriate c
 \end{lstlisting}
 
 
-%- Workspace config/definition in a json file (widget position, width, hidden)
-The workspaces that make up the web application are configured in JSON files. 
-Apart from a name and the description for the workspace, a path, a layout and widgets must be defined. 
 % path property
-The path is the fragment identifier '\#' of the URL including variables that are required by the given workspace.
-For example "/project/:projectId/sprint/:sprintId/sp2" is the path for the \gls{sp2} worksapce.
-':projectId' and ':sprintId' are the variables required for that workspace and the complete URL for this workspace is "http://example.com/\#/project/ATBD/sprint/10204/sp2".
+The path attribute in the configuration represents the fragment identifier, the part of the URL after the hash character (\#).
+The fragment identifier refers to a resource that is ancillary to another primary resource, the \gls{uri}.
+In a \gls{spa}, the \gls{uri} is the path to the web application itself and the fragment identifier represents the state of the application respectively the current website.
+The path attribute in the configuration is composed of fixed words and words prefixed with semicolons, the variables.
+As the Listing~\ref{lst:sp2-config} shows, the \gls{sp2} workspace has two varibales, 'projectId' and 'sprintId'.
+The two variables are mapped to real IDs at runtime and are replaced by values like 'projectId' =\textgreater 'ATBD' and 'sprintId' =\textgreater '10204', resulting in the string '/project/ATBD/sprint/10204/sp2'.
+Without those two variables, the application could not fetch the appropriate information from the server.
+
 % layout property
 A workspace must define which layout to use.
-It defines how the widgets are arranged and how many widgets besides the main widget are shown.
-It also defines whether additional visual elements like the workspace menu are visible.
-Currently there are two layouts, more can be added if desired.
-One is for simple selection pages like selecting the sprint that only has a main widget.
-The other is the workspace layout as seen in Figure~\ref{fig:awall-layout} with the widgets panel at the top and the main widget.
+It defines which visual elements (e.g. main widget, info-view, workspace-menu) are displayed and how they are arranged.
+The \textit{aWall} application currently has two layouts; One is for simple selection pages, for example selecting the sprint which only has a main widget.
+The other is the workspace layout as seen in Figure~\ref{fig:awall-layout} with the info-view at the top with all the additional widgets and the main widget in the center of the layout.
 % widgets property
-The widgets property defines which widgets occupy which position in the layout.
-Each layout must at least have a main widget.
-The others are configured with a positional attribute that defines the order in the top panel, a visibility attribute and a width attribute.
+The widgets attribute defines all the widgets the workspace has and each widget's configuration in the layout.
+Each widget defines its position, its width and whether it is hidden by default.
+A workspace must have at least one widget, the main widget which has the positional value of 'main'.
 
 \subsection{Application Start-up}
 % how the application is loaded (simple)
@@ -481,47 +491,103 @@ The Media Query could define that the p-element is hidden when the height of the
 \section{Implementation}
 %- Polymer, Interact.js
 \subsection{Frameworks}
-The implemented \textit{aWall} web application uses the Polymer~\cite{polymer}, a library that abstracts WebComponents and allows to define custom elements using declarative HTML tags instead of pure Javascript code.
+The \textit{aWall} web application uses the Polymer~\cite{polymer}, a library that abstracts WebComponents and allows to define custom elements using declarative HTML tags instead of pure Javascript code.
 This makes it easy to write new custom elements without a huge amount of boilerplate code that is required when using the native Javascript APIs directly.
 For multi-touch gestures like pinch-to-zoom, drag\&drop and resizability of elements, \textit{aWall} uses the interact.js~\cite{interactJs} library.
 
-\subsection{Responsive Widgets}
-%WIDGETS
-%- support drag&drop and resize with mouse and pinch-to-zoom
-%- multiple layouts for widgets (sizes)
-%-- <awall-widget>, <awall-widget-size-default> etc.
-The different layouts of the widgets are implemented using custom elements.
-All widgets must place their content in the custom element tag \textless{}awall-widget\textgreater.
-This gives them features like resizability and drag\&drop.
-For the title-only mode to work, the widget must use the element \textless{}awall-widget-title\textgreater to define its title.
-The default content is also contained in the element\textless{}awall-widget-size-default\textgreater.
-To fully utilize the resize functionality and support the full layout of a widget, the content for this layout must be placed in the element \textless{}awall-widget-size-full\textgreater.
-The edit mode also has its own element: \textless{}awall-widget-editable\textgreater.
+\subsection{Widgets}
+% how widgets are implemented by the developer developing widgets
+All the widgets use the custom element \textit{awall-widget}.
+It gives all the widgets the features like drag \& drop and resizability.
+The four views of the widgets are also implemented by custom elements, namely \textit{awall-widget-title}, \textit{awall-widget-size-default}, \textit{awall-widget-size-full} and \textit{awall-widget-editable}.
+Listing~\ref{lst:widget-elements} shows the pattern on how a widget is implemented using the aforementioned elements.
+The title for a widget is given as the parameter to the attribute \textit{value} for the element \textit{awall-widget-title}.
+For the other three view elements, the content is more comprehensive than just a string and thus is enclosed in the element's tags as indicated using HTML comment syntax.
 
-\lstset{caption={HTML elements for the widgets different views.},label=lst:widget-elements}
+\lstset{caption={HTML elements for the widget's different views.},label=lst:widget-elements}
 \begin{lstlisting}
 <awall-widget>
   <awall-widget-title value="Team" />
 
   <awall-widget-size-default>
-  <!-- Content for default view -->
+    <!-- Content for default view -->
   </awall-widget-size-default>
-   
-  <awall-widget-size-full>
-  <!-- Content for full view -->
+
+  <awall-widget-size-full showHeight="500" showWidth="400">
+    <!-- Content for full view -->
   </awall-widget-size-full>
-   
-  <awall-widget-editable>
-  <!-- Content for edit mode -->
+
+  <awall-widget-editable showHeight="500" showWidth="400">
+    <!-- Content for edit mode -->
   </awall-widget-editable>
 </awall-widget>
 \end{lstlisting}
- 
-All elements except title-only are enclosed in an element whose visibility is controlled by a Media Query.
-As long as the browsers viewport height is smaller than a defined breakpoint, only the title of the widget is shown and the height of the widget is only as high as the title.
-During resizing, the width and height of the widget are compared to the breakpoints.
-Once both breakpoints have been exceeded, the default layout is is hidden and the full layout is displayed.
-The edit mode is controlled by the user by means of a button in the widget.
+
+Not all the view elements must be used of course.
+A widget does not need to have a full view or an edit mode.
+Both are optional and can be configured using the two parameters \textit{showHeight} and \textit{showWidth} to define their breakpoints at which point they activate and the default view is hidden.
+The edit mode is not shown automatically, but is represented by an edit button appearing when both breakpoints have been exceeded.
+
+
+% how the custom element awall-widget is implemented by the framework
+The \textit{awall-widget} custom element implements the features that all widgets have and controls when which view is displayed.
+Listing~\ref{lst:awall-widget} depicts part of the template of the \textit{awall-widget} custom element.
+The \textit{content} element is used in Shadow DOM and represents an insertion point for \gls{dom}-trees.
+That means that everything between the start and end tag of \textit{awall-widget-size-default} in Listing~\ref{lst:widget-elements} is inserted in the position of the content tag that selects the \textit{awall-widget-size-default} in line 4 of Listing~\ref{lst:awall-widget}.
+
+
+\lstset{caption={Part of the awall-widget custom element's template using insertion points for the different HTML tags.},label=lst:awall-widget}
+\begin{lstlisting}
+<content select="awall-widget-title" />
+
+<div id="extendedContent">
+  <content select="awall-widget-size-default" />
+  <content select="awall-widget-size-full" />
+  <content select="awall-widget-editable" />
+</div>
+\end{lstlisting}
+
+
+% visibility of the views
+All elements in the template in Listing~\ref{lst:awall-widget} except \textit{awall-widget-title} are enclosed in an div-element whose visibility is controlled by the media query shown in Listing~\ref{lst:awall-widget-mediaquery}.
+As long as the browsers viewport height is smaller than the defined \textit{max-height} breakpoint, only the title of the widget is shown.
+When the widget is dragged out of the info-view, the default view becomes visible.
+The widget can now be resized using the pinch-to-zoom gesture or the mouse.
+During resizing, the width and height of the widget are compared to the \textit{showHeight} and \textit{showWidth} breakpoints defined for the full view and the edit mode.
+
+
+\lstset{caption={Media Query hiding all the views except the title when the screen is small enough.},label=lst:awall-widget-mediaquery}
+\begin{lstlisting}
+@media only screen and (max-height: 40rem) {
+  #extendedContent {
+    display: none;
+  }
+}
+\end{lstlisting}
+
+\subsection{SP2 Widget}
+As mentioned before, each widget is responsible for its own responsive behavior.
+The main widgets use the \textit{awall-widget} but with drag \& drop and resizability disabled.
+The main widget for the \gls{sp2} workspace, as depicted in Listing~\ref{lst:sp2-template}, has two templates that are controlled the boolean value of \textit{isSmallScreenHeight}.
+The boolean variable is set by the application's Javascript code and is accessible through Polymer's data binding mechanism.
+Depending on the value of the variable one of the two inactive templates is activated.
+The views are all compartmentalized into their own custom elements and thus the two templates in Listing~\ref{lst:sp2-template} only contain one element (results in Figure~\ref{fig:sp2-overview}) for the small-screen view and two elements for the large-screen view, that results in Figure~\ref{fig:awall-layout}.
+The \textit{awall-userstory-cardlist} element for small screens handles its behavior to switch to the detailed view (Figure~\ref{fig:sp2-detail}) itself.
+The title for the widget at the top of the listing is visible on any screen and thus is not enclosed in a template.
+
+\lstset{caption={How the \gls{sp2} main widget decides which view to show.},label=lst:sp2-template}
+\begin{lstlisting}
+<h2>Sprintplanning 2</h2>
+
+<template if="{{isSmallScreenHeight}}">
+  <awall-userstory-cardlist />
+</template>
+
+<template if="{{!isSmallScreenHeight}}">
+  <awall-sprintbacklog />
+  <awall-temptasks />
+</template>
+\end{lstlisting}
 
 
 \section{Discussion}
