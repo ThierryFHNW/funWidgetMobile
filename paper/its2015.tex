@@ -483,7 +483,7 @@ For the UI, the web application uses an approach called \gls{rwd} that builds on
 	
 	\item Flexible images: The images are sized in relative units but there may also be multiple versions of the same image. For example, a low resolution image for small-screen devices and a higher resolution image for larger devices.
 	
-	\item Media Queries: Media Queries are the main cornerstone of \gls{rwd}. They allow us to define breakpoints with conditional statements in the stylesheet at which different CSS style definitions take effect.
+	\item Media Queries: Media queries are the main cornerstone of \gls{rwd}. They allow us to define breakpoints with conditional statements in the stylesheet at which different CSS style definitions take effect.
 \end{itemize}
 
 Media Queries have been introduced in CSS3 and became a W3C standard in June 2012 \cite{mediaqueriesW3C}.
@@ -598,31 +598,56 @@ The title for the widget at the top of the listing is visible on any screen and 
 
 
 \section{Discussion}
-
-% discussion Awall (how great it is)
-The framework we developed with \textit{aWall} show, that current web technologies and emerging new web standards make it possible to build a responsive web application for different sized devices. 
-The fact that it is an \gls{spa} and uses asynchronous messages for updates over WebSockets allows the application to run on multiple devices with the displayed data always up-to-date without the need to reload the website.
-The framework is also designed to be easily extendable with additional workspaces, layouts and widgets.
-Through its design using loosely-coupled components or in the web context custom elements, there are no dependencies between the widgets.
-
-\todo{More discussion text}
-
-
-% WebComponents: rapid development (0.5 -> 1.0), many changes
-% only works natively with Chrome, polyfills for other browsers
+The framework we developed with \textit{aWall} shows, that current web technologies and emerging new web standards make it possible to build an application that serves different devices with disparate screen resolutions and physical size using a single code base. 
 
 % use of RWD (ad/disadvantages) in aWall
+In combination with new best practices like \gls{rwd}, enabled by the new standards, the development of new and adaptable web applications becomes more approachable.
+Especially media queries allow us to detect and react to changes of factors like the screen resolution that are important for the rendering of content.
+They allow us to either hide elements or render them using a different style (e.g. smaller font).
+Together with the HTML template element, that allows to create inactive \gls{dom}-trees, conditional templates can be defined that are shown depending on a boolean variable set by a media query.
 
 % the two views of SP2 for small-screen devices
+The main widget for the \gls{sp2} workspace presented in this paper uses such conditional templates to present its content depending on the size of the browsers viewport dimensions.
+The views including their specific behavior for both display sizes we implemented, namely the large wall and the tablet, have to be developed separately.
+Thanks to the use of custom elements even for the REST API, the separate views only have to include a HTML element in their HTML code to access it.
+The data is then available in the whole element using data binding provided by Polymer.
+
+% use of WebComponents (advantages)
+Through its design of using loosely-coupled web components, specifically custom elements with Shadow DOM, there are no dependencies between the widgets.
+This allows a developer to create new widgets without worrying about whether there are going to be problems with other widgets like  giving an element an ID that has already been used or having its stylesheet definitions (CSS) affect other elements of other widgets.
+
+% WebComponents: rapid development (0.5 -> 1.0), many changes
+By working with the newest technologies, there is always the problem with rapidly evolving and changing APIs and libraries.
+Since we started to develop \textit{aWall}, the Polymer library evolved and reached version 1.0 with lots of changes.
+It is going to take some time to port the current application to the new version. 
+
+% WebComponents only work natively with Chrome, polyfills for other browsers
+Another inconvenience of using the newest web technologies is that the number of browsers implementing all those new features is limited.
+Currently, \textit{aWall} only runs natively on the Chrome and Chromium web browsers.
+Most other browsers are in progress of implementing the specifications for web components.
+For all those browsers not supporting any or all the features, there are so called polyfills available.
+Polyfills are Javascript libraries, that add the missing APIs to the browser.
+One big disadvantage of using polyfills is their lower performance compared to the native implementations.
 
 
-\section{Future Work}
+% architecture
+The framework has been designed in a way that adding a new layout or more widgets is as simple as creating a new file with the definition and referencing it in a workspace configuration.
+% WebSocket (asynchronous updates)
+The application is a \gls{spa} and loads all its resources dynamically.
+Information about the sprints, user stories and tasks is fetched using a request/response REST API.
+Notifications about create, update and delete operations are propagated to all connected clients over a WebSocket connection. 
+For example, when someone on another device modifies a task, all running \textit{aWall} applications receive a notification about the change and the data is replaced in-place, without requiring a page reload or any other interaction of the user.
+This ensures that the displayed data on all running instances of the \textit{aWall} web application is always up-to-date.
+
+\section{Conclusion and Future Work}
+% conclusion
+In this paper we presented how we designed and developed a responsive web application using a single code base that provides the appropriate viewing experience on the large wall as well as the much smaller screen of a tablet without sacrificing functionality.
+As an example, we used the \gls{sp2} meeting of the agile process, where multiple people create tasks for a user story which are then discussed together on the wall, to showcase the responsive and collaborative nature of \textit{aWall}.
+
 %results from taskboard UI tests (-> tasks for future work)?
 After the design of the large-screen UI, we conducted some live-action interviews with developers to discover if the wall could be something they want to work with and to get input on how to improve it.
 %meetings with a distributed team (e.g. show movement when a task is dragged) [similar to PolyChrome]
-In the future, we are going to build on the input we received and would also like to extend the wall to work with distributed teams, where the movements  of a task for instance are mirrored on other walls.
-%handwriting ability
-
+In the future, we are going to build on the input we received and would also like to extend the wall to work with distributed teams, where the movement of a task for instance is mirrored on other walls.
 
 
 \balance{}
