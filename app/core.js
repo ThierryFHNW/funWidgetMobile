@@ -904,8 +904,6 @@ window.appMixin = app;
                 if (isFunction(draggable.ondrop)) {
                     draggable.ondrop(event);
                 }
-
-                console.log('dropzone drop');
             },
             ondropdeactivate: function (event) {
                 // remove active dropzone feedback
@@ -1004,7 +1002,6 @@ window.appMixin = app;
                 }
 
                 options.onend(event);
-                console.log('draggable on end ');
             },
             onstart: function (event) {
                 // attach data to the interaction

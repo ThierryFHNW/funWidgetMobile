@@ -118,10 +118,10 @@
                 this.widget = null;
 
                 // create container for the active widget
-                this.activeContainer = document.createElement('div');
-                this.activeContainer.setAttribute('id', 'activeContainer' + this.position);
-                this.activeContainer.style.height = '100%';
-                this.dropzoneElement.appendChild(this.activeContainer);
+                this.container = document.createElement('div');
+                this.container.setAttribute('id', 'container' + this.position);
+                this.container.style.height = '100%';
+                this.dropzoneElement.appendChild(this.container);
             }
 
             WidgetDropzone.prototype.hide = function () {
@@ -158,7 +158,7 @@
                     widgetElement.widget = widget;
                 }
 
-                this.activeContainer.appendChild(widget.view);
+                this.container.appendChild(widget.view);
 
                 this.widget = widget;
                 // set position of widget
@@ -166,18 +166,20 @@
             };
 
             WidgetDropzone.prototype.hasWidget = function () {
-                return this.activeContainer.children.length > 0;
+                return this.container.children.length > 0;
             };
 
             WidgetDropzone.prototype.remove = function () {
-                this.activeContainer.removeChild(this.activeContainer.children[0]);
+                this.container.removeChild(this.container.children[0]);
                 var returnValue = this.widget;
                 returnValue.position += 10;
                 this.widget = null;
                 return returnValue;
             };
 
-
+            /**
+             * Manages the dropzones
+             */
             function DropzoneManager(dropzones, widgets, floatingWidgetContainer) {
                 this.dropzones = dropzones || [];
                 this.widgets = widgets || [];
@@ -191,12 +193,17 @@
                     return a.position >= b.position ? 1 : -1;
                 });
 
-                // add all widgets to a dropzone
-                var maxIterations = Math.min(this.dropzones.length, this.widgets.length);
-                for (var i = 0; i < maxIterations; i++) {
-                    var dropzone = this.dropzones[i];
-                    var widget = this.widgets[i];
-                    dropzone.add(widget);
+                // add all widgets to a dropzone, honor hidden attribute
+                for (var di = 0, wi = 0; wi < this.widgets.length; wi++) {
+                    if (wi >= this.dropzones.length - 1) {
+                        break;
+                    }
+                    var widget = this.widgets[wi];
+                    if (!widget.hidden) {
+                        var dropzone = this.dropzones[di];
+                        dropzone.add(widget);
+                        di += 1;
+                    }
                 }
             }
 
@@ -219,8 +226,14 @@
                     var dropzone = this.dropzones[i];
                     if (isRemove) {
                         dropzone.hide();
+                        if (dropzone.hasWidget()) {
+                            dropzone.widget.hidden = true;
+                        }
                     } else {
                         dropzone.show();
+                        if (dropzone.hasWidget()) {
+                            dropzone.widget.hidden = false;
+                        }
                     }
                 }
 
@@ -234,51 +247,104 @@
 
             DropzoneManager.prototype.undock = function (dropzonePosition) {
                 var dropzone = this.dropzones[dropzonePosition - 1];
+                if (dropzone.hasWidget()) {
+                    var widget = dropzone.remove();
+                    this.floatingWidgetContainer.appendChild(widget.view);
+                    this.moveRightToLeft(dropzonePosition);
+                }
+            };
 
-                var w = dropzone.remove();
-                this.floatingWidgetContainer.appendChild(w.view);
-
-                for (var i = dropzonePosition - 1; i < this.dropzones.length; i++) {
+            DropzoneManager.prototype.moveRightToLeft = function (startPos) {
+                for (var i = startPos - 1; i < this.dropzones.length - 1; i++) {
                     var right = this.dropzones[i + 1];
                     var left = this.dropzones[i];
 
                     if (right.hasWidget()) {
                         var widgetForLeft = right.remove();
                         left.add(widgetForLeft);
-                    } else {
-                        break;
                     }
                 }
+            };
 
+            DropzoneManager.prototype.moveLeftToRight = function (startPos) {
+                for (var i = this.dropzones.length - 1; i >= startPos; i--) {
+                    var right = this.dropzones[i];
+                    var left = this.dropzones[i - 1];
+
+                    if (right.hasWidget()) {
+                        right.remove();
+                    }
+                    if (left.hasWidget()) {
+                        var removedWidget = left.remove();
+                        right.add(removedWidget);
+                    }
+                }
             };
 
             DropzoneManager.prototype.dock = function (dropzonePosition, widget) {
                 var dropzone = this.dropzones[dropzonePosition - 1];
                 if (dropzone.hasWidget() && dropzone.widget.id != widget.id) {
-                    for (var i = this.dropzones.length - 1; i >= dropzonePosition; i--) {
-                        var right = this.dropzones[i];
-                        var left = this.dropzones[i - 1];
-
-                        if (right.hasWidget()) {
-                            right.remove();
-                        }
-                        if (left.hasWidget()) {
-                            var removedWidget = left.remove();
-                            right.add(removedWidget);
-                        }
-                    }
+                    this.moveLeftToRight(dropzonePosition);
                 }
+
+                var firstDropzone = this.findFirstEmptyAndWithoutWidget(widget);
+                if (firstDropzone && firstDropzone.position < dropzone.position) {
+                    dropzone = firstDropzone;
+                }
+
                 this.removeFloating(widget);
                 dropzone.add(widget);
+            };
 
+            DropzoneManager.prototype.findFirstEmptyAndWithoutWidget = function (widget) {
+                for (var i = 0; i < this.dropzones.length; i++) {
+                    var dropzone = this.dropzones[i];
+                    if (!dropzone.hasWidget() || (dropzone.hasWidget() && dropzone.widget.id == widget.id)) {
+                        return dropzone;
+                    }
+                }
             };
 
             DropzoneManager.prototype.removeFloating = function (widget) {
                 for (var i = 0; i < this.floatingWidgetContainer.children.length; i++) {
                     var child = this.floatingWidgetContainer.children[i];
                     if (child.getAttribute('id') == 'widgetContainer_' + widget.id) {
+                        widget.wasFloating = true;
                         this.floatingWidgetContainer.removeChild(child);
                     }
+                }
+            };
+
+            DropzoneManager.prototype.hideWidget = function (widget) {
+                var hideDropzone = null;
+                for (var i = 0; i < this.dropzones.length; i++) {
+                    var dropzone = this.dropzones[i];
+                    if (dropzone.hasWidget() && dropzone.widget.id == widget.id) {
+                        hideDropzone = dropzone;
+                        break;
+                    }
+                }
+                if (!hideDropzone) {
+                    // if not active, it may be floating
+                    this.removeFloating(widget);
+                }
+
+                hideDropzone.remove();
+                this.moveRightToLeft(hideDropzone.position);
+                widget.hidden = true;
+            };
+
+            DropzoneManager.prototype.showWidget = function (widget) {
+                if (widget.wasFloating) {
+                    this.floatingWidgetContainer.appendChild(widget.view);
+                } else {
+                    var showDropzone = this.dropzones[this.widgetsToDisplay - 1];
+                    var emptyDropzone = this.findFirstEmptyAndWithoutWidget(widget);
+                    if (emptyDropzone.position < showDropzone.position) {
+                        showDropzone = emptyDropzone;
+                    }
+                    this.moveLeftToRight(showDropzone.position);
+                    showDropzone.add(widget);
                 }
             };
 
@@ -321,15 +387,12 @@
                     }
                 },
                 domReady: function () {
-
                     // dropzone callbacks
                     var onleave = function (e) {
-                        console.log('left dropzone ' + e.data.position + ' with widget ' + e.draggableElement.widget);
                         this.dropzoneManager.undock(e.data.position);
                     }.bind(this);
 
                     var onenter = function (e) {
-                        console.log('entered dropzone ' + e.data.position + ' with widget ' + e.draggableElement.widget);
                         this.dropzoneManager.dock(e.data.position, e.draggableElement.widget);
                     }.bind(this);
 
@@ -372,6 +435,18 @@
 
                         this.setView(targetId, widget.view);
                     }
+                },
+                hideWidget: function (widget) {
+                    if (widget.position === 'main') {
+                        return;
+                    }
+                    this.dropzoneManager.hideWidget(widget);
+                },
+                showWidget: function (widget) {
+                    if (widget.position === 'main') {
+                        return;
+                    }
+                    this.dropzoneManager.showWidget(widget);
                 }
             }, window.appMixin));
         })();
