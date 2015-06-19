@@ -70,21 +70,27 @@
   breaklinks=true,
 }
 
-\newcommand\todo[1]{~\\\\~\\~\\~\\~\\~\textbf{\huge{\textcolor{red}{#1}}}\\~\\~\\~\\~\\~}
+\newcommand{\todo}[1]{~\\\\~\\~\\~\\~\\~\textbf{\huge{\textcolor{red}{#1}}}\\~\\~\\~\\~\\~}
 
 
-% code listing style https://en.wikibooks.org/wiki/LaTeX/Source_Code_Listings
-\lstset{
-	frame=single,
-	numbers=left,
-	numbersep=5pt,
-	breaklines=true,
-	numberstyle=\tiny,
-	showstringspaces=false,
-	basicstyle=\small\ttfamily,
-	captionpos=b
+
+% define code environment, keeps the listing on the same page, without break
+% listing style attributes: https://en.wikibooks.org/wiki/LaTeX/Source_Code_Listings
+\lstnewenvironment{code}[1][]%
+{\noindent\minipage{\linewidth}\medskip 
+	\lstset{
+		frame=single,
+		numbers=left,
+		numbersep=5pt,
+		breaklines=true,
+		numberstyle=\tiny,
+		showstringspaces=false,
+		basicstyle=\small\ttfamily,
+		captionpos=b,
+		#1
+	}
 }
-
+{\endminipage}
 
 % create a shortcut to typeset table headings
 % \newcommand\tabhead[1]{\small\textbf{#1}}
@@ -133,6 +139,13 @@ Agile software development is a highly collaborative and communication intensive
 \keywords{Collaborative work and interaction; multi-touch; wall; tablets; responsive design; agile; sprint planning 2; web components}
 
 \section{Introduction}
+% intro to challenges, motivation
+Even though software developers develop software, they often still use large pin boards for agile project planning.
+As a case study, we developed a software-based solution, the \textit{aWall} web application, intended to replace the pin board.
+The system consists of two distinct device types: The wall as a direct replacement for the pin board and tablets for more input-oriented tasks.
+This presents unique challenges regarding the interaction with the system as a team with the wall or as an individual with the tablet.
+In the following sections, we give some background, present the challenges in detail and describe how we solved them.
+
 % agile sw dev intro
 Agile promises that a project is finished on time, delivers high quality software, well constructed and maintainable code and that agile teams make the users happy \cite{Stellman:2014}.
 The core of agile is a set of practices and methodologies around self-organizing teams relying on face-to-face communication \cite{Cockburn:2001}.
@@ -155,14 +168,10 @@ In \cite{Mateescu:2015} we present a concept for a large multi-touch wall based 
 In the collaborative \gls{sp2} meeting, where everyone helps in creating tasks for the next iteration, tablets can be used to create the tasks in an interconnected web application.
 
 % - responsive web design
-The responsive web design (RWD) \cite{Marcotte:2011} approach offers a solution to create one application that provides an optimal viewing experience across a wide variety of different devices with various display-resolutions. 
+The \gls{rwd} \cite{Marcotte:2011} approach offers a solution to create one application that provides an optimal viewing experience across a wide variety of different devices with various display-resolutions. 
 % - mobile-first, we: wall -> tablet "wall-first"
-A term often heard in the context of RWD is mobile-first \cite{Wroblewski:2011}. 
+An important concept of \gls{rwd} is mobile-first \cite{Wroblewski:2011}. 
 It is an approach to give the mobile site a higher priority and design it with the constraints and capabilities of small-screen devices in mind. 
-Since we already developed the UI for the large multi-touch wall, our challenge was to find a suitable design for the tablet without sacrificing functionality.
-
-% sp2 as focus
-To showcase the features of the \textit{aWall} web application, we are going to use the \gls{sp2} meeting as an example.
 
 % - structure of the paper
 The remainder of the paper is structured as follows.
@@ -398,14 +407,15 @@ Even the access to the REST API is encapsulated in an element.
 To use the REST API, another element only needs to instantiate the appropriate custom element by inserting the corresponding HTML tag into its own HTML.
 
 
+\newpage
 \subsection{Configuration}
 
 %- Workspace config/definition in a json file (widget position, width, hidden)
 The workspaces that make up the web application are configured in JSON files, as seen in Listing~\ref{lst:sp2-config}. 
 Apart from a name and the description for the workspace, a path, a layout and widgets must be defined. 
 
-\lstset{caption={Configuration for the \gls{sp2} workspace.},label=lst:sp2-config}
-\begin{lstlisting}
+
+\begin{code}[caption={Configuration for the \gls{sp2} workspace.},label=lst:sp2-config]
 {
   "name": "Sprint Planning 2 Workspace",
   "description": "Plan a sprint collaboratively.",
@@ -428,7 +438,7 @@ Apart from a name and the description for the workspace, a path, a layout and wi
     }
   }
 }
-\end{lstlisting}
+\end{code}
 
 
 % path property
@@ -436,7 +446,7 @@ The \textit{path} attribute in the configuration represents the fragment identif
 The fragment identifier refers to a resource that is ancillary to another primary resource, the \gls{uri}.
 In a \gls{spa}, the \gls{uri} is the path to the web application itself and the fragment identifier represents the state of the application respectively the current website.
 The path attribute in the configuration is composed of fixed words and words prefixed with semicolons, the variables.
-As the Listing~\ref{lst:sp2-config} shows, the \gls{sp2} workspace has two varibales, 'projectId' and 'sprintId'.
+As Listing~\ref{lst:sp2-config} shows, the \gls{sp2} workspace has two varibales, 'projectId' and 'sprintId'.
 The two variables are mapped to real IDs at runtime and are replaced by values like 'projectId' =\textgreater 'ATBD' and 'sprintId' =\textgreater '10204', resulting in the string '/project/ATBD/sprint/10204/sp2'.
 Without those two variables, the application could not fetch the appropriate information from the server required for the given workspace.
 
@@ -502,7 +512,7 @@ The \textit{aWall} web application uses Polymer~\cite{polymer}, a library that a
 This makes it easy to write new custom elements without the huge amount of boilerplate code that is required when using the native Javascript APIs directly.
 For multi-touch gestures like pinch-to-zoom, drag\&drop and resizability of elements, \textit{aWall} uses the interact.js~\cite{interactJs} library.
 
-\subsection{Widgets}
+\subsection{Responsive Widgets}
 % how widgets are implemented by the developer developing widgets
 All the widgets use the custom element \textit{awall-widget}.
 It gives all the widgets the features like drag \& drop and resizability.
@@ -511,8 +521,7 @@ Listing~\ref{lst:widget-elements} shows the pattern on how a widget is implement
 The title for a widget is given as the parameter to the attribute \textit{value} for the element \textit{awall-widget-title}.
 For the other three view elements, the content is more comprehensive than just a string and thus is enclosed in the element's tags as indicated using HTML comment syntax.
 
-\lstset{caption={HTML elements for the widget's different views.},label=lst:widget-elements}
-\begin{lstlisting}
+\begin{code}[caption={HTML elements for the widget's different views.},label=lst:widget-elements]
 <awall-widget>
   <awall-widget-title value="Team" />
 
@@ -528,7 +537,7 @@ For the other three view elements, the content is more comprehensive than just a
     <!-- Content for edit mode -->
   </awall-widget-editable>
 </awall-widget>
-\end{lstlisting}
+\end{code}
 
 Not all the view elements must be used of course.
 A widget does not need to have a full view or an edit mode.
@@ -543,8 +552,7 @@ The \textit{content} element is used in Shadow DOM and represents an insertion p
 That means that everything between the start and end tag of \textit{awall-widget-size-default} in Listing~\ref{lst:widget-elements} is inserted in the position of the content tag that selects the \textit{awall-widget-size-default} in line 4 of Listing~\ref{lst:awall-widget}.
 
 
-\lstset{caption={Part of the awall-widget custom element's template using insertion points for the different HTML tags.},label=lst:awall-widget}
-\begin{lstlisting}
+\begin{code}[caption={Part of the awall-widget custom element's template using insertion points for the different HTML tags.},label=lst:awall-widget]
 <content select="awall-widget-title" />
 
 <div id="extendedContent">
@@ -552,7 +560,7 @@ That means that everything between the start and end tag of \textit{awall-widget
   <content select="awall-widget-size-full" />
   <content select="awall-widget-editable" />
 </div>
-\end{lstlisting}
+\end{code}
 
 
 % visibility of the views
@@ -562,15 +570,13 @@ When the widget is dragged out of the info-view, the default view becomes visibl
 The widget can now be resized using the pinch-to-zoom gesture or the mouse.
 During resizing, the width and height of the widget are compared to the \textit{showHeight} and \textit{showWidth} breakpoints defined for the full view and the edit mode.
 
-
-\lstset{caption={Media Query hiding all the views except the title when the screen is small enough.},label=lst:awall-widget-mediaquery}
-\begin{lstlisting}
+\begin{code}[caption={Media Query hiding all the views except the title when the screen is small enough.},label=lst:awall-widget-mediaquery]
 @media only screen and (max-height: 40rem) {
   #extendedContent {
     display: none;
   }
 }
-\end{lstlisting}
+\end{code}
 
 \subsection{SP2 Widget}
 As mentioned before, each widget is responsible for its own responsive behavior.
@@ -582,8 +588,7 @@ The views are all compartmentalized into their own custom elements and thus the 
 The \textit{awall-userstory-cardlist} element for small screens handles its behavior to switch to the detailed view (Figure~\ref{fig:sp2-detail}) itself.
 The title for the widget at the top of the listing is visible on any screen and thus is not enclosed in a template.
 
-\lstset{caption={How the \gls{sp2} main widget decides which view to show.},label=lst:sp2-template}
-\begin{lstlisting}
+\begin{code}[caption={How the \gls{sp2} main widget decides which view to show.},label=lst:sp2-template]
 <h2>Sprintplanning 2</h2>
 
 <template if="{{isSmallScreenHeight}}">
@@ -594,7 +599,7 @@ The title for the widget at the top of the listing is visible on any screen and 
   <awall-sprintbacklog />
   <awall-temptasks />
 </template>
-\end{lstlisting}
+\end{code}
 
 
 \section{Discussion}
