@@ -69,11 +69,17 @@
                 color: white;
                 padding: 0 1em;
             }
+
+            #floatingWidgetContainer {
+                height: 0;
+                width: 0;
+            }
         </style>
         <div id="container">
             <header>HEADER</header>
             <div id="body">
                 <div id="widgets">
+                    <div id="floatingWidgetContainer"></div>
                     <div class="widgetDropzone hidden" id="widgetDropzone1"></div>
                     <div class="widgetDropzone hidden" id="widgetDropzone2"></div>
                     <div class="widgetDropzone hidden" id="widgetDropzone3"></div>
@@ -115,18 +121,13 @@
             function WidgetDropzone(position, dropzoneElement) {
                 this.position = position;
                 this.dropzoneElement = dropzoneElement;
-                this.activeWidget = null;
+                this.widget = null;
 
-                var createContainer = function (id) {
-                    var container = document.createElement('div');
-                    container.setAttribute('id', id);
-                    this.dropzoneElement.appendChild(container);
-                    return container;
-                }.bind(this);
-
-                this.floatingContainer = createContainer('floatingContainer' + this.position);
-                this.activeContainer = createContainer('activeContainer' + this.position);
-                this.activeContainer.style.height = '100%';
+                // create container for the active widget
+                this.container = document.createElement('div');
+                this.container.setAttribute('id', 'container' + this.position);
+                this.container.style.height = '100%';
+                this.dropzoneElement.appendChild(this.container);
             }
 
             WidgetDropzone.prototype.hide = function () {
@@ -137,7 +138,7 @@
                 this.dropzoneElement.classList.remove('hidden');
             };
 
-            WidgetDropzone.prototype.addActive = function (widget) {
+            WidgetDropzone.prototype.add = function (widget) {
                 var widgetContainerId = 'widgetContainer_' + widget.id;
 
                 if (widget.view.id != widgetContainerId) {
@@ -163,44 +164,53 @@
                     widgetElement.widget = widget;
                 }
 
-                this.activeContainer.appendChild(widget.view);
+                this.container.appendChild(widget.view);
 
-                this.activeWidget = widget;
+                this.widget = widget;
+                // set position of widget
+                this.widget.position = this.position;
             };
 
-            WidgetDropzone.prototype.hasActive = function () {
-                return this.activeContainer.children.length > 0;
+            WidgetDropzone.prototype.hasWidget = function () {
+                return this.container.children.length > 0;
             };
 
-            WidgetDropzone.prototype.removeActive = function () {
-                this.activeContainer.removeChild(this.activeContainer.children[0]);
-                var returnValue = this.activeWidget;
-                this.activeWidget = null;
+            WidgetDropzone.prototype.remove = function () {
+                this.container.removeChild(this.container.children[0]);
+                var returnValue = this.widget;
+                returnValue.position += 10;
+                this.widget = null;
                 return returnValue;
             };
 
-
-            WidgetDropzone.prototype.removeFloating = function (widget) {
-                for (var i = 0; i < this.floatingContainer.children.length; i++) {
-                    var child = this.floatingContainer.children[i];
-                    if (child.getAttribute('id') == 'widgetContainer_' + widget.id) {
-                        this.floatingContainer.removeChild(child);
-                    }
-                }
-            };
-
-            WidgetDropzone.prototype.activeToFloat = function () {
-                this.activeWidget = null;
-                var child = this.activeContainer.children[0];
-                var view = this.activeContainer.removeChild(child);
-                this.floatingContainer.appendChild(view);
-            };
-
-
-            function DropzoneManager(dropzones, widgets) {
+            /**
+             * Manages the dropzones
+             */
+            function DropzoneManager(dropzones, widgets, floatingWidgetContainer) {
                 this.dropzones = dropzones || [];
                 this.widgets = widgets || [];
+                this.floatingWidgetContainer = floatingWidgetContainer;
                 this.widgetsToDisplay = 0;
+
+                // sort widgets
+                this.widgets = this.widgets.filter(function (widget) {
+                    return widget.position !== 'main';
+                }).sort(function (a, b) {
+                    return a.position >= b.position ? 1 : -1;
+                });
+
+                // add all widgets to a dropzone, honor hidden attribute
+                for (var di = 0, wi = 0; wi < this.widgets.length; wi++) {
+                    if (wi >= this.dropzones.length - 1) {
+                        break;
+                    }
+                    var widget = this.widgets[wi];
+                    if (!widget.hidden) {
+                        var dropzone = this.dropzones[di];
+                        dropzone.add(widget);
+                        di += 1;
+                    }
+                }
             }
 
             DropzoneManager.prototype.setWidgetsToDisplay = function (widgetsToDisplay) {
@@ -221,12 +231,15 @@
                 for (var i = a; i < b; i++) {
                     var dropzone = this.dropzones[i];
                     if (isRemove) {
-                        dropzone.removeActive();
                         dropzone.hide();
+                        if (dropzone.hasWidget()) {
+                            dropzone.widget.hidden = true;
+                        }
                     } else {
-                        var widget = this.widgets[i];
-                        dropzone.addActive(widget);
                         dropzone.show();
+                        if (dropzone.hasWidget()) {
+                            dropzone.widget.hidden = false;
+                        }
                     }
                 }
 
@@ -239,62 +252,105 @@
             };
 
             DropzoneManager.prototype.undock = function (dropzonePosition) {
-                console.log('undock at position ' + dropzonePosition);
-                var dropzone = this.getDropzone(dropzonePosition);
-                dropzone.activeToFloat();
+                var dropzone = this.dropzones[dropzonePosition - 1];
+                if (dropzone.hasWidget()) {
+                    var widget = dropzone.remove();
+                    this.floatingWidgetContainer.appendChild(widget.view);
+                    this.moveRightToLeft(dropzonePosition);
+                }
+            };
 
-                for (var pos = dropzonePosition; pos < this.dropzones.length; pos++) {
-                    console.log('undock move ' + pos + ' to ' + (pos + 1));
-                    var right = this.getDropzone(pos + 1);
-                    var left = this.getDropzone(pos);
+            DropzoneManager.prototype.moveRightToLeft = function (startPos) {
+                for (var i = startPos - 1; i < this.dropzones.length - 1; i++) {
+                    var right = this.dropzones[i + 1];
+                    var left = this.dropzones[i];
 
-                    if (right.hasActive()) {
-                        var removedWidget = right.removeActive();
-                        left.addActive(removedWidget);
+                    if (right.hasWidget()) {
+                        var widgetForLeft = right.remove();
+                        left.add(widgetForLeft);
                     }
                 }
+            };
 
+            DropzoneManager.prototype.moveLeftToRight = function (startPos) {
+                for (var i = this.dropzones.length - 1; i >= startPos; i--) {
+                    var right = this.dropzones[i];
+                    var left = this.dropzones[i - 1];
+
+                    if (right.hasWidget()) {
+                        right.remove();
+                    }
+                    if (left.hasWidget()) {
+                        var removedWidget = left.remove();
+                        right.add(removedWidget);
+                    }
+                }
             };
 
             DropzoneManager.prototype.dock = function (dropzonePosition, widget) {
-                console.log('dock ' + widget.id);
-                var dropzone = this.getDropzone(dropzonePosition);
-                console.dir(widget);
-                if (dropzone.hasActive() && dropzone.activeWidget.id != widget.id) {
-                    for (var pos = this.dropzones.length - 1; pos >= dropzonePosition; pos--) {
-                        console.log('dock move ' + pos + ' to ' + (pos + 1));
+                var dropzone = this.dropzones[dropzonePosition - 1];
+                if (dropzone.hasWidget() && dropzone.widget.id != widget.id) {
+                    this.moveLeftToRight(dropzonePosition);
+                }
 
-                        var right = this.getDropzone(pos + 1);
-                        var left = this.getDropzone(pos);
+                var firstDropzone = this.findFirstEmptyAndWithoutWidget(widget);
+                if (firstDropzone && firstDropzone.position < dropzone.position) {
+                    dropzone = firstDropzone;
+                }
 
-                        if (right.hasActive()) {
-                            console.log('remove right active');
-                            right.removeActive();
-                        }
-                        if (left.hasActive()) {
-                            console.log('move left to right');
-                            var removedWidget = left.removeActive();
-                            right.addActive(removedWidget);
-                        }
+                this.removeFloating(widget);
+                dropzone.add(widget);
+            };
+
+            DropzoneManager.prototype.findFirstEmptyAndWithoutWidget = function (widget) {
+                for (var i = 0; i < this.dropzones.length; i++) {
+                    var dropzone = this.dropzones[i];
+                    if (!dropzone.hasWidget() || (dropzone.hasWidget() && dropzone.widget.id == widget.id)) {
+                        return dropzone;
                     }
                 }
-                this.removeFloating(widget);
-                dropzone.addActive(widget);
-
             };
 
             DropzoneManager.prototype.removeFloating = function (widget) {
-                this.dropzones.forEach(function (dropzone) {
-                    dropzone.removeFloating(widget);
-                }, this);
+                for (var i = 0; i < this.floatingWidgetContainer.children.length; i++) {
+                    var child = this.floatingWidgetContainer.children[i];
+                    if (child.getAttribute('id') == 'widgetContainer_' + widget.id) {
+                        widget.wasFloating = true;
+                        this.floatingWidgetContainer.removeChild(child);
+                    }
+                }
             };
 
-            DropzoneManager.prototype.getDropzone = function (position) {
+            DropzoneManager.prototype.hideWidget = function (widget) {
+                var hideDropzone = null;
                 for (var i = 0; i < this.dropzones.length; i++) {
                     var dropzone = this.dropzones[i];
-                    if (dropzone.position == position) {
-                        return dropzone;
+                    if (dropzone.hasWidget() && dropzone.widget.id == widget.id) {
+                        hideDropzone = dropzone;
+                        break;
                     }
+                }
+                if (!hideDropzone) {
+                    // if not active, it may be floating
+                    this.removeFloating(widget);
+                }
+
+                hideDropzone.remove();
+                this.moveRightToLeft(hideDropzone.position);
+                widget.hidden = true;
+            };
+
+            DropzoneManager.prototype.showWidget = function (widget) {
+                if (widget.wasFloating) {
+                    this.floatingWidgetContainer.appendChild(widget.view);
+                } else {
+                    var showDropzone = this.dropzones[this.widgetsToDisplay - 1];
+                    var emptyDropzone = this.findFirstEmptyAndWithoutWidget(widget);
+                    if (emptyDropzone.position < showDropzone.position) {
+                        showDropzone = emptyDropzone;
+                    }
+                    this.moveLeftToRight(showDropzone.position);
+                    showDropzone.add(widget);
                 }
             };
 
@@ -337,15 +393,12 @@
                     }
                 },
                 domReady: function () {
-
                     // dropzone callbacks
                     var onleave = function (e) {
-                        console.log('left dropzone ' + e.data.position + ' with widget ' + e.draggableElement.widget);
                         this.dropzoneManager.undock(e.data.position);
                     }.bind(this);
 
                     var onenter = function (e) {
-                        console.log('entered dropzone ' + e.data.position + ' with widget ' + e.draggableElement.widget);
                         this.dropzoneManager.dock(e.data.position, e.draggableElement.widget);
                     }.bind(this);
 
@@ -364,13 +417,7 @@
                         });
                     }
 
-                    var sortedInfoViewWidgets = this.widgets.filter(function (widget) {
-                        return widget.position !== 'main';
-                    }).sort(function (a, b) {
-                        return a.position >= b.position ? 1 : -1;
-                    });
-
-                    this.dropzoneManager = new DropzoneManager(dropzones, sortedInfoViewWidgets);
+                    this.dropzoneManager = new DropzoneManager(dropzones, this.widgets, this.$.floatingWidgetContainer);
 
 
                     this.evaluateWidgetsToDisplay();
@@ -394,6 +441,18 @@
 
                         this.setView(targetId, widget.view);
                     }
+                },
+                hideWidget: function (widget) {
+                    if (widget.position === 'main') {
+                        return;
+                    }
+                    this.dropzoneManager.hideWidget(widget);
+                },
+                showWidget: function (widget) {
+                    if (widget.position === 'main') {
+                        return;
+                    }
+                    this.dropzoneManager.showWidget(widget);
                 }
             }, window.appMixin));
         })();
