@@ -31,7 +31,7 @@
 \usepackage{listings}
 
 
-\usepackage[font=normalsize,labelfont=bf]{caption}
+\usepackage[font=normalsize,labelfont=bf,skip=5pt]{caption}
 \usepackage{subcaption}
 
 \usepackage[acronym]{glossaries}
@@ -70,7 +70,7 @@
   breaklinks=true,
 }
 
-\newcommand{\todo}[1]{~\\\\~\\~\\~\\~\\~\textbf{\huge{\textcolor{red}{#1}}}\\~\\~\\~\\~\\~}
+\newcommand{\todo}[1]{~\\\\~\textbf{\large{\textcolor{red}{#1}}}\\~\\~\\~\\~}
 
 
 
@@ -141,16 +141,18 @@ Agile software development is a highly collaborative and communication intensive
 \section{Introduction}
 % intro to challenges, motivation
 Even though software developers develop software, they often still use large pin boards for agile project planning.
-As a case study, we developed a software-based solution, the \textit{aWall} web application, intended to replace the pin board.
+We developed a software-based solution, the \textit{aWall} web application, intended to replace the paper-based pin board.
 The system consists of two distinct device types: The wall as a direct replacement for the pin board and tablets for more input-oriented tasks.
 This presents unique challenges regarding the interaction with the system as a team with the wall or as an individual with the tablet.
 In the following sections, we give some background, present the challenges in detail and describe how we solved them.
 
-% agile sw dev intro
-Agile promises that a project is finished on time, delivers high quality software, well constructed and maintainable code and that agile teams make the users happy \cite{Stellman:2014}.
-The core of agile is a set of practices and methodologies around self-organizing teams relying on face-to-face communication \cite{Cockburn:2001}.
-According to recent study in Switzerland, 70\% of all IT companies practice agile software development and 83\% of all IT professionals \cite{Kropp:2015}.
-Agile software development projects are split into short iterations usually lasting between 2-4 weeks. In Scrum these iterations are called sprints.
+While a physical card wall offers many advantages in respect of ease of use and flexibility, it also has major disadvantages compared to digital solutions. However, recent studies \cite{udcw:31721, Mateescu:2015} show that current desktop-based digital solutions can hardly fulfill the requirements concerning agile collaboration.
+Large digital multi-touch wall systems have the potential to be able to replace the physical boards and offering even more possibilities, amongst are also support for distributed team collaboration. However as \cite{udcw:31721} and \cite{Mateescu:2015} show, they must provide the natural interaction and ease of use as physical boards. 
+
+% - tablets for collaborative work
+In \cite{Mateescu:2015} we present a concept for a large multi-touch wall based agile collaboration platform. The agile software development process comprises of different kinds of meetings, which can all be held at the wall. For some of the meetings a direct interaction with the wall, respectively with the artifacts represented at the wall, seem less appropriate. Other, smaller, input devices like individual developers tablets or even smartphones might be more appropriate. These devices allow multiple people to directly and independently interact with the artifacts on the wall and enter or modify data during the meeting more comfortable; still everybody immediately seeing the changes made. 
+
+
 % What is SP2?
 The user requirements for the software system are described in \textit{user stories}, a brief description of a feature in everyday language.
 All \textit{user stories} are stored in a \textit{product backlog} and are maintained by a \textit{product owner}, who represents the customer to the development team and who is in charge of all requirements.
@@ -158,20 +160,6 @@ Each sprint starts with a \textit{sprint planning meeting}, which is divided in 
 The selected user stories are stored in a list called the \textit{sprint backlog}.
 In the \gls{sp2} meeting, the team then splits the selected user stories from the \textit{sprint backlog} into smaller technical tasks, which describe what the developer has to do to implement the user story. These tasks should not take longer than one workday to complete.
 
-The traditional and most often used way to this, is to write the user stories and tasks on cards and attach them on a large pin or magnetic board.
-The setup on the board is called a \textit{taskboard}. This board is typically divided into three columns (ToDo, in progrees, done) which indicate the progress of the individual tasks. This allows the team to easily see the state and progress of the current sprint. While a physical card wall offers many advantages in respect of ease of use and flexibility, it also has major disadvantages compared to digital solutions. However, recent studies \cite{udcw:31721, Mateescu:2015} show that current desktop-based digital solutions can hardly fulfill the requirements concerning agile collaboration.
-
-% paper to digital
-Large digital multi-touch wall systems have the potential to be able to replace the physical boards and offering even more possibilities, amongst are also support for distributed team collaboration. However as \cite{udcw:31721} and \cite{Mateescu:2015} show, they must provide the natural interaction and ease of use as physical boards. 
-% - tablets for collaborative work
-In \cite{Mateescu:2015} we present a concept for a large multi-touch wall based agile collaboration platform. The agile software development process comprises of different kinds of meetings, which can all be held at the wall. For some of the meetings a direct interaction with the wall, respectively with the artifacts represented at the wall, seem less appropriate. Other, smaller, input devices like individual developers tablets or even smartphones might be more appropriate. These devices allow multiple people to directly and independently interact with the artifacts on the wall and enter or modify data during the meeting more comfortable; still everybody immediately seeing the changes made. 
-In the collaborative \gls{sp2} meeting, where everyone helps in creating tasks for the next iteration, tablets can be used to create the tasks in an interconnected web application.
-
-% - responsive web design
-The \gls{rwd} \cite{Marcotte:2011} approach offers a solution to create one application that provides an optimal viewing experience across a wide variety of different devices with various display-resolutions. 
-% - mobile-first, we: wall -> tablet "wall-first"
-An important concept of \gls{rwd} is mobile-first \cite{Wroblewski:2011}. 
-It is an approach to give the mobile site a higher priority and design it with the constraints and capabilities of small-screen devices in mind. 
 
 % - structure of the paper
 The remainder of the paper is structured as follows.
@@ -179,6 +167,28 @@ First, related work is presented.
 Then the UI design and the challenges we faced when adapting a web application designed for large screens to smaller tablet-sized screens.
 In the next section, we present the architecture of the system we developed and how we tackled the challenges.
 The following section describes the implementation and in the end, we discuss the work and provide an outlook into our future work.
+
+
+\section{aWall Web Application}
+
+\textit{aWall} is a web application developed for large multi-touch walls and for tablet sized computers.
+The application offers several interaction possibilities, ranging from multiple people working on the wall simultaneously to people using the application with tablets and the wall together.
+With the server of the system offering real-time updates to changes made with the application, all connected application-instances receive the modifications and are able to update the data in-place without reloading the website.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\columnwidth]{figures/awall}
+	\caption{The \textit{aWall} application running on a large multi-touch wall composed of 2x2 displays.}
+	~\label{fig:awall}
+\end{figure}
+
+Figure~\ref{fig:awall} shows our setup using 2x2 full-HD monitors forming a 4K display.
+Interactions can span monitors and are detected using an infra-red overlay in the frame around the four monitors.
+
+It is based of configurable workspaces, that are composed of smaller widgets and one large main widget.
+The main widget is always tailored to the a specific task that coincides with a meeting of the agile process.
+The smaller widgets offer additional functionality and interaction possibilities.
+
 
 \section{Related Work}
 % Scrum taskboards stuff:
@@ -224,6 +234,52 @@ In \cite{Badam:2014:PCF:2669485.2669518}, an web-based application framework is 
 
 
 \section{UI Design and Challenges}
+
+% traditional rwd:
+% - normal sites: lots of content (pics and text)
+% - we: mainly interaction
+\todo{rwd: diff. between normal sites and aWall}
+
+% tablet interactive to create stuff (normally not used for input)
+% -not consume only
+\todo{tablet is to create input, not only for consumption}
+
+% collaborative aspect: see what's being created/ edited
+\todo{collaborative aspect: see changes of others}
+
+% difference to normal web apps
+% how to bring all this information to tablet
+\todo{howto bring to tablet}
+
+
+\subsection{Responsive Design}
+% - responsive web design
+The \gls{rwd} \cite{Marcotte:2011} approach offers a solution to create one application that provides an optimal viewing experience across a wide variety of different devices with various display-resolutions. 
+% - mobile-first, we: wall -> tablet "wall-first"
+An important concept of \gls{rwd} is mobile-first \cite{Wroblewski:2011}. 
+It is an approach to give the mobile site a higher priority and design it with the constraints and capabilities of small-screen devices in mind. 
+The approach is based on the assumption that adding content to a website designed for small-screen devices is easier than removing content from the large desktop layout to fit the smaller screen.
+
+
+% cornerstones of rwd
+For the UI, the web application uses an approach called \gls{rwd} that builds on three cornerstones~\cite{Marcotte:2011}:
+\begin{itemize}
+	\item Relative units: The style and layout definitions should use relative units like percent instead of fixed units like pixel. A pixel is on a 1080p smartphone display does not have the same physical size as a pixel on a 1080p 24" desktop display. 
+	
+	\item Flexible images: The images are sized in relative units but there may also be multiple versions of the same image. For example, a low resolution image for small-screen devices and a higher resolution image for larger devices.
+	
+	\item Media Queries: Media queries are the main cornerstone of \gls{rwd}. They allow us to define breakpoints with conditional statements in the stylesheet at which different CSS style definitions take effect.
+\end{itemize}
+
+Media Queries have been introduced in CSS3 and became a W3C standard in June 2012 \cite{mediaqueriesW3C}.
+They allow the content of a website to adapt to the conditions of the web browser.
+The most prominent example of such a condition is the screen resolution.
+By defining break-points, using for example the width of the viewport, the statement defines the style of the given \gls{dom} element.
+% media query example
+Let's assume we have a simple element with a title in a h1-element and a text in a p-element.
+The media query could define that the p-element is hidden when the height of the viewport is less than 500 pixels.
+
+
 \subsection{General Layout}
 % context
 The agile process has multiple collaborative meetings that deal with different aspects of the project.
@@ -235,7 +291,7 @@ Each workspace consists of a main widget that takes most of the available space,
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\columnwidth]{figures/awall-layout}
-	\caption{UI layout of \textit{aWall} with a main widget for \gls{sp2} on a device larger than a tablet but smaller than the wall.}~\label{fig:awall-layout}
+	\caption{UI layout of \textit{aWall} with a main widget for \gls{sp2} as seen on the multi-touch wall.}~\label{fig:awall-layout}
 \end{figure}
 
 % main widget
@@ -262,6 +318,46 @@ If a widget is to be docked again, the widget's space is freed up with all widge
 With this, the widgets can be freely arranged by the user.
 Once undocked, the widget can be moved around the viewport and resized by either using the mouse or the pinch-to-zoom gesture on a multi-touch display. 
 
+
+
+\begin{figure*}
+	\centering
+	\begin{subfigure}{0.4\columnwidth}
+		\includegraphics[width=\textwidth]{figures/widget-titleonly}
+		\caption{}
+		\label{fig:widget-titleonly}
+	\end{subfigure}%
+	\hfill
+	\begin{subfigure}{0.4\columnwidth}
+		\includegraphics[width=\textwidth]{figures/widget-default-docked}
+		\caption{}
+		\label{fig:widget-default-docked}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.4\columnwidth}
+		\includegraphics[width=\textwidth]{figures/widget-default-undocked}
+		\caption{}
+		\label{fig:widget-default-undocked}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.4\columnwidth}
+		\includegraphics[width=\textwidth]{figures/widget-full}
+		\caption{}
+		\label{fig:widget-full}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.4\columnwidth}
+		\includegraphics[width=\textwidth]{figures/widget-editmode}
+		\caption{}
+		\label{fig:widget-editmode}
+	\end{subfigure}
+	
+	\caption{The different views for info-view widgets.}
+	\label{fig:infoview-widgets}
+\end{figure*}
+
+
+
 % widgets sizes (title, default, full, edit mode)
 The widgets can have multiple views for different sizes when being resized.
 In the docked position in the info-view the widgets show the default view on larger screens. 
@@ -285,6 +381,7 @@ As mentioned above, the widgets in the info-view can be rearranged.
 The new arrangement can be saved by the user or reset to the default.
 
 
+
 \subsection{SP2 Layout}
 The main widget for the \gls{sp2} meeting, as depicted in Figure~\ref{fig:awall-layout}, shows the \textit{sprint backlog} on the left and a panel on the right for unassigned tasks.
 Unassigned tasks are specific to our solution and they represent the paper-based card written by a team member that has not been discussed by the team and thus has not been assigned to a user story yet.
@@ -305,13 +402,13 @@ There the selected user story with all its tasks and the list of unassigned task
 \begin{figure*}
 	\centering
 	\begin{subfigure}[b]{1\columnwidth}
-		\includegraphics[width=\textwidth]{figures/sp2-overview}
+		\includegraphics[width=\textwidth]{figures/sp2-overview-framed}
 		\caption{Overview}
 		\label{fig:sp2-overview}
 	\end{subfigure}%
 	\quad
 	\begin{subfigure}[b]{1\columnwidth}
-		\includegraphics[width=\textwidth]{figures/sp2-detail}
+		\includegraphics[width=\textwidth]{figures/sp2-detail-framed}
 		\caption{Detailed view}
 		\label{fig:sp2-detail}
 	\end{subfigure}
@@ -320,7 +417,17 @@ There the selected user story with all its tasks and the list of unassigned task
 \end{figure*}
 
 
+
+
 \subsection{Challenges}
+
+% see who is editing a task
+% what happens when two people want to edit the same task
+\todo{concurrent modifications}
+
+% non UI challenge: platform independent 
+\todo{platform independence}
+
 The two device types the system uses, namely the wall and hand-held tablets, have significantly different screen resolutions and physical dimensions. 
 An important goal driving our design was the ability to see everything without scrolling.
 Supporting these different devices with one code base and adhere to the no scrolling requirement presents some challenges:
@@ -347,162 +454,6 @@ Supporting these different devices with one code base and adhere to the no scrol
 	
 \end{itemize}
 
-
-\section{Architecture}
-
-\subsection{System Overview}
-
-%- System overview (Server, JIRA, REST API)
-The whole system consists of four components, as depicted in Figure~\ref{fig:systemoverview}:
-\begin{itemize}
-	\item \textit{aWall} web application: The \textit{aWall} application is a \gls{spa} and is built using HTML, Javascript and CSS.
-	
-	\item A web server: A web server delivers the \textit{aWall} web application files to clients.
-	
-	\item Application server: An application server that provides a REST API for \textit{aWall} to retrieve the data about the sprints, user stories, tasks and team members.
-	It also provides a WebSocket endpoint for real-time updates.
-	
-	\item A data backend: The data used by the REST API is provided by a backend. 
-	Currently, the system uses JIRA \cite{jira} as a backend. JIRA is a bug, issue and project management software used by many software development teams around the world.
-\end{itemize}
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=\columnwidth]{figures/systemoverview}
-	\caption{System overview.}~\label{fig:systemoverview}
-\end{figure}
-
-% Awall web app delivered by the web server:
-\textit{aWall} is a \gls{spa}, that means that the website is not rendered by an application server and then sent to the client but is rendered completely on the client.
-It also means that the website does not reload, even when another page of the website is loaded. 
-The resources like images and scripts are loaded dynamically when needed and added to the application at runtime.
-The information about sprints, user stories and tasks is retrieved from the application server over the REST API.
-The data is delivered in a light-weight format called JSON. 
-
-\subsection{Web Components}
-%- HTML5 WebComponents to isolate functionality (JS) and style (CSS)
-\textit{aWall} uses Web Components \cite{webcomponents.org}, a set of four standards currently being produced as a W3C specification.
-Those four specifications offer the following features that can be used together or individually:
-\begin{itemize}
-	\item Custom Elements~\cite{CustomElements} Define and use new HTML elements. 
-	That ranges from simple format-elements to complex elements with functionality like, for example, the HTML5 video element.
-	
-	\item HTML Imports~\cite{HTMLImports}: Include and reuse HTML documents.
-	Allows to define custom elements in a separate file,  import it and then use those custom elements. 
-	Similar to how CSS and Javascript files can be imported.
-	
-	\item The template element~\cite{TemplateElement}: Declare inactive \gls{dom}-trees that can be reused to instantiate custom elements.
-	
-	\item Shadow DOM~\cite{ShadowDOM}: Encapsulate functionality and style in \gls{dom}-trees.
-	Normally CSS definitions are global no matter where they are defined.
-	By encapsulating the style definitions in a Shadow DOM, they become local and scoped and do not affect any other \gls{dom} elements outside of the Shadow DOM.
-\end{itemize}
-
-%- nested, reusable elements instead of MVC
-The application is composed of nested custom HTML elements and does not follow the more traditional MVC pattern. 
-This approach goes more in the direction of component-based software engineering that emphasizes the separation of concerns.
-The custom elements can be defined in separate HTML documents and be reused in multiple web applications by importing the document.
-This also means that the elements can be loosely-coupled and independent.
-Even the access to the REST API is encapsulated in an element. 
-To use the REST API, another element only needs to instantiate the appropriate custom element by inserting the corresponding HTML tag into its own HTML.
-
-
-\newpage
-\subsection{Configuration}
-
-%- Workspace config/definition in a json file (widget position, width, hidden)
-The workspaces that make up the web application are configured in JSON files, as seen in Listing~\ref{lst:sp2-config}. 
-Apart from a name and the description for the workspace, a path, a layout and widgets must be defined. 
-
-
-\begin{code}[caption={Configuration for the \gls{sp2} workspace.},label=lst:sp2-config]
-{
-  "name": "Sprint Planning 2 Workspace",
-  "description": "Plan a sprint collaboratively.",
-  "path": "/project/:projectId/sprint/:sprintId/sp2",
-  "layout": "workspace",
-  "widgets": {
-    "sprintplanning2": {
-      "position": "main",
-      "hidden": false
-    },
-    "sprintinfo": {
-      "position": 1,
-      "width": 1,
-      "hidden": false
-    },
-    "teamview": {
-      "position": 2,
-      "width": 2,
-      "hidden": false
-    }
-  }
-}
-\end{code}
-
-
-% path property
-The \textit{path} attribute in the configuration represents the fragment identifier, the part of the URL after the hash character (\#).
-The fragment identifier refers to a resource that is ancillary to another primary resource, the \gls{uri}.
-In a \gls{spa}, the \gls{uri} is the path to the web application itself and the fragment identifier represents the state of the application respectively the current website.
-The path attribute in the configuration is composed of fixed words and words prefixed with semicolons, the variables.
-As Listing~\ref{lst:sp2-config} shows, the \gls{sp2} workspace has two varibales, 'projectId' and 'sprintId'.
-The two variables are mapped to real IDs at runtime and are replaced by values like 'projectId' =\textgreater 'ATBD' and 'sprintId' =\textgreater '10204', resulting in the string '/project/ATBD/sprint/10204/sp2'.
-Without those two variables, the application could not fetch the appropriate information from the server required for the given workspace.
-
-% layout property
-A workspace must define which layout to use.
-It defines which visual elements (e.g. main widget, info-view, workspace-menu) are displayed and how they are arranged.
-The \textit{aWall} application currently has two layouts; One is for simple selection pages, for example selecting the sprint which only has a main widget.
-The other is the workspace layout as seen in Figure~\ref{fig:awall-layout} with the info-view at the top with all the additional widgets and the main widget in the center of the layout.
-% widgets property
-The \textit{widgets} attribute defines all the widgets the workspace has and each widget's configuration in the layout.
-Each widget defines its position, its width and whether it is hidden by default.
-A workspace must have at least one widget, the main widget which has the positional value of 'main'.
-
-\subsection{Application Start-up}
-% how the application is loaded (simple)
-The web application loads all workspace configuration files first, then determines which workspace to load by examining fragment identifier of the \gls{uri}.
-The requested workspace is then loaded by importing the HTML file that defines the layout and all the defined widget's HTML files.
-Some custom elements are used in multiple widgets and are thus defined in their own HTML document.
-For example the custom element that represents a task, called taskcard, is defined in taskcard.html and imported by the widgets that use it.
-Those elements are imported directly by using the HTML Imports specification.
-Once the layout and the widgets have been loaded, they are instantiated and inserted into the layout according to their configuration attributes like position and width.
-The layout is then set as the body of the HTML \gls{dom}-tree.
-
-\subsection{Information Dissemination}
-%-How information is propagated (e.g. new task created)
-%-> WebSocket message to all clients (replace in-place, no website reload)
-The REST API alone only offers communication by means of request and response.
-To make the application more dynamic, the application server also provides a WebSocket \cite{websocketRFC} endpoint.
-WebSocket is bi-directional communication protocol designed to be implemented by web browsers and web servers.
-It allows both participants (client and server) to send asynchronous messages for real-time communication.
-Once the client has established the connection, it is persistent until closed explicitly.
-WebSocket allows the web application not only to recognize changes made by itself, but also changes made by other instances of the web application on different devices no matter where they are.
-This works because all instances of the web application establish a WebSocket connection to the application server when started.
-If, for example a task has been modified, the task is saved by the application server in the backend and then the information about the change is propagated to all clients over the WebSocket connection.
-When the web application receives an update, it checks whether the current workspace uses this task.
-If that is the case, the task is updated in-place without reloading the page.
-Has a task been created for a user story, it will pop-up on all connected devices in real-time.
-
-\subsection{Responsive Design}
-% cornerstones of rwd
-For the UI, the web application uses an approach called \gls{rwd} that builds on three cornerstones~\cite{Marcotte:2011}:
-\begin{itemize}
-	\item Relative units: The style and layout definitions should use relative units like percent instead of fixed units like pixel. A pixel is on a 1080p smartphone display does not have the same physical size as a pixel on a 1080p 24" desktop display. 
-	
-	\item Flexible images: The images are sized in relative units but there may also be multiple versions of the same image. For example, a low resolution image for small-screen devices and a higher resolution image for larger devices.
-	
-	\item Media Queries: Media queries are the main cornerstone of \gls{rwd}. They allow us to define breakpoints with conditional statements in the stylesheet at which different CSS style definitions take effect.
-\end{itemize}
-
-Media Queries have been introduced in CSS3 and became a W3C standard in June 2012 \cite{mediaqueriesW3C}.
-They allow the content of a website to adapt to the conditions of the web browser.
-The most prominent example of such a condition is the screen resolution.
-By defining break-points, using for example the width of the viewport, the statement defines the style of the given \gls{dom} element.
-% media query example
-Let's assume we have a simple element with a title in a h1-element and a text in a p-element.
-The media query could define that the p-element is hidden when the height of the viewport is less than 500 pixels.
 
 
 \section{Implementation}
@@ -603,8 +554,29 @@ The title for the widget at the top of the listing is visible on any screen and 
 
 
 \section{Discussion}
-The framework we developed with \textit{aWall} shows, that current web technologies and emerging new web standards make it possible to build an application that serves different devices with disparate screen resolutions and physical size using a single code base. 
 
+\subsection{Hardware}
+% 2x2 sucks because of the bezels when interaction requires the user to cross the bezel from one to another screen
+\todo{bezel between the monitors in our setup}
+
+% our 2x2 uses infrared to detect the touch points: when using pinch-to-zoom, the two fingers must have some distance between them or else only one touch-point is detected.
+\todo{inaccurate touch-point tracking}
+
+
+\subsection{UI Design}
+% orientation of the tablet (portrait, landscape): only landscape supported atm
+\todo{orientation changes on tablets}
+
+
+% hand-writing with pen (test out and discuss)
+\todo{handwriting}
+
+% virtual keyboard overlays a lot of space and hides the application
+\todo{virtual keyboard hiding content}
+
+
+
+\subsection{Responsive Design}
 % use of RWD (ad/disadvantages) in aWall
 In combination with new best practices like \gls{rwd}, enabled by the new standards, the development of new and adaptable web applications becomes more approachable.
 Especially media queries allow us to detect and react to changes of factors like the screen resolution that are important for the rendering of content.
@@ -616,6 +588,10 @@ The main widget for the \gls{sp2} workspace presented in this paper uses such co
 The views including their specific behavior for both display sizes we implemented, namely the large wall and the tablet, have to be developed separately.
 Thanks to the use of custom elements even for the REST API, the separate views only have to include a HTML element in their HTML code to access it.
 The data is then available in the whole element using data binding provided by Polymer.
+
+
+\subsection{Implementation}
+The framework we developed with \textit{aWall} shows, that current web technologies and emerging new web standards make it possible to build an application that serves different devices with disparate screen resolutions and physical size using a single code base. 
 
 % use of WebComponents (advantages)
 Through its design of using loosely-coupled web components, specifically custom elements with Shadow DOM, there are no dependencies between the widgets.
@@ -634,15 +610,6 @@ For all those browsers not supporting any or all the features, there are so call
 Polyfills are Javascript libraries, that add the missing APIs to the browser.
 One big disadvantage of using polyfills is their lower performance compared to the native implementations.
 
-
-% architecture
-The framework has been designed in a way that adding a new layout or more widgets is as simple as creating a new file with the definition and referencing it in a workspace configuration.
-% WebSocket (asynchronous updates)
-The application is a \gls{spa} and loads all its resources dynamically.
-Information about the sprints, user stories and tasks is fetched using a request/response REST API.
-Notifications about create, update and delete operations are propagated to all connected clients over a WebSocket connection. 
-For example, when someone on another device modifies a task, all running \textit{aWall} applications receive a notification about the change and the data is replaced in-place, without requiring a page reload or any other interaction of the user.
-This ensures that the displayed data on all running instances of the \textit{aWall} web application is always up-to-date.
 
 \section{Conclusion and Future Work}
 % conclusion
