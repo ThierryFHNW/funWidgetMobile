@@ -2,30 +2,17 @@ This is BibTeX, Version 0.99dThe top-level auxiliary file: its2015.aux
 The style file: SIGCHI-Reference-Format.bst
 Database file #1: references.bib
 Warning--entry type for "udcw:31721" isn't style-file defined
---line 57 of file references.bib
-Too many commas in name 1 of "Magdalena Mateescu, Martin Kropp, Roger Burkhard, Carmen Zahn" for entry Mateescu:2015
-while executing---line 3202 of file SIGCHI-Reference-Format.bst
-Too many commas in name 1 of "Magdalena Mateescu, Martin Kropp, Roger Burkhard, Carmen Zahn" for entry Mateescu:2015
-while executing---line 3202 of file SIGCHI-Reference-Format.bst
-Too many commas in name 1 of "Magdalena Mateescu, Martin Kropp, Roger Burkhard, Carmen Zahn" for entry Mateescu:2015
-while executing---line 3202 of file SIGCHI-Reference-Format.bst
-Too many commas in name 1 of "Magdalena Mateescu, Martin Kropp, Roger Burkhard, Carmen Zahn" for entry Mateescu:2015
-while executing---line 3248 of file SIGCHI-Reference-Format.bst
-Too many commas in name 1 of "Magdalena Mateescu, Martin Kropp, Roger Burkhard, Carmen Zahn" for entry Mateescu:2015
-while executing---line 3248 of file SIGCHI-Reference-Format.bst
+--line 110 of file references.bib
 Warning--require articleno with numpages field in Badam:2014:PCF:2669485.2669518
+Warning--require articleno with numpages field in Chokshi:2014:EMM:2669485.2669520
 Warning--empty address in Cockburn:2001
-Warning--empty publisher in deMelo:6005497
-Warning--empty address in deMelo:6005497
-Warning--empty publisher in deMelo:6480421
-Warning--empty address in deMelo:6480421
 Warning--empty publisher in Ghanam:4599452
 Warning--empty address in Ghanam:4599452
 Warning--require articleno with numpages field in Haas:2014:TAV:2669485.2669538
-Too many commas in name 1 of "Magdalena Mateescu, Martin Kropp, Roger Burkhard, Carmen Zahn" for entry Mateescu:2015
-while executing---line 3340 of file SIGCHI-Reference-Format.bst
+Warning--empty address in Marcotte:2011
 Warning--require articleno with numpages field in Pandey:2013:RDT:2525194.2525271
 Warning--require articleno with numpages field in Rubart:2014:CMS:2669485.2669551
 Warning--empty address in Stellman:2014
 Warning--require articleno with numpages field in Sukale:2014:PWD:2638728.2638768
-(There were 6 error messages)
+Warning--empty address in Wroblewski:2011
+(There were 13 warnings)

@@ -41,6 +41,15 @@
 \shownote{Accessed: 2015-05-30.}
 
 
+\bibitem{jira}
+{Atlassian}. 2015.
+\newblock JIRA -- The flexible and scalable issue tracker for software teams.
+\newblock \url{https://www.atlassian.com/software/jira}.   (2015).
+\newblock
+\newblock
+\shownote{Accessed: 2015-06-16.}
+
+
 \bibitem{polymer}
 {Polymer Authors}. 2015.
 \newblock Polymer.
@@ -62,6 +71,19 @@
 \url{http://dx.doi.org/10.1145/2669485.2669518}}
 
 
+\bibitem{Chokshi:2014:EMM:2669485.2669520}
+{Apoorve Chokshi}, {Teddy Seyed}, {Francisco Marinho~Rodrigues}, {and} {Frank
+  Maurer}. 2014.
+\newblock \showarticletitle{ePlan Multi-Surface: A Multi-Surface Environment
+  for Emergency Response Planning Exercises}. In {\em Proceedings of the Ninth
+  ACM International Conference on Interactive Tabletops and Surfaces} {\em (ITS
+  '14)}. ACM, New York, NY, USA, 219--228.
+\newblock
+\showISBNx{978-1-4503-2587-5}
+\showDOI{%
+\url{http://dx.doi.org/10.1145/2669485.2669520}}
+
+
 \bibitem{Cockburn:2001}
 {Alistair Cockburn}. 2001.
 \newblock {\em Agile Software Development}.
@@ -80,27 +102,6 @@
 \shownote{Accessed: 2015-05-27.}
 
 
-\bibitem{deMelo:6005497}
-{R. de Melo~Oliveira} {and} {A. Goldman}. 2011.
-\newblock \showarticletitle{How to Build an Informative Workspace? An
-  Experience Using Data Collection and Feedback}. In {\em Agile Conference
-  (AGILE), 2011}. 143--146.
-\newblock
-\showDOI{%
-\url{http://dx.doi.org/10.1109/AGILE.2011.33}}
-
-
-\bibitem{deMelo:6480421}
-{Renan de Melo~Oliveira}, {Alfredo Goldman}, {and} {Claudia~O. Melo}. 2013.
-\newblock \showarticletitle{Designing and Managing Agile Informative
-  Workspaces: Discovering and Exploring Patterns}. In {\em System Sciences
-  (HICSS), 2013 46th Hawaii International Conference on}. 4790--4799.
-\newblock
-\showISSN{1530-1605}
-\showDOI{%
-\url{http://dx.doi.org/10.1109/HICSS.2013.171}}
-
-
 \bibitem{websocketRFC}
 {I. Fette} {and} {A. Melnikov}. 2011.
 \newblock The WebSocket Protocol.
@@ -117,6 +118,33 @@
 \newblock
 \showDOI{%
 \url{http://dx.doi.org/10.1109/Agile.2008.13}}
+
+
+\bibitem{CustomElements}
+{Dimitri Glazkov}. 2014.
+\newblock Custom Elements -- W3C Working Draft.
+\newblock \url{http://www.w3.org/TR/custom-elements}.   (16 December 2014).
+\newblock
+\newblock
+\shownote{Accessed: 2015-06-17.}
+
+
+\bibitem{ShadowDOM}
+{Dimitri Glazkov} {and} {Hayato Ito}. 2014.
+\newblock Shadow DOM -- W3C Working Draft.
+\newblock \url{http://www.w3.org/TR/shadow-dom}.   (17 June 2014).
+\newblock
+\newblock
+\shownote{Accessed: 2015-06-17.}
+
+
+\bibitem{HTMLImports}
+{Dimitri Glazkov} {and} {Hajime Morrita}. 2014.
+\newblock HTML Imports -- W3C Working Draft.
+\newblock \url{http://www.w3.org/TR/html-imports}.   (11 March 2014).
+\newblock
+\newblock
+\shownote{Accessed: 2015-06-17.}
 
 
 \bibitem{udcw:31721}
@@ -140,6 +168,18 @@
 \url{http://dx.doi.org/10.1145/2669485.2669538}}
 
 
+\bibitem{TemplateElement}
+{Ian Hickson}, {Robin Berjon}, {Steve Faulkner}, {Travis Leithead},
+  {Erika~Doyle Navara}, {Edward O'Connor}, {and} {Silvia Pfeiffer}. 2014.
+\newblock HTML5 -- W3C Recommendation.
+\newblock
+  \url{http://www.w3.org/TR/html5/scripting-1.html#the-template-element}.   (28
+  October 2014).
+\newblock
+\newblock
+\shownote{Accessed: 2015-06-17.}
+
+
 \bibitem{Kropp:2015}
 {Martin Kropp} {and} {Andreas Meier}. 2015.
 \newblock Swiss Agile Study 2014.
@@ -151,11 +191,22 @@
 \shownote{Accessed: 2015-05-29.}
 
 
+\bibitem{Marcotte:2011}
+{Ethan Marcotte}. 2011.
+\newblock {\em Responsive Web Design}.
+\newblock A Book Apart.
+\newblock
+\showISBNx{978-1-9375571-8-8}
+
+
 \bibitem{Mateescu:2015}
-{Roger Burkhard Carmen~Zahn Magdalena~Mateescu, Martin~Kropp}. 2015.
+{Magdalena Mateescu}, {Martin Kropp}, {Roger Burkhard}, {and} {Carmen Zahn}.
+  2015.
 \newblock aWall – Designing Socio-Cognitive Tools for agile team
   collaboration with large Multi-Touch Wall Systems.  (October 2015).
 \newblock
+\newblock
+\shownote{To be submitted.}
 
 
 \bibitem{Pandey:2013:RDT:2525194.2525271}
@@ -210,6 +261,14 @@
 \showISBNx{978-1-4503-3047-3}
 \showDOI{%
 \url{http://dx.doi.org/10.1145/2638728.2638768}}
+
+
+\bibitem{Wroblewski:2011}
+{Luke Wroblewski}. 2011.
+\newblock {\em Mobile First}.
+\newblock A Book Apart.
+\newblock
+\showISBNx{978-1-937557-02-7}
 
 
 \end{thebibliography}

@@ -1,7 +1,19 @@
 \BOOKMARK [1][-]{section*.5}{Introduction}{}% 1
-\BOOKMARK [1][-]{section*.6}{Related Work}{}% 2
-\BOOKMARK [1][-]{section*.7}{UI Design and Challenges}{}% 3
-\BOOKMARK [1][-]{section*.10}{Architecture}{}% 4
-\BOOKMARK [1][-]{section*.11}{Implementation}{}% 5
-\BOOKMARK [1][-]{section*.12}{Discussion and Future Work}{}% 6
-\BOOKMARK [1][-]{section*.13}{REFERENCES }{}% 7
+\BOOKMARK [1][-]{section*.7}{aWall Web Application}{}% 2
+\BOOKMARK [1][-]{section*.8}{Related Work}{}% 3
+\BOOKMARK [1][-]{section*.9}{UI Design and Challenges}{}% 4
+\BOOKMARK [2][-]{section*.10}{Responsive Design}{section*.9}% 5
+\BOOKMARK [2][-]{section*.11}{General Layout}{section*.9}% 6
+\BOOKMARK [2][-]{section*.14}{SP2 Layout}{section*.9}% 7
+\BOOKMARK [2][-]{section*.16}{Challenges}{section*.9}% 8
+\BOOKMARK [1][-]{section*.17}{Implementation}{}% 9
+\BOOKMARK [2][-]{section*.18}{Frameworks}{section*.17}% 10
+\BOOKMARK [2][-]{section*.19}{Responsive Widgets}{section*.17}% 11
+\BOOKMARK [2][-]{section*.20}{SP2 Widget}{section*.17}% 12
+\BOOKMARK [1][-]{section*.21}{Discussion}{}% 13
+\BOOKMARK [2][-]{section*.22}{Hardware}{section*.21}% 14
+\BOOKMARK [2][-]{section*.23}{UI Design}{section*.21}% 15
+\BOOKMARK [2][-]{section*.24}{Responsive Design}{section*.21}% 16
+\BOOKMARK [2][-]{section*.25}{Implementation}{section*.21}% 17
+\BOOKMARK [1][-]{section*.26}{Conclusion and Future Work}{}% 18
+\BOOKMARK [1][-]{section*.27}{REFERENCES }{}% 19

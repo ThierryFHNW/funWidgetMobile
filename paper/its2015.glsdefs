@@ -148,3 +148,33 @@ parent={},%
 %
 }%
 }%
+\ifglsentryexists{uri}{}%
+{%
+\gls@defglossaryentry{uri}%
+{%
+name={URI},%
+sort={URI},%
+type={acronym},%
+first={uniform resource identifier\glsspace (URI)},%
+firstplural={uniform resource identifiers\glsspace (URIs)},%
+text={URI},%
+plural={URIs},%
+description={uniform resource identifier},%
+descriptionplural={uniform resource identifier\acrpluralsuffix },%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={uniform resource identifier},%
+longplural={uniform resource identifiers},%
+short={URI},%
+shortplural={URIs},%
+counter={page},%
+parent={},%
+%
+}%
+}%

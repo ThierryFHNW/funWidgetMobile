@@ -128,7 +128,7 @@
 
 
 \begin{abstract}
-Agile software development is a highly collaborative and communication intensive method in modern software development.  One of its characteristics is the usage of large pin boards with cards where the team does the whole project planning. In this paper we present \textit{aWall}, a responsive web application framework that supports the collaborative teamwork using large multi-touch wall systems and tablets for interacting with the system as a team and as an individual. Combining these two interaction methods present unique challenges with respect to the UI and the flow of information. We describe \textit{aWall}'s Web UI architecture and implementation for a concrete case study to showcase the collaborative nature of the application with special focus on its responsive design approach, interaction and information dissemination in the multi-device environment.
+Agile software development is a highly collaborative and communication intensive method in modern software development. One of its characteristics is the usage of large pin boards with cards where the team does the whole project planning. Based on \textit{aWall}, a web based agile collaboration platform using large multi-touch wall systems, we present a responsive web design approach that supports application interaction as a team and as an individual using both the large multi-touch wall system and as well as tablets. Combining these two interaction methods present unique challenges with respect to the UI and the flow of information. We describe \textit{aWall}'s Web UI architecture and implementation for a concrete case study to showcase the collaborative nature of the application with special focus on its responsive design approach, interaction and information dissemination in the multi-device environment.
 \end{abstract}
 
 \category{H.5.2.}{Information Interfaces and Presentation (e.g. HCI)}{User Interfaces -- \textit{Interaction styles}}
@@ -140,9 +140,16 @@ Agile software development is a highly collaborative and communication intensive
 
 \section{Introduction}
 % intro to challenges, motivation
-Even though software developers develop software, they often still use large pin boards for agile project planning.
-We developed a software-based solution, the \textit{aWall} web application, intended to replace the paper-based pin board.
-The system consists of two distinct device types: The wall as a direct replacement for the pin board and tablets for more input-oriented tasks.
+In agile software development physical pin boards, so called task boards, are the main tool for agile project planning. We developed a software-based solution, the \textit{aWall} web application, intended to replace the paper-based pin board.
+The system consists of two distinct device types: The wall as a direct replacement for the pin board (see Figure~\ref{fig:awall}) and tablets for more input-oriented tasks.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\columnwidth]{figures/awall}
+	\caption{The \textit{aWall} application running on a large multi-touch wall composed of 2x2 displays.}
+	~\label{fig:awall}
+\end{figure}
+
 This presents unique challenges regarding the interaction with the system as a team with the wall or as an individual with the tablet.
 In the following sections, we give some background, present the challenges in detail and describe how we solved them.
 
@@ -174,13 +181,6 @@ The following section describes the implementation and in the end, we discuss th
 \textit{aWall} is a web application developed for large multi-touch walls and for tablet sized computers.
 The application offers several interaction possibilities, ranging from multiple people working on the wall simultaneously to people using the application with tablets and the wall together.
 With the server of the system offering real-time updates to changes made with the application, all connected application-instances receive the modifications and are able to update the data in-place without reloading the website.
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=\columnwidth]{figures/awall}
-	\caption{The \textit{aWall} application running on a large multi-touch wall composed of 2x2 displays.}
-	~\label{fig:awall}
-\end{figure}
 
 Figure~\ref{fig:awall} shows our setup using 2x2 full-HD monitors forming a 4K display.
 Interactions can span monitors and are detected using an infra-red overlay in the frame around the four monitors.
