@@ -142,6 +142,7 @@ Agile software development is a highly collaborative and communication intensive
 % intro to challenges, motivation
 In agile software development physical pin boards, so called task boards, are the main tool for agile project planning. We developed a software-based solution for extra large digital multi-touch wall systems, the \textit{aWall} web application, intended to replace the paper-based pin board.
 The system consists of two distinct device types: The wall as a direct replacement for the pin board (see Figure~\ref{fig:awall}) and tablets for more input-oriented tasks.
+The application does not require more than one device to be useful, but the two device types complement each other in terms of interaction capabilities.
 
 \begin{figure}[h]
 	\centering
@@ -155,36 +156,36 @@ Using these two different interaction devices presents unique challenges regardi
 While a physical card wall offers many advantages with respect to ease of use and flexibility, it also has major disadvantages compared to digital solutions. However, recent studies \cite{udcw:31721, Mateescu:2015} show that current desktop-based digital solutions can hardly fulfill the requirements concerning agile collaboration.
 Large digital multi-touch wall systems have the potential to be able to replace the physical boards and to offer even more possibilities, amongst are also support for distributed team collaboration. However as \cite{udcw:31721} and \cite{Mateescu:2015} show, they must provide the natural interaction and ease of use as physical boards. 
 
-% - tablets for collaborative work
-In \cite{Mateescu:2015} we present a concept for a large multi-touch wall based agile collaboration platform. The agile software development process comprises of different kinds of meetings, which can all be held at the wall. For some of the meetings a direct interaction with the wall, respectively with the artifacts represented at the wall, seem less appropriate. Other, smaller, input devices like individual developers tablets or even smartphones might be more appropriate. These devices allow multiple people to directly and independently interact with the artifacts on the wall and enter or modify data during the meeting more comfortable; still everybody immediately seeing the changes made. 
+% large wall to tablet: first large wall, then extended to support smaller devices
+In \cite{Mateescu:2015}, we present a concept for a large multi-touch wall based agile collaboration platform. The agile software development process comprises of different kinds of meetings, which can all be held at the wall. For some of the meetings a direct interaction with the wall, respectively with the artifacts represented at the wall, seem less appropriate. Other, smaller, input devices like individual developers tablets or even smartphones might be more appropriate. These devices allow multiple people to directly and independently interact with the artifacts on the wall and enter or modify data during the meeting more comfortable; still everybody immediately seeing the changes made. 
 
 
 % What is SP2?
 The user requirements for the software system are described in \textit{user stories}, a brief description of a feature in everyday language.
 All \textit{user stories} are stored in a \textit{product backlog} and are maintained by a \textit{product owner}, who represents the customer to the development team and who is in charge of all requirements.
-Each sprint starts with a \textit{sprint planning meeting}, which is divided in two sub meetings. In the \gls{sp1} meeting, the team and the product owner select those user stories, which will be implemented in the next iteration.
+An agile project is split into short iterations lasting between 2 to 4 weeks.
+In Scrum, these iterations are called sprints. Each sprint starts with a \textit{sprint planning meeting}, which is divided in two sub meetings. In the \gls{sp1} meeting, the team and the product owner select those user stories, which will be implemented in the next iteration.
 The selected user stories are stored in a list called the \textit{sprint backlog}.
 In the \gls{sp2} meeting, the team then splits the selected user stories from the \textit{sprint backlog} into smaller technical tasks, which describe what the developer has to do to implement the user story. These tasks should not take longer than one workday to complete.
 
 
 % - structure of the paper
 The remainder of the paper is structured as follows.
-First, related work is presented.
-Then the UI design and the challenges we faced when adapting a web application designed for large screens to smaller tablet-sized screens.
-In the next section, we present the architecture of the system we developed and how we tackled the challenges.
+First, the \textit{aWall} web application is presented, then related work.
+The UI design and the challenges we faced when adapting a web application designed for large screens to smaller tablet-sized screens is presented.
 The following section describes the implementation and in the end, we discuss the work and provide an outlook into our future work.
 
 
 \section{aWall Web Application}
 
-\textit{aWall} is a web application developed for large multi-touch walls and for tablet sized computers.
+\textit{aWall} is a web application for a large multi-touch wall and tablet based agile collaboration platform.
 The application offers several interaction possibilities, ranging from multiple people working on the wall simultaneously to people using the application with tablets and the wall together.
-With the server of the system offering real-time updates to changes made with the application, all connected application-instances receive the modifications and are able to update the data in-place without reloading the website.
+With the server of the system offering real-time change notifications, all connected application instances receive the modifications made by other instances and are able to update the data in-place without reloading the website.
 
 Figure~\ref{fig:awall} shows our setup using 2x2 full-HD monitors forming a 4K display.
 Interactions can span monitors and are detected using an infra-red overlay in the frame around the four monitors.
 
-It is based of configurable workspaces, that are composed of smaller widgets and one large main widget.
+The application is comprised of configurable workspaces, that are composed of smaller widgets and one large main widget.
 The main widget is always tailored to the a specific task that coincides with a meeting of the agile process.
 The smaller widgets offer additional functionality and interaction possibilities.
 
@@ -556,24 +557,36 @@ The title for the widget at the top of the listing is visible on any screen and 
 
 \subsection{Hardware}
 % 2x2 sucks because of the bezels when interaction requires the user to cross the bezel from one to another screen
-\todo{bezel between the monitors in our setup}
+Our setup for the multi-touch wall consists of 2x2 monitors.
+In between the monitors there is a small border around each monitor as seen in Figure~\ref{fig:awall}.
+Interaction across these borders is possible, but these borders are a haptical obstacle that is not always successfully crossed.
 
 % our 2x2 uses infrared to detect the touch points: when using pinch-to-zoom, the two fingers must have some distance between them or else only one touch-point is detected.
-\todo{inaccurate touch-point tracking}
+Because of the 2x2 monitor setup, the touches are detected by an additional bezel around the system using infra-red.
+The system has some difficulties detecting two distinct touch-points when the distance between two fingers is too narrow.
+This is especially noticeable by using the pinch-to-zoom gesture.
 
 
 \subsection{UI Design}
 % orientation of the tablet (portrait, landscape): only landscape supported atm
-\todo{orientation changes on tablets}
-
-
-% hand-writing with pen (test out and discuss)
-\todo{handwriting}
+A nice feature of tablets is that the user can hold it however he wants.
+The orientation of the screen changes with how the user holds the device, which is either portrait or landscape mode.
+This confronts the designer or developer with another variation of screen resolution that is challenging because the two modes have different aspect ratios.
+That often means that the UI for portrait mode is not adequate for the landscape mode.
+Our solution is optimized for landscape mode even on tablets.
 
 % virtual keyboard overlays a lot of space and hides the application
-\todo{virtual keyboard hiding content}
+On multi-touch devices without a physical keyboard a virtual on-screen keyboard is provided by the system.
+The keybaord is not integrated the same way on all systems.
+For example on an Microsoft Surface tablet running Widows 8.1, the virtual keyboard overlays everything and the content is not aware of it and thus can not show the relevant content, e.g. a form, in the small space left above the keyboard.
+On the other hand, the virtual keyboard in Android is much more integrated into the operating system and thus the content in an application is automatically moved to the part of the screen not hidden by the keyboard.
 
-
+% hand-writing with pen
+A convenient option for text input on a tablet is using a pen instead of the virtual keyboard.
+There are not many tablets on the market that support pen input.
+One product line that does are the Microsoft Surface Pro tablets.
+The support is built into the virtual keyboard application and handwriting detection works pretty well.
+The problem with the keyboard hiding persists with the pen input since it is the same application handling the input.
 
 \subsection{Responsive Design}
 % use of RWD (ad/disadvantages) in aWall
