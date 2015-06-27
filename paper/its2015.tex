@@ -27,7 +27,9 @@
 \usepackage{textcomp}
 \usepackage{booktabs}
 \usepackage{ccicons}
-%\usepackage{todonotes}
+
+\usepackage{enumerate}
+
 \usepackage{listings}
 
 
@@ -128,7 +130,11 @@
 
 
 \begin{abstract}
-Agile software development is a highly collaborative and communication intensive method in modern software development. One of its characteristics is the usage of large pin boards with cards where the team does the whole project planning. Based on \textit{aWall}, a web based agile collaboration platform using large multi-touch wall systems, we present a responsive web design approach that supports application interaction as a team and as an individual using both the large multi-touch wall system and as well as tablets. Combining these two interaction methods present unique challenges with respect to the UI and the flow of information. We describe \textit{aWall}'s Web UI architecture and implementation for a concrete case study to showcase the collaborative nature of the application with special focus on its responsive design approach, interaction and information dissemination in the multi-device environment.
+Agile software development is a highly collaborative and communication intensive method in modern software development. 
+One of its characteristics is the usage of large pin boards with cards where the team does the whole project planning. 
+Based on \textit{aWall}, a web based agile collaboration platform using large multi-touch wall systems, we present a responsive web design approach that supports application interaction as a team and as an individual using both the large multi-touch wall system as well as tablets. 
+Combining these two interaction methods presents unique challenges with respect to the UI and the flow of information. 
+We describe \textit{aWall}'s Web UI architecture and implementation for a concrete case study to showcase the collaborative nature of the application with special focus on its responsive design approach, interaction and information dissemination in the multi-device environment.
 \end{abstract}
 
 \category{H.5.2.}{Information Interfaces and Presentation (e.g. HCI)}{User Interfaces -- \textit{Interaction styles}}
@@ -143,15 +149,14 @@ Agile software development is a highly collaborative and communication intensive
 In agile software development physical pin boards, so called task boards, are the main tool for agile project planning. We developed a software-based solution for extra large digital multi-touch wall systems, the \textit{aWall} web application, intended to replace the paper-based pin board.
 The system consists of two distinct device types: The wall as a direct replacement for the pin board (see Figure~\ref{fig:awall}) and tablets for more input-oriented tasks.
 The application does not require more than one device to be useful, but the two device types complement each other in terms of interaction capabilities.
+Using these two different interaction devices presents unique challenges regarding the interaction with the system as a team with the wall or as an individual with the tablet.
 
-\begin{figure}[h]
+\begin{figure}
 	\centering
 	\includegraphics[width=\columnwidth]{figures/awall}
 	\caption{The \textit{aWall} application running on a large multi-touch wall composed of 2x2 displays.}
 	~\label{fig:awall}
 \end{figure}
-
-Using these two different interaction devices presents unique challenges regarding the interaction with the system as a team with the wall or as an individual with the tablet.
 
 While a physical card wall offers many advantages with respect to ease of use and flexibility, it also has major disadvantages compared to digital solutions. However, recent studies \cite{udcw:31721, Mateescu:2015} show that current desktop-based digital solutions can hardly fulfill the requirements concerning agile collaboration.
 Large digital multi-touch wall systems have the potential to be able to replace the physical boards and to offer even more possibilities, amongst are also support for distributed team collaboration. However as \cite{udcw:31721} and \cite{Mateescu:2015} show, they must provide the natural interaction and ease of use as physical boards. 
@@ -159,12 +164,11 @@ Large digital multi-touch wall systems have the potential to be able to replace 
 % large wall to tablet: first large wall, then extended to support smaller devices
 In \cite{Mateescu:2015}, we present a concept for a large multi-touch wall based agile collaboration platform. The agile software development process comprises of different kinds of meetings, which can all be held at the wall. For some of the meetings a direct interaction with the wall, respectively with the artifacts represented at the wall, seem less appropriate. Other, smaller, input devices like individual developers tablets or even smartphones might be more appropriate. These devices allow multiple people to directly and independently interact with the artifacts on the wall and enter or modify data during the meeting more comfortable; still everybody immediately seeing the changes made. 
 
-
 % What is SP2?
-The user requirements for the software system are described in \textit{user stories}, a brief description of a feature in everyday language.
+The user requirements for a software system are described in \textit{user stories}, a brief description of a feature in everyday language.
 All \textit{user stories} are stored in a \textit{product backlog} and are maintained by a \textit{product owner}, who represents the customer to the development team and who is in charge of all requirements.
 An agile project is split into short iterations lasting between 2 to 4 weeks.
-In Scrum, these iterations are called sprints. Each sprint starts with a \textit{sprint planning meeting}, which is divided in two sub meetings. In the \gls{sp1} meeting, the team and the product owner select those user stories, which will be implemented in the next iteration.
+In Scrum, these iterations are called sprints. Each sprint starts with a \textit{sprint planning meeting}, which is divided into two sub meetings. In the \gls{sp1} meeting, the team and the product owner select those user stories, which will be implemented in the next iteration.
 The selected user stories are stored in a list called the \textit{sprint backlog}.
 In the \gls{sp2} meeting, the team then splits the selected user stories from the \textit{sprint backlog} into smaller technical tasks, which describe what the developer has to do to implement the user story. These tasks should not take longer than one workday to complete.
 
@@ -234,121 +238,102 @@ In \cite{Badam:2014:PCF:2669485.2669518}, an web-based application framework is 
 
 
 \section{UI Design and Challenges}
+% quick intro with requirements / challenges, focus on SP2 UI as example
+Using one application to cover multiple devices with different dimensions presents some challenges:
 
-% traditional rwd:
-% - normal sites: lots of content (pics and text)
-% - we: mainly interaction
-\todo{rwd: diff. between normal sites and aWall}
+\begin{enumerate}[A.]
+	\item \textbf{Device interaction:} How the two device types are used in the system to work collaboratively.~\label{itm:interaction}
+	
+	\item \textbf{Responsive design}
+	\begin{enumerate}[1.]
+			\item \textbf{Retain functionality:} The application should offer the same functionality on the tablet as on the wall.~\label{itm:retainFunc}
+					
+			\item \textbf{Device-specific viewing experience:} The two device types have significantly different screen resolutions and physical dimensions.~\label{itm:rwdViewingExp}
+			
+			\item \textbf{Little to no scrolling} The content should be visible without much scrolling.~\label{itm:scrolling}
+	\end{enumerate}
 
-% tablet interactive to create stuff (normally not used for input)
-% -not consume only
-\todo{tablet is to create input, not only for consumption}
+	\item \textbf{Information dissemination:} How information is passed between the the devices.~\label{itm:information}
+	
+	\item \textbf{Single code base and platform independence:} The application should not be restricted to an operating system and should be based on a single code base.~\label{itm:codeBase}
+\end{enumerate}
 
-% collaborative aspect: see what's being created/ edited
-\todo{collaborative aspect: see changes of others}
+Challenge \ref{itm:codeBase} is more a requirement than a challenge that \textit{aWall} already fulfills because its a web application and there is no server that detects the browser of the client and then renders the website for that device.
+\textit{aWall} is a \gls{spa}, that runs completely in the browser and only depends on a server for the data like sprints, user stories and tasks.
+The following subsections are going to explain the aforementioned challenges in detail and how we solved them in \textit{aWall} using the \gls{sp2} meeting as an example.
 
-% difference to normal web apps
-% how to bring all this information to tablet
-\todo{howto bring to tablet}
+
+\subsection{Interaction}
+% device interaction (collaborative tasks on the wall, individual text-oriented tasks on the tablet)
+% - device interaction: text-input sucks on the wall, thus tablet for input-oriented tasks (interaction)
+
+The wall's strength is to provide overview and interaction methods like, for example, assign a person to a task or move a task from 'In Progress' to 'Done'. 
+Text input, e.g. creating a new task, on the other hand is cumbersome on the wall. 
+The \textit{aWall} application on the wall can be operated by multiple people at the same time using the aforementioned interaction methods.
+Text-input using the virtual or physical keyboard is possible but limited to one person at a time.
+However, the tablet is much more input-friendly particularly when it supports pen input with handwriting detection.
+This is why in our scenario of the \gls{sp2} meeting, the team gathers around the wall with one person handling the wall and everyone else equipped with a tablet.
+People with a tablet create the tasks for the currently discussed user story.
+The tasks they create show up on the wall immediately after being saved as unassigned tasks (right panel in Figure~\ref{fig:awall-layout}).
+Unassigned tasks are specific to our solution and represent the paper-based card written by a team member that has not been discussed by the team and thus has not been assigned to a user story yet.
+The unassigned tasks are discussed and then either assigned to user story or discarded by the person at the wall.
 
 
 \subsection{Responsive Design}
-% - responsive web design
-The \gls{rwd} \cite{Marcotte:2011} approach offers a solution to create one application that provides an optimal viewing experience across a wide variety of different devices with various display-resolutions. 
-% - mobile-first, we: wall -> tablet "wall-first"
-An important concept of \gls{rwd} is mobile-first \cite{Wroblewski:2011}. 
-It is an approach to give the mobile site a higher priority and design it with the constraints and capabilities of small-screen devices in mind. 
-The approach is based on the assumption that adding content to a website designed for small-screen devices is easier than removing content from the large desktop layout to fit the smaller screen.
 
-
-% cornerstones of rwd
-For the UI, the web application uses an approach called \gls{rwd} that builds on three cornerstones~\cite{Marcotte:2011}:
-\begin{itemize}
-	\item Relative units: The style and layout definitions should use relative units like percent instead of fixed units like pixel. A pixel is on a 1080p smartphone display does not have the same physical size as a pixel on a 1080p 24" desktop display. 
-	
-	\item Flexible images: The images are sized in relative units but there may also be multiple versions of the same image. For example, a low resolution image for small-screen devices and a higher resolution image for larger devices.
-	
-	\item Media Queries: Media queries are the main cornerstone of \gls{rwd}. They allow us to define breakpoints with conditional statements in the stylesheet at which different CSS style definitions take effect.
-\end{itemize}
-
-Media Queries have been introduced in CSS3 and became a W3C standard in June 2012 \cite{mediaqueriesW3C}.
-They allow the content of a website to adapt to the conditions of the web browser.
-The most prominent example of such a condition is the screen resolution.
-By defining break-points, using for example the width of the viewport, the statement defines the style of the given \gls{dom} element.
-% media query example
-Let's assume we have a simple element with a title in a h1-element and a text in a p-element.
-The media query could define that the p-element is hidden when the height of the viewport is less than 500 pixels.
-
-
-\subsection{General Layout}
-% context
-The agile process has multiple collaborative meetings that deal with different aspects of the project.
-% Workspace layout (info-view with widgets, workspace menu, main widget)
-The UI of \textit{aWall} in Figure~\ref{fig:awall-layout} is built around workspaces configured with independent widgets that can be used by several workspaces.
-For each meeting there is a workspace configured with the most appropriate widgets.
-Each workspace consists of a main widget that takes most of the available space, numerous independent widgets in a panel at the top of the screen, called info-view, and the workspace-menu with options to configure the workspace.
-
-\begin{figure}[h]
+\begin{figure}
 	\centering
 	\includegraphics[width=\columnwidth]{figures/awall-layout}
-	\caption{UI layout of \textit{aWall} with a main widget for \gls{sp2} as seen on the multi-touch wall.}~\label{fig:awall-layout}
+	\caption{UI layout of \textit{aWall} with a main widget for \gls{sp2} as seen on the multi-touch wall with a 4K screen resolution.}~\label{fig:awall-layout}
 \end{figure}
 
-% main widget
-The main widget occupies the largest part of the UI and is the main working area.
-For each meeting of the agile process there is a specialized main widget that shows exactly what is needed and offers tailored interaction methods.
-Supplemental interaction with additional artifacts is provided by the widgets in the info-view.
-Each main widget is responsible for the responsive behavior of its content to show the appropriate amount of information depending on the available space.
+\subsubsection{Background}
+% - responsive web design
+\glsreset{rwd} % make sure RWD is printed completely
+The \gls{rwd} \cite{Marcotte:2011} approach offers a solution to create one application that provides an optimal viewing experience across a wide variety of different devices with various display-resolutions. 
 
-
-% info view and widgets
-The info-view is the horizontal panel at the top with the smaller widgets.
-% responsiveness of number of widgets in the layout (min. width for widgets)
-The widgets in the info-view can have different widths from standard width to multiple-times the standard-width.
-The number of widgets to display is calculated by the application and depends on the width of the viewport.
-If a currently hidden widget is enabled, the widget in the last position is replaced with the enabled widget.
-This ensures that the widgets always have enough space.
-Widgets that do not fit can be accessed by the workspace-menu, where each widget can be enabled or disabled. 
-
-
-% widget abilities (dock, resize etc)
-The widgets in Figure~\ref{fig:awall-layout} are in a docked position but can be undocked by dragging them out of the info-view.
-When a widget is dragged out of the info-view (undocked) the space is closed whereby all widgets to the right move one position to the left.
-If a widget is to be docked again, the widget's space is freed up with all widgets to the right moving one position to the right.
-With this, the widgets can be freely arranged by the user.
-Once undocked, the widget can be moved around the viewport and resized by either using the mouse or the pinch-to-zoom gesture on a multi-touch display. 
-
-
+% cornerstones of rwd
+\gls{rwd} builds on the following three cornerstones~\cite{Marcotte:2011}:
+\begin{itemize}
+	\item Relative units: The style and layout definitions should use relative units like percent instead of fixed units like pixel. 
+	A pixel on a 1080p tablet display does not have the same physical size as a pixel on a 4K multi-touch wall system with 2x2 92" displays. 
+	
+	\item Flexible images: The images are sized in relative units but there may also be multiple versions of the same image. 
+	For example, a low resolution image for small-screen devices and a higher resolution image for larger devices.
+	
+	\item Media Queries: Media queries are the main cornerstone of \gls{rwd}. 
+	They allow us to define breakpoints with conditional statements in the stylesheet at which different CSS style definitions take effect.
+\end{itemize}
 
 \begin{figure*}
 	\centering
 	\begin{subfigure}{0.4\columnwidth}
 		\includegraphics[width=\textwidth]{figures/widget-titleonly}
-		\caption{}
+		\caption{Title-only view}
 		\label{fig:widget-titleonly}
 	\end{subfigure}%
 	\hfill
 	\begin{subfigure}{0.4\columnwidth}
 		\includegraphics[width=\textwidth]{figures/widget-default-docked}
-		\caption{}
+		\caption{Default view (docked)}
 		\label{fig:widget-default-docked}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}{0.4\columnwidth}
 		\includegraphics[width=\textwidth]{figures/widget-default-undocked}
-		\caption{}
+		\caption{Default view (undocked)}
 		\label{fig:widget-default-undocked}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}{0.4\columnwidth}
 		\includegraphics[width=\textwidth]{figures/widget-full}
-		\caption{}
+		\caption{Full view}
 		\label{fig:widget-full}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}{0.4\columnwidth}
 		\includegraphics[width=\textwidth]{figures/widget-editmode}
-		\caption{}
+		\caption{Edit mode}
 		\label{fig:widget-editmode}
 	\end{subfigure}
 	
@@ -356,48 +341,92 @@ Once undocked, the widget can be moved around the viewport and resized by either
 	\label{fig:infoview-widgets}
 \end{figure*}
 
+Media Queries have been introduced in CSS3 and became a W3C standard in June 2012 \cite{mediaqueriesW3C}.
+They allow the content of a website to adapt to the conditions of the web browser.
+The most prominent example of such a condition is the screen resolution.
+By defining break-points, using for example the width of the viewport, the statement defines the style of a \gls{dom} element.
+% media query example
+Let's assume we have a simple element with a title in a $<$h1$>$ element and a text in a $<$p$>$ element.
+The media query could define that the $<$p$>$ element is hidden if the height of the viewport is less than 500 pixels.
 
+% mobile-first
+An important concept of \gls{rwd} is mobile-first \cite{Wroblewski:2011}. 
+It is an approach to give the mobile site a higher priority and design it with the constraints and capabilities of small-screen devices in mind. 
+The approach is based on the assumption that adding content to a website designed for small-screen devices is easier than removing content from the large desktop layout to fit the smaller screen.
+
+% difference to normal websites
+A big difference between our application and a normal website, the basis for all the examples in books about responsive design and the mobile-first approach ~\cite{Marcotte:2011,Wroblewski:2011}, that needs to be taken into account is how the application is used.
+Websites on the Internet we visit on a daily basis are content-oriented and we visit them to consume text and images.
+\textit{aWall} on the other hand is interaction-oriented where the user uses the multi-touch screen to interact with artifacts of the application.
+
+% mobile-first and our interaction-oriented application
+In \gls{rwd}, the design of a website is optimized to the screen-size.
+This also means that the mobile site shows only the most important content, because the available space is very small.
+Additional content shown on the desktop website is hidden and only accessible though menus and functionality is sacrificed in order to  keep it organized and legible. 
+This works in a content-oriented website, but not an interaction-oriented website.
+Especially when the main goal is to provide the same functionality on the tablet as on the large wall (Challenge~\ref{itm:retainFunc}).
+The UI should still provide an appropriate viewing experience on the device (Challenge~\ref{itm:rwdViewingExp}).
+% we: wall -> tablet "wall-first": how to bring all this information to tablet
+The biggest challenge therefore was how to bring all the information and functionality from the wall to the much smaller tablet.
+
+
+\subsubsection{General Layout}
+
+% context
+The agile process has multiple collaborative meetings that deal with different aspects of the project.
+% Workspace layout (info-view with widgets, workspace menu, main widget)
+The UI of \textit{aWall} in Figure~\ref{fig:awall-layout} is built around workspaces configured with independent widgets that can be used by several workspaces.
+For each meeting there is a workspace configured with the most appropriate widgets.
+Each workspace consists of a main widget that takes most of the available space, numerous independent widgets in a panel at the top of the screen, called info-view, and the workspace-menu with options to configure the workspace in the top-right corner.
+
+% main widget
+The main widget occupies the largest part of the UI and is the main working area.
+For each meeting of the agile process there is a specialized main widget that shows exactly what is needed and offers tailored interaction methods.
+Supplemental interaction with additional artifacts is provided by the widgets in the info-view.
+Each main widget is responsible for the responsive behavior of its content to show the appropriate amount of information depending on the available space.
+
+% info view and widgets
+The info-view is the horizontal panel at the top with the smaller widgets.
+% responsiveness of number of widgets in the layout (min. width for widgets)
+The widgets in the info-view can have different widths from standard width to multiple-times the standard-width.
+The number of widgets displayed is calculated by the application using a defined minimal width for info-view widgets. 
+The broader the viewport, the more widgets can be displayed.
+Info-view widgets can be enabled or disabled.
+If a currently disabled widget is enabled and the info-view is full, the widget in the last position is replaced with the newly enabled widget.
+This ensures that only the calculated number of widgets is displayed which ensures that the widgets always have enough space.
+Disabled widgets can be accessed by the workspace-menu, where each widget can be enabled or disabled. 
+
+% widget abilities (dock, resize etc)
+The widgets in Figure~\ref{fig:awall-layout} are in a docked position but can be undocked by dragging them out of the info-view.
+When a widget is dragged out of the info-view (undocked) the space is closed whereby all widgets to the right move one position to the left.
+If a widget is to be docked again, the widget's space is freed up with all widgets to the right moving one position to the right.
+With this, the widgets can be freely arranged by the user.
+Once undocked, a widget can be moved around freely and resized by either using the mouse or the pinch-to-zoom gesture on a multi-touch display. 
 
 % widgets sizes (title, default, full, edit mode)
-The widgets can have multiple views for different sizes when being resized.
-In the docked position in the info-view the widgets show the default view on larger screens. 
+The widgets can have multiple views, as depicted in Figure~\ref{fig:infoview-widgets} for different sizes when being resized.
+In the docked position in the info-view the widgets show the default view (Figure~\ref{fig:widget-default-docked}) on larger screens. 
 % responsiveness of the view (widget height with title only and default size)
-On smaller screens like on a tablet, only the title of the widget is shown, henceforward called title-only view.
-The default size with the same functionality as on larger screens is shown when it is undocked.
-Besides the title-only and the default view, a widget can offer an additional full view and an edit mode.
+On smaller screens like on a tablet, only the title of the widget is shown (Figure~\ref{fig:widget-titleonly}), henceforward called title-only view.
+The default size with the same functionality as on larger screens is shown when it is undocked (Figure~\ref{fig:widget-default-undocked}).
+Besides the title-only and the default view, a widget can offer an additional full view (Figure~\ref{fig:widget-full}) and an edit mode (Figure~\ref{fig:widget-editmode}).
 The full view is intended to show more information on the widget's subject or offer additional interaction functionality.
 It is triggered by specifying the breakpoints for the width and height.
 Once the widget has exceeded both breakpoints while resizing, the full view is shown.
 % - buttons when undocked (dock, reset size, enter edit mode)
-If a widget has an edit mode, an edit icon is displayed in the top-right corner of the widget.
-There are two more buttons on all widgets: one to reset the size to the default view and one that docks the widget in the info-view.
-
+Once a widget is in the undocked state, a small icon in the top-right corner appears (see Figure~\ref{fig:widget-default-undocked}), that docks the widget immediately.
+When a widget has been resized, even when it has not reached its full view, a 'resize to default' icon is shown, as depicted in Figure~\ref{fig:widget-full} as the second icon from the right.
+If a widget has an edit mode, an 'edit' icon is displayed in the top-right corner of the widget.
 
 % workspace menu
 % workspace menu: save/reset workspace, list of widgets with toggle to en/disable, list of available meeting workspaces
 The workspace-menu is the small button in the top right corner.
-It allows to control which widgets are enabled and disabled with toggles, to switch to other workspaces for the other meetings and to save or reset the current workspace configuration.
+It allows to control which widgets are enabled and disabled with toggles, to switch to the other workspaces of different meetings and to save or reset the current workspace configuration.
 As mentioned above, the widgets in the info-view can be rearranged.
 The new arrangement can be saved by the user or reset to the default.
 
 
-
-\subsection{SP2 Layout}
-The main widget for the \gls{sp2} meeting, as depicted in Figure~\ref{fig:awall-layout}, shows the \textit{sprint backlog} on the left and a panel on the right for unassigned tasks.
-Unassigned tasks are specific to our solution and they represent the paper-based card written by a team member that has not been discussed by the team and thus has not been assigned to a user story yet.
-This is where the tablets comes into play.
-Each team member has a tablet and creates tasks with it.
-As soon as the task is created on a tablet, it is sent to all devices connected to the system and pops up on the wall.
-Then it is discussed and finally either assigned to a user story or discarded.
-
-% responsiveness of sp2 workspace; 2 "views": large screen and small screen (sprint view: show all US, US view: show selected US and all tasks + temp tasks)
-On the wall, everything including the \textit{sprint backlog} and the unassigned tasks can be shown simultaneously.
-The tablet does not have enough space to show all the information like on the wall.
-Thus we split the widget into two views:
-The first view (Figure \ref{fig:sp2-overview}) shows all the user stories of the \textit{sprint backlog} in a grid.
-When the user clicks, respectively selects a user story, the second view is shown, called detail view (Figure \ref{fig:sp2-detail}).
-There the selected user story with all its tasks and the list of unassigned tasks is displayed.
-
+\subsubsection{SP2 Workspace on a Tablet}
 
 \begin{figure*}
 	\centering
@@ -417,46 +446,71 @@ There the selected user story with all its tasks and the list of unassigned task
 \end{figure*}
 
 
+% general tablet size
+The two device types the system uses, namely the wall and tablets, have significantly different screen resolutions and physical dimensions. 
+An important goal driving our design was the ability to see everything without much scrolling (Challenge~\ref{itm:scrolling}).
 
-
-\subsection{Challenges}
-
-% see who is editing a task
-% what happens when two people want to edit the same task
-\todo{concurrent modifications}
-
-% non UI challenge: platform independent 
-\todo{platform independence}
-
-The two device types the system uses, namely the wall and hand-held tablets, have significantly different screen resolutions and physical dimensions. 
-An important goal driving our design was the ability to see everything without scrolling.
-Supporting these different devices with one code base and adhere to the no scrolling requirement presents some challenges:
-
-\begin{itemize}
-	\item \textbf{Retain functionality:} 
-	Even though the screen of a tablet is not as small as a smartphones', the available space is significantly smaller than on the large multi-touch wall. 
-	A big challenge was to retain the same functionality on the tablet as on the wall. Often when going from a large screen to a smaller one, functionality is sacrificed in order to  keep it organized and legible.
+% Reduce space of non-essential elements
+% title-only view => undock => default view
+A lot of vertical space is used up by the info-view widgets when using the default view as on the wall.
+They offer auxiliary functionality, but it is not absolutely essential that they are completely visible the whole time in their default view.
+Thus, we created the aforementioned title-only view (Figure~\ref{fig:widget-titleonly}).
+That way, the widgets are still in the same place and visible, but use much less space.
+A downside is that they have to be dragged out of the info-view to be usable.
+Once the widget is undocked, it enlarges to the default size and it can be used like on the wall.
 	
-	\item \textbf{Reduce space of non-essential elements:}
-	% title-only view => undock => default view
-	A lot of vertical space is used up by the info-view widgets.
-	They offer auxiliary functionality, but it is not absolutely essential that they are completely visible the whole time in their default view.
-	Thus, we created the title-only view for the widgets.
-	That way, the widgets are still in the same place and visible, but have to be dragged out of the info-view to be usable.
-	Once the widget is undocked, it enlarges to the default size and it can be used like on the wall.
-	
-	\item \textbf{Viewing experience: focused vs. overview:}
-	In our collaborative scenario of the \gls{sp2} meeting, the wall and the tablet serve different needs.
-	The wall's duty is to give the whole team the overview of the whole sprint, while the tablet's focus lies with the individual to create new tasks for the currently discussed user story.
-	This requires the information displayed on the device to be specific to its purpose.
-	While the complete \textit{sprint backlog} is important on the wall, it is not relevant for creating a task for a user story.
-	Thus, we split the main widget for the \gls{sp2} meeting into two views on smaller screens as depicted in Figure \ref{fig:sp2-smallscreen-views}.
-	
-\end{itemize}
+% Viewing experience: focused vs. overview
+In our collaborative scenario of the \gls{sp2} meeting, the wall and the tablet serve different needs, thus the viewing experience is different (Challenge~\ref{itm:rwdViewingExp}).
+The wall's duty is to give the whole team the overview of the sprint, while the tablet's focus lies with the individual to create new tasks for the currently discussed user story.
 
+% sp2 main widget views
+The main widget for the \gls{sp2} meeting, as depicted in Figure~\ref{fig:awall-layout}, shows the \textit{sprint backlog} on the left and a panel on the right for unassigned tasks.
+% Retain functionality, responsiveness of sp2 workspace; 2 "views"
+On the wall, everything including the \textit{sprint backlog} and the unassigned tasks can be shown simultaneously.
+The tablet does not have enough space to show all that information.
+But we do not want to sacrifice functionality or remove content to make it fit the smaller screen.
+While the complete \textit{sprint backlog} is important on the wall, it is not relevant for creating a task for a user story.
+To retain functionality on the tablet (Challenge~\ref{itm:retainFunc}), we split the widget into two views (Figure~\ref{fig:sp2-smallscreen-views}):
+The first view (Figure \ref{fig:sp2-overview}) shows all the user stories of the \textit{sprint backlog} in a grid.
+When the user clicks, respectively selects a user story, the second view is shown, called detail view (Figure \ref{fig:sp2-detail}).
+There, the selected user story is displayed with all its assigned tasks on the left side and the list of unassigned tasks on the right side.
+The back-arrow to the right of the user story brings the user back to the overview.
+
+\subsection{Information dissemination}
+The information about changes is propagated to all \textit{aWall} application instances in real-time.
+So, if someone on a tablet creates a new unassigned task, the new task is sent to all tablets and the wall where it automatically pops up.
+The same happens when an user story or task is deleted or changed.
 
 
 \section{Implementation}
+
+\subsection{Web Components}
+%- HTML5 WebComponents to isolate functionality (JS) and style (CSS)
+\textit{aWall} uses Web Components \cite{webcomponents.org}, a set of four standards currently being produced as a W3C specification.
+Those four specifications offer the following features that can be used together or individually:
+\begin{itemize}
+	\item Custom Elements~\cite{CustomElements} Define and use new HTML elements. 
+	That ranges from simple format-elements to complex elements with functionality like, for example, the HTML5 video element.
+	
+	\item HTML Imports~\cite{HTMLImports}: Include and reuse HTML documents.
+	Allows to define custom elements in a separate file,  import it and then use those custom elements. 
+	Similar to how CSS and Javascript files can be imported.
+	
+	\item The template element~\cite{TemplateElement}: Declare inactive \gls{dom}-trees that can be reused to instantiate custom elements.
+	
+	\item Shadow DOM~\cite{ShadowDOM}: Encapsulate functionality and style in \gls{dom}-trees.
+	Normally CSS definitions are global no matter where they are defined.
+	By encapsulating the style definitions in a Shadow DOM, they become local and scoped and do not affect any other \gls{dom} elements outside of the Shadow DOM.
+\end{itemize}
+
+%- nested, reusable elements instead of MVC
+The application is composed of nested custom HTML elements and does not follow the more traditional MVC pattern. 
+This approach goes more in the direction of component-based software engineering that emphasizes the separation of concerns.
+The custom elements can be defined in separate HTML documents and be reused in multiple web applications by importing the document.
+This also means that the elements can be loosely-coupled and independent.
+
+\newpage
+
 %- Polymer, Interact.js
 \subsection{Frameworks}
 The \textit{aWall} web application uses Polymer~\cite{polymer}, a library that abstracts WebComponents and allows to define custom elements using declarative HTML tags instead of pure Javascript code.
@@ -465,11 +519,11 @@ For multi-touch gestures like pinch-to-zoom, drag\&drop and resizability of elem
 
 \subsection{Responsive Widgets}
 % how widgets are implemented by the developer developing widgets
-All the widgets use the custom element \textit{awall-widget}.
+All the widgets use the custom element $<$awall-widget$>$.
 It gives all the widgets the features like drag \& drop and resizability.
-The four views of the widgets are also implemented by custom elements, namely \textit{awall-widget-title}, \textit{awall-widget-size-default}, \textit{awall-widget-size-full} and \textit{awall-widget-editable}.
+The four views of the widgets are also implemented by custom elements, namely $<$awall-widget-title$>$, $<$awall-widget-size-default$>$, $<$awall-widget-size-full$>$ and $<$awall-widget-editable$>$.
 Listing~\ref{lst:widget-elements} shows the pattern on how a widget is implemented using the aforementioned elements.
-The title for a widget is given as the parameter to the attribute \textit{value} for the element \textit{awall-widget-title}.
+The title for a widget is given as the parameter to the attribute \textit{value} for the element $<$awall-widget-title$>$.
 For the other three view elements, the content is more comprehensive than just a string and thus is enclosed in the element's tags as indicated using HTML comment syntax.
 
 \begin{code}[caption={HTML elements for the widget's different views.},label=lst:widget-elements]
@@ -493,17 +547,17 @@ For the other three view elements, the content is more comprehensive than just a
 Not all the view elements must be used of course.
 A widget does not need to have a full view or an edit mode.
 Both are optional and can be configured using the two parameters \textit{showHeight} and \textit{showWidth} to define their breakpoints at which point they activate and the default view is hidden.
-The edit mode is not shown automatically, but is represented by an edit button appearing when both breakpoints have been exceeded.
+The edit mode is not shown automatically, but is represented by an edit button appearing when available as depicted in Figure~\ref{fig:widget-full}.
 
 
 % how the custom element awall-widget is implemented by the framework
-The \textit{awall-widget} custom element implements the features that all widgets have and controls when which view is displayed.
-Listing~\ref{lst:awall-widget} depicts part of the template of the \textit{awall-widget} custom element.
-The \textit{content} element is used in Shadow DOM and represents an insertion point for \gls{dom}-trees.
-That means that everything between the start and end tag of \textit{awall-widget-size-default} in Listing~\ref{lst:widget-elements} is inserted in the position of the content tag that selects the \textit{awall-widget-size-default} in line 4 of Listing~\ref{lst:awall-widget}.
+The $<$awall-widget$>$ custom element implements the features that all widgets have and controls when which view is displayed.
+Listing~\ref{lst:awall-widget} shows part of the template of the $<$awall-widget$>$ element.
+The $<$content$>$ element is used in Shadow DOM and represents an insertion point for \gls{dom}-trees.
+That means that everything between the start and end tag of $<$awall-widget-size-default$>$ in Listing~\ref{lst:widget-elements} is inserted in the position of the content tag that selects the $<$awall-widget-size-default$>$ in line 4 of Listing~\ref{lst:awall-widget}.
 
 
-\begin{code}[caption={Part of the awall-widget custom element's template using insertion points for the different HTML tags.},label=lst:awall-widget]
+\begin{code}[caption={Part of the $<$awall-widget$>$'s template using insertion points for the different HTML tags.},label=lst:awall-widget]
 <content select="awall-widget-title" />
 
 <div id="extendedContent">
@@ -515,9 +569,9 @@ That means that everything between the start and end tag of \textit{awall-widget
 
 
 % visibility of the views
-All elements in the template in Listing~\ref{lst:awall-widget} except \textit{awall-widget-title} are enclosed in an div-element whose visibility is controlled by the media query shown in Listing~\ref{lst:awall-widget-mediaquery}.
-As long as the browsers viewport height is smaller than the defined \textit{max-height} breakpoint, only the title of the widget is shown.
-When the widget is dragged out of the info-view, the default view becomes visible.
+All elements in the template in Listing~\ref{lst:awall-widget} except $<$awall-widget-title$>$ are enclosed in an $<$div$>$ element whose visibility is controlled by the media query shown in Listing~\ref{lst:awall-widget-mediaquery}.
+As long as the browser's viewport height is smaller than the defined \textit{max-height} breakpoint, only the title of the widget is shown.
+When the widget is dragged out of the info-view, the default view becomes visible. This is not controlled by a media query but by Javascript code.
 The widget can now be resized using the pinch-to-zoom gesture or the mouse.
 During resizing, the width and height of the widget are compared to the \textit{showHeight} and \textit{showWidth} breakpoints defined for the full view and the edit mode.
 
@@ -529,28 +583,28 @@ During resizing, the width and height of the widget are compared to the \textit{
 }
 \end{code}
 
+\begin{code}[caption={How the \gls{sp2} main widget decides which view to show.},label=lst:sp2-template]
+	<h2>Sprintplanning 2</h2>
+	
+	<template if="{{isSmallScreenHeight}}">
+	<awall-userstory-cardlist />
+	</template>
+	
+	<template if="{{!isSmallScreenHeight}}">
+	<awall-sprintbacklog />
+	<awall-temptasks />
+	</template>
+\end{code}
+
 \subsection{SP2 Widget}
 As mentioned before, each widget is responsible for its own responsive behavior.
-The main widgets use the \textit{awall-widget} but with drag \& drop and resizability disabled.
-The main widget for the \gls{sp2} workspace, as depicted in Listing~\ref{lst:sp2-template}, has two templates that are controlled by the boolean variable \textit{isSmallScreenHeight}.
+The main widgets use the $<$awall-widget$>$ but with drag \& drop and resizability disabled.
+The main widget for the \gls{sp2} workspace, as shown in Listing~\ref{lst:sp2-template}, has two templates that are controlled by the boolean variable \textit{isSmallScreenHeight}.
 The variable is set by the application's Javascript code and is accessible through Polymer's data binding mechanism.
 Depending on the value of the variable one of the two inactive templates is activated.
 The views are all compartmentalized into their own custom elements and thus the two templates in Listing~\ref{lst:sp2-template} only contain one element (results in Figure~\ref{fig:sp2-overview}) for the small-screen view and two elements for the large-screen view, that results in Figure~\ref{fig:awall-layout}.
-The \textit{awall-userstory-cardlist} element for small screens handles its behavior to switch to the detailed view (Figure~\ref{fig:sp2-detail}) itself.
-The title for the widget at the top of the listing is visible on any screen and thus is not enclosed in a template.
-
-\begin{code}[caption={How the \gls{sp2} main widget decides which view to show.},label=lst:sp2-template]
-<h2>Sprintplanning 2</h2>
-
-<template if="{{isSmallScreenHeight}}">
-  <awall-userstory-cardlist />
-</template>
-
-<template if="{{!isSmallScreenHeight}}">
-  <awall-sprintbacklog />
-  <awall-temptasks />
-</template>
-\end{code}
+The $<$awall-userstory-cardlist$>$ element for small screens handles its behavior to switch to the detailed view (Figure~\ref{fig:sp2-detail}) itself.
+The title for the widget at the top of the listing is visible on any screen and thus is not enclosed in a $<$template$>$ element.
 
 
 \section{Discussion}
@@ -559,13 +613,14 @@ The title for the widget at the top of the listing is visible on any screen and 
 % 2x2 sucks because of the bezels when interaction requires the user to cross the bezel from one to another screen
 Our setup for the multi-touch wall consists of 2x2 monitors.
 In between the monitors there is a small border around each monitor as seen in Figure~\ref{fig:awall}.
-Interaction across these borders is possible, but these borders are a haptical obstacle that is not always successfully crossed.
+Interaction across these borders is possible, but they are a haptical obstacle that is not always successfully crossed.
 
 % our 2x2 uses infrared to detect the touch points: when using pinch-to-zoom, the two fingers must have some distance between them or else only one touch-point is detected.
 Because of the 2x2 monitor setup, the touches are detected by an additional bezel around the system using infra-red.
 The system has some difficulties detecting two distinct touch-points when the distance between two fingers is too narrow.
 This is especially noticeable by using the pinch-to-zoom gesture.
 
+Both of these problems can be avoided by using a single high-resolution wall display that uses a capacitive touch-screen instead of infra-red.
 
 \subsection{UI Design}
 % orientation of the tablet (portrait, landscape): only landscape supported atm
@@ -573,7 +628,7 @@ A nice feature of tablets is that the user can hold it however he wants.
 The orientation of the screen changes with how the user holds the device, which is either portrait or landscape mode.
 This confronts the designer or developer with another variation of screen resolution that is challenging because the two modes have different aspect ratios.
 That often means that the UI for portrait mode is not adequate for the landscape mode.
-Our solution is optimized for landscape mode even on tablets.
+Our solution is optimized only for landscape mode for all devices.
 
 % virtual keyboard overlays a lot of space and hides the application
 On multi-touch devices without a physical keyboard a virtual on-screen keyboard is provided by the system.
@@ -586,20 +641,20 @@ A convenient option for text input on a tablet is using a pen instead of the vir
 There are not many tablets on the market that support pen input.
 One product line that does are the Microsoft Surface Pro tablets.
 The support is built into the virtual keyboard application and handwriting detection works pretty well.
-The problem with the keyboard hiding persists with the pen input since it is the same application handling the input.
+The problem with the keyboard hiding content persists with the pen input since it is the same application handling the input.
 
 \subsection{Responsive Design}
 % use of RWD (ad/disadvantages) in aWall
 In combination with new best practices like \gls{rwd}, enabled by the new standards, the development of new and adaptable web applications becomes more approachable.
-Especially media queries allow us to detect and react to changes of factors like the screen resolution that are important for the rendering of content.
+Especially media queries allow us to detect and react to changes like the screen resolution that are important for the rendering of content.
 They allow us to either hide elements or render them using a different style (e.g. smaller font).
-Together with the HTML template element, that allows to create inactive \gls{dom}-trees, conditional templates can be defined that are shown depending on a boolean variable set by a media query.
+Together with the HTML $<$template$>$ element, this allows us to create inactive \gls{dom}-trees in conditional templates that can be shown or hidden depending on a boolean variable set by a media query.
 
 % the two views of SP2 for small-screen devices
 The main widget for the \gls{sp2} workspace presented in this paper uses such conditional templates to present its content depending on the size of the browsers viewport dimensions.
 The views including their specific behavior for both display sizes we implemented, namely the large wall and the tablet, have to be developed separately.
-Thanks to the use of custom elements even for the REST API, the separate views only have to include a HTML element in their HTML code to access it.
-The data is then available in the whole element using data binding provided by Polymer.
+There is no silver bullet that generates all the views automatically.
+Thanks to the use of custom elements, more complex elements can reuse other custom elements.
 
 
 \subsection{Implementation}
@@ -612,13 +667,13 @@ This allows a developer to create new widgets without worrying about whether the
 % WebComponents: rapid development (0.5 -> 1.0), many changes
 By working with the newest technologies, there is always the problem with rapidly evolving and changing APIs and libraries.
 Since we started to develop \textit{aWall}, the Polymer library evolved and reached version 1.0 with lots of changes.
-It is going to take some time to port the current application to the new version. 
+It is going to take some time to port the current application developed with Polymer 0.5 to the new version. 
 
 % WebComponents only work natively with Chrome, polyfills for other browsers
 Another inconvenience of using the newest web technologies is that the number of browsers implementing all those new features is limited.
 Currently, \textit{aWall} only runs natively on the Chrome and Chromium web browsers.
 Most other browsers are in progress of implementing the specifications for web components.
-For all those browsers not supporting any or all the features, there are so called polyfills available.
+For all those browsers not supporting the features, there are so called polyfills available.
 Polyfills are Javascript libraries, that add the missing APIs to the browser.
 One big disadvantage of using polyfills is their lower performance compared to the native implementations.
 
@@ -626,12 +681,15 @@ One big disadvantage of using polyfills is their lower performance compared to t
 \section{Conclusion and Future Work}
 % conclusion
 In this paper we presented how we designed and developed a responsive web application using a single code base that provides the appropriate viewing experience on the large wall as well as the much smaller screen of a tablet without sacrificing functionality.
-As an example, we used the \gls{sp2} meeting of the agile process, where multiple people create tasks for a user story which are then discussed together on the wall, to showcase the responsive and collaborative nature of \textit{aWall}.
+As an example, we used the \gls{sp2} meeting of the agile process, where multiple people create tasks for a user story on tablets which are then discussed using the wall, to showcase the responsive and collaborative nature of \textit{aWall}.
 
 %results from taskboard UI tests (-> tasks for future work)?
 After the design of the large-screen UI, we conducted some live-action interviews with developers to discover if the wall could be something they want to work with and to get input on how to improve it.
 %meetings with a distributed team (e.g. show movement when a task is dragged) [similar to PolyChrome]
-In the future, we are going to build on the input we received and would also like to extend the wall to work with distributed teams, where the movement of a task for instance is mirrored on other walls.
+In the future, we are going to build on the input we received from the interviews and would also like to extend the wall to work with distributed teams, where the movement of a task, for instance, is mirrored on other walls.
+% collaborative aspect: see what's being created/ edited
+To see in the application a task that is in the process of being created or is being modified at the moment would also be an interesting feature.
+It would make the \textit{aWall} application even more collaborative.
 
 
 \balance{}
