@@ -41,15 +41,6 @@
 \shownote{Accessed: 2015-05-30.}
 
 
-\bibitem{jira}
-{Atlassian}. 2015.
-\newblock JIRA -- The flexible and scalable issue tracker for software teams.
-\newblock \url{https://www.atlassian.com/software/jira}.   (2015).
-\newblock
-\newblock
-\shownote{Accessed: 2015-06-16.}
-
-
 \bibitem{polymer}
 {Polymer Authors}. 2015.
 \newblock Polymer.
@@ -84,28 +75,11 @@
 \url{http://dx.doi.org/10.1145/2669485.2669520}}
 
 
-\bibitem{Cockburn:2001}
-{Alistair Cockburn}. 2001.
-\newblock {\em Agile Software Development}.
-\newblock Addison-Wesley Professional.
-\newblock
-\showISBNx{9780201699692}
-
-
 \bibitem{webcomponents.org}
 {WebComponents.org contributors}. 2015.
 \newblock WebComponents.org -- a place to discuss and evolve web component
   best-practices.
 \newblock \url{http://webcomponents.org}.   (2015).
-\newblock
-\newblock
-\shownote{Accessed: 2015-05-27.}
-
-
-\bibitem{websocketRFC}
-{I. Fette} {and} {A. Melnikov}. 2011.
-\newblock The WebSocket Protocol.
-\newblock \url{https://tools.ietf.org/html/rfc6455}.   (December 2011).
 \newblock
 \newblock
 \shownote{Accessed: 2015-05-27.}
@@ -241,14 +215,6 @@
 \showISBNx{978-1-4503-2587-5}
 \showDOI{%
 \url{http://dx.doi.org/10.1145/2669485.2669551}}
-
-
-\bibitem{Stellman:2014}
-{Andrew Stellman} {and} {Jennnifer Greene}. 2014.
-\newblock {\em Learning Agile}.
-\newblock O'Reilly Media.
-\newblock
-\showISBNx{978-1-4493-3192-4}
 
 
 \bibitem{Sukale:2014:PWD:2638728.2638768}

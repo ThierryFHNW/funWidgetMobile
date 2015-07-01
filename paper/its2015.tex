@@ -130,11 +130,9 @@
 
 
 \begin{abstract}
-Agile software development is a highly collaborative and communication intensive method in modern software development. 
-One of its characteristics is the usage of large pin boards with cards where the team does the whole project planning. 
-Based on \textit{aWall}, a web based agile collaboration platform using large multi-touch wall systems, we present a responsive web design approach that supports application interaction as a team and as an individual using both the large multi-touch wall system as well as tablets. 
-Combining these two interaction methods presents unique challenges with respect to the UI and the flow of information. 
-We describe \textit{aWall}'s Web UI architecture and implementation for a concrete case study to showcase the collaborative nature of the application with special focus on its responsive design approach, interaction and information dissemination in the multi-device environment.
+Agile software development, a highly collaborative and communication intensive project management approach, has become a predominant method in modern software development. A core mean for the collaboration and communication are task boards, typically large physical pin boards, which are used for the whole project planning.  The interaction with the task board is on team base and also individually to update and add new tasks to the board. Appropriate digital tools and infrastructures to support this intensive collaboration in the team are still missing. 
+We developed concepts and prototypes for a web based agile collaboration platform using a large multi-touch wall system, which supports both, team interaction on the wall, as well as direct individual interactions by multiple users using mobile devices like tablets. Combining these two interaction methods raises unique challenges with respect to how to represent the huge amount of information from the large wall system on small devise like tablets, on the user interface design and the flow of information.
+In this paper we present a responsive web design approach that supports application interaction as a team and as an individual using both the large multi-touch wall system as well as tablets.  We describe \textit{aWall}'s Web UI architecture and implementation to showcase the collaborative nature of the application with special focus on its responsive design approach, interaction and information dissemination in the multi-device environment.
 \end{abstract}
 
 \category{H.5.2.}{Information Interfaces and Presentation (e.g. HCI)}{User Interfaces -- \textit{Interaction styles}}
@@ -142,72 +140,75 @@ We describe \textit{aWall}'s Web UI architecture and implementation for a concre
 \category{H.5.4.}{Information Interfaces and Presentation (e.g. HCI)}{Hypertext/Hypermedia -- \textit{Architectures}}
 
 
-\keywords{Collaborative work and interaction; multi-touch; wall; tablets; responsive design; agile; sprint planning 2; web components}
+\keywords{Collaborative work and interaction; multi-touch; wall; tablets; responsive design; agile;  web components}
 
 \section{Introduction}
 % intro to challenges, motivation
-In agile software development physical pin boards, so called task boards, are the main tool for agile project planning. We developed a software-based solution for extra large digital multi-touch wall systems, the \textit{aWall} web application, intended to replace the paper-based pin board.
-The system consists of two distinct device types: The wall as a direct replacement for the pin board (see Figure~\ref{fig:awall}) and tablets for more input-oriented tasks.
-The application does not require more than one device to be useful, but the two device types complement each other in terms of interaction capabilities.
-Using these two different interaction devices presents unique challenges regarding the interaction with the system as a team with the wall or as an individual with the tablet.
+In agile software development physical pin boards, so called task boards, are the main tool for  project planning and team collaboration. While a physical card wall offers many advantages with respect to ease of use and flexibility, it also has major disadvantages compared to digital solutions. However, recent studies \cite{udcw:31721, Mateescu:2015, Kropp:2015} show that current desktop-based digital solutions can hardly fulfill the requirements concerning agile collaboration.
+Large digital multi-touch wall systems have the potential to be able to replace physical boards and to offer even more possibilities to support agile collaboration: They can foster the collaborative work and generate awareness through digital enrichment of the wall application like pro-active information provisioning, team activation tools, or issue highlighter, for example. A digital solution can also support collaboration of distributed agile teams. However they also must provide the natural interaction and ease of use of physical boards (\cite{udcw:31721} and \cite{Mateescu:2015}). 
 
+
+We developed a web-based solution for extra large digital multi-touch wall systems, the \textit{aWall} web application, intended to replace the paper-based pin board. 
 \begin{figure}
 	\centering
 	\includegraphics[width=\columnwidth]{figures/awall}
-	\caption{The \textit{aWall} application running on a large multi-touch wall composed of 2x2 displays.}
+	\caption{The \textit{aWall} application running on a large multi-touch wall composed of 2x2 46" displays.}
 	~\label{fig:awall}
 \end{figure}
 
-While a physical card wall offers many advantages with respect to ease of use and flexibility, it also has major disadvantages compared to digital solutions. However, recent studies \cite{udcw:31721, Mateescu:2015} show that current desktop-based digital solutions can hardly fulfill the requirements concerning agile collaboration.
-Large digital multi-touch wall systems have the potential to be able to replace the physical boards and to offer even more possibilities, amongst are also support for distributed team collaboration. However as \cite{udcw:31721} and \cite{Mateescu:2015} show, they must provide the natural interaction and ease of use as physical boards. 
+The system consists of two distinct device types: The wall, a 2x2 46"(2.13m x 1.24m) 4k high resolution screen system, as a direct replacement for the pin board (see Figure~\ref{fig:awall}) and tablets for more input-oriented and individual tasks.
 
-% large wall to tablet: first large wall, then extended to support smaller devices
-In \cite{Mateescu:2015}, we present a concept for a large multi-touch wall based agile collaboration platform. The agile software development process comprises of different kinds of meetings, which can all be held at the wall. For some of the meetings a direct interaction with the wall, respectively with the artifacts represented at the wall, seem less appropriate. Other, smaller, input devices like individual developers tablets or even smartphones might be more appropriate. These devices allow multiple people to directly and independently interact with the artifacts on the wall and enter or modify data during the meeting more comfortable; still everybody immediately seeing the changes made. 
 
-% What is SP2?
-The user requirements for a software system are described in \textit{user stories}, a brief description of a feature in everyday language.
-All \textit{user stories} are stored in a \textit{product backlog} and are maintained by a \textit{product owner}, who represents the customer to the development team and who is in charge of all requirements.
-An agile project is split into short iterations lasting between 2 to 4 weeks.
-In Scrum, these iterations are called sprints. Each sprint starts with a \textit{sprint planning meeting}, which is divided into two sub meetings. In the \gls{sp1} meeting, the team and the product owner select those user stories, which will be implemented in the next iteration.
-The selected user stories are stored in a list called the \textit{sprint backlog}.
-In the \gls{sp2} meeting, the team then splits the selected user stories from the \textit{sprint backlog} into smaller technical tasks, which describe what the developer has to do to implement the user story. These tasks should not take longer than one workday to complete.
-
+While the digital wall seems to be a very well suited platform for team oriented activities like discussions, management of cards, information dissemination, or common design meetings, the tablet is the a much better tool for adding text based information on individual basis, or adding new cards. It especially allows direct interaction of multiple users simultaneously. 
+Thus the two device types complement each other in terms of interaction capabilities and also ease of use. 
+However using these two different interaction devices also raises new challenges about how the team via the wall and the individuals with their tablets interact with the whole system. Those challenges include information dissemination, information representation, activity awareness, and information awareness, for example.
 
 % - structure of the paper
 The remainder of the paper is structured as follows.
-First, the \textit{aWall} web application is presented, then related work.
-The UI design and the challenges we faced when adapting a web application designed for large screens to smaller tablet-sized screens is presented.
+First, the \textit{aWall} web application is presented ,followed by  related work. The user interface design and the challenges we faced when adapting a web application designed for large screens to smaller tablet-sized screens is presented.
 The following section describes the implementation and in the end, we discuss the work and provide an outlook into our future work.
 
 
 \section{aWall Web Application}
 
-\textit{aWall} is a web application for a large multi-touch wall and tablet based agile collaboration platform.
-The application offers several interaction possibilities, ranging from multiple people working on the wall simultaneously to people using the application with tablets and the wall together.
+\textit{aWall} is an agile web collaboration plattform. It is designed as a multi-device system for  large multi-touch walls and tablets as shown in Figure~\ref{fig:awall}.
+
+The system is designed to support all different agile meetings including Daily Standup, Sprint Planning 1 and 2 meetings, release planning meeting, as well as retrospectives ( see Figure~\ref{fig:retrospective}) and User Story grooming meetings. 
+For some of the meetings a direct interaction with the wall, respectively with the artifacts represented at the wall, seem less appropriate. Other, smaller, input devices like individual developers' tablets or even smartphones might be more appropriate. These devices allow multiple people to directly and independently interact with the artifacts on the wall and enter or modify data during the meeting more comfortable; while everybody immediately seeing the changes made. 
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\columnwidth]{figures/retrospective}
+	\caption{The Retrospective meeting view on the \textit{aWall}.}
+	~\label{fig:retrospective}
+\end{figure}
+
+The application offers multiple interaction possibilities, ranging from multiple people working on the wall simultaneously to people using the application with tablets and the wall together.
 With the server of the system offering real-time change notifications, all connected application instances receive the modifications made by other instances and are able to update the data in-place without reloading the website.
 
 Figure~\ref{fig:awall} shows our setup using 2x2 full-HD monitors forming a 4K display.
 Interactions can span monitors and are detected using an infra-red overlay in the frame around the four monitors.
 
-The application is comprised of configurable workspaces, that are composed of smaller widgets and one large main widget.
-The main widget is always tailored to the a specific task that coincides with a meeting of the agile process.
-The smaller widgets offer additional functionality and interaction possibilities.
+The system is designed meeting oriented. That means, it offers dedicated views for the different agile meetings, which each serves a different purpose with different goals and different artifacts. For example, the Daily Standup meeting is the daily micro planning of the team, mainly dealing with the individual task cards, while the Sprint planning 1 meeting, is the selection of the User Stiories for the next sprint(iteration).
+Each view is composed of one large main widget and several smaller widgets on top of the main widget.
+The main widget is always tailored to the a specific task that coincides with the corresponding meeting.
+The smaller widgets offer additional functionality and interaction possibilities and are highly configurable to the users needs.
+Figure~\ref{fig:awall} shows the view for the Daily Standup meeting with the extra information views on top of the main view.
 
 
 \section{Related Work}
 % Scrum taskboards stuff:
-An often mentioned and typical setting used in the agile process is the taskboard.
-It shows the current progress of the project iteration at a glance and is used in the daily stand-up meetings. 
-A digital tabletop application is introduced for agile planning meetings in \cite{Ghanam:4599452}. 
+The task board for the Daily Standup meeting is one of the core artifacts in agile project management. Thus much  work has been done on this. 
+A digital tabletop application is introduced for agile planning meetings by Ghanam et al in \cite{Ghanam:4599452}. 
 The tabletop only has a single-touch display. 
 Thus only one person can interact with the system at a time and without advanced gestures that involve multiple fingers like pinch-to-zoom.
-In \cite{Rubart:2014:CMS:2669485.2669551}, a cooperative multi-touch taskboard for large displays is proposed. 
+In \cite{Rubart:2014:CMS:2669485.2669551} Rubart proposes a cooperative multi-touch taskboard for large displays.
 The paper discusses how interactive tabletops and surfaces can be applied to the agile taskboard for the daily stand-up and other meetings and evaluates gestures known from smartphones for big tabletops and group settings.
-\cite{Haas:2014:TAV:2669485.2669538} introduces a task assignment system for tabletop computers that consists of two components: the tabletop application and a separate Android companion application.
+Haas et al \cite{Haas:2014:TAV:2669485.2669538} introduce a task assignment system for tabletop computers that consists of two components: the tabletop application and a separate Android companion application.
 The companion application shows changes made on the tabletop in real-time and offers some limited interaction capabilities.
 
 % wall, tablet stuff
-A multi-surface communication and collaboration platform using a wall, tabletops and tablets for an emergency operations center is presented in \cite{Chokshi:2014:EMM:2669485.2669520}. 
+A multi-surface communication and collaboration platform using a wall, tabletops and tablets for an emergency operations center is presented by Chokshi in \cite{Chokshi:2014:EMM:2669485.2669520}. 
 The system is spatially aware of all the devices and people in the room using multiple Kinects.
 This allows the use of gestures like a flick on a tablet towards the wall to share information.
 The device types are used for different scenarios:
@@ -234,15 +235,15 @@ What responsive design does not take into account is the proximity of the user.
 The authors in \cite{Sukale:2014:PWD:2638728.2638768} developed an example implementation of a responsive web application that adjusts the information displayed according to the user's distance to the display.
 
 %Collaborative web visualization:
-In \cite{Badam:2014:PCF:2669485.2669518}, an web-based application framework is presented for collaborative visualizations across multiple devices. The framework allows to synchronize UI state of new or legacy web applications with minimal overhead.
+In \cite{Badam:2014:PCF:2669485.2669518} Badam presents a web-based application framework for collaborative visualizations across multiple devices. The framework allows to synchronize UI state of new or legacy web applications with minimal overhead.
 
 
 \section{UI Design and Challenges}
 % quick intro with requirements / challenges, focus on SP2 UI as example
-Using one application to cover multiple devices with different dimensions presents some challenges:
+Using one application to cover multiple devices with different dimensions presents some extra challenges:
 
 \begin{enumerate}[A.]
-	\item \textbf{Device interaction:} How the two device types are used in the system to work collaboratively.~\label{itm:interaction}
+	\item \textbf{Device interaction:} How are  the two device types used in the system to work collaboratively.~\label{itm:interaction}
 	
 	\item \textbf{Responsive design}
 	\begin{enumerate}[1.]
@@ -267,11 +268,11 @@ The following subsections are going to explain the aforementioned challenges in 
 % device interaction (collaborative tasks on the wall, individual text-oriented tasks on the tablet)
 % - device interaction: text-input sucks on the wall, thus tablet for input-oriented tasks (interaction)
 
-The wall's strength is to provide overview and interaction methods like, for example, assign a person to a task or move a task from 'In Progress' to 'Done'. 
+The wall's strength is to provide overview and team interaction methods like, for example, assign a person to a task or move a task from 'In Progress' to 'Done'. 
 Text input, e.g. creating a new task, on the other hand is cumbersome on the wall. 
 The \textit{aWall} application on the wall can be operated by multiple people at the same time using the aforementioned interaction methods.
 Text-input using the virtual or physical keyboard is possible but limited to one person at a time.
-However, the tablet is much more input-friendly particularly when it supports pen input with handwriting detection.
+However, the tablet is much more input-friendly, particularly when it supports pen input with handwriting detection.
 This is why in our scenario of the \gls{sp2} meeting, the team gathers around the wall with one person handling the wall and everyone else equipped with a tablet.
 People with a tablet create the tasks for the currently discussed user story.
 The tasks they create show up on the wall immediately after being saved as unassigned tasks (right panel in Figure~\ref{fig:awall-layout}).
@@ -290,7 +291,7 @@ The unassigned tasks are discussed and then either assigned to user story or dis
 \subsubsection{Background}
 % - responsive web design
 \glsreset{rwd} % make sure RWD is printed completely
-The \gls{rwd} \cite{Marcotte:2011} approach offers a solution to create one application that provides an optimal viewing experience across a wide variety of different devices with various display-resolutions. 
+The \gls{rwd} \cite{Marcotte:2011} is an approach to create one application that provides an optimal viewing experience across a wide variety of different devices with various display-resolutions. 
 
 % cornerstones of rwd
 \gls{rwd} builds on the following three cornerstones~\cite{Marcotte:2011}:
@@ -362,12 +363,11 @@ Websites on the Internet we visit on a daily basis are content-oriented and we v
 % mobile-first and our interaction-oriented application
 In \gls{rwd}, the design of a website is optimized to the screen-size.
 This also means that the mobile site shows only the most important content, because the available space is very small.
-Additional content shown on the desktop website is hidden and only accessible though menus and functionality is sacrificed in order to  keep it organized and legible. 
-This works in a content-oriented website, but not an interaction-oriented website.
+Additional content shown on the desktop website is hidden and only accessible though menus and functionality is sacrificed in order to  keep it organized and legible. This works in a content-oriented website, but not an interaction-oriented website.
 Especially when the main goal is to provide the same functionality on the tablet as on the large wall (Challenge~\ref{itm:retainFunc}).
 The UI should still provide an appropriate viewing experience on the device (Challenge~\ref{itm:rwdViewingExp}).
 % we: wall -> tablet "wall-first": how to bring all this information to tablet
-The biggest challenge therefore was how to bring all the information and functionality from the wall to the much smaller tablet.
+The biggest challenge therefore was to bring all the information and functionality from the wall to the much smaller tablet.
 
 
 \subsubsection{General Layout}
@@ -414,7 +414,7 @@ The full view is intended to show more information on the widget's subject or of
 It is triggered by specifying the breakpoints for the width and height.
 Once the widget has exceeded both breakpoints while resizing, the full view is shown.
 % - buttons when undocked (dock, reset size, enter edit mode)
-Once a widget is in the undocked state, a small icon in the top-right corner appears (see Figure~\ref{fig:widget-default-undocked}), that docks the widget immediately.
+Once a widget is in the undocked state, a small icon in the top-right corner appears (see Figure~\ref{fig:widget-default-undocked}), that docks the widget immediately when pressed.
 When a widget has been resized, even when it has not reached its full view, a 'resize to default' icon is shown, as depicted in Figure~\ref{fig:widget-full} as the second icon from the right.
 If a widget has an edit mode, an 'edit' icon is displayed in the top-right corner of the widget.
 
@@ -447,13 +447,12 @@ The new arrangement can be saved by the user or reset to the default.
 
 
 % general tablet size
-The two device types the system uses, namely the wall and tablets, have significantly different screen resolutions and physical dimensions. 
-An important goal driving our design was the ability to see everything without much scrolling (Challenge~\ref{itm:scrolling}).
+The two device types the system uses, namely the wall and tablets, have significantly different screen resolutions and physical dimensions. An important goal driving our design was the ability to see everything without much scrolling (Challenge~\ref{itm:scrolling}).
 
 % Reduce space of non-essential elements
 % title-only view => undock => default view
 A lot of vertical space is used up by the info-view widgets when using the default view as on the wall.
-They offer auxiliary functionality, but it is not absolutely essential that they are completely visible the whole time in their default view.
+They offer auxiliary functionality. But on the tablet it is not necessary that they are completely visible the whole time in their default view.
 Thus, we created the aforementioned title-only view (Figure~\ref{fig:widget-titleonly}).
 That way, the widgets are still in the same place and visible, but use much less space.
 A downside is that they have to be dragged out of the info-view to be usable.
@@ -486,8 +485,8 @@ The same happens when an user story or task is deleted or changed.
 
 \subsection{Web Components}
 %- HTML5 WebComponents to isolate functionality (JS) and style (CSS)
-\textit{aWall} uses Web Components \cite{webcomponents.org}, a set of four standards currently being produced as a W3C specification.
-Those four specifications offer the following features that can be used together or individually:
+For the Web UI in \textit{aWall} we follow the Web Components  \cite{webcomponents.org} approach,  a set of four standards currently being produced as a W3C specification.
+These four specifications offer the following features that can be used together or individually:
 \begin{itemize}
 	\item Custom Elements~\cite{CustomElements} Define and use new HTML elements. 
 	That ranges from simple format-elements to complex elements with functionality like, for example, the HTML5 video element.
@@ -519,7 +518,7 @@ For multi-touch gestures like pinch-to-zoom, drag\&drop and resizability of elem
 
 \subsection{Responsive Widgets}
 % how widgets are implemented by the developer developing widgets
-All the widgets use the custom element $<$awall-widget$>$.
+All the widgets use the custom element $<$awall-widget$>$ (see Listing~\ref{lst:widget-elements}).
 It gives all the widgets the features like drag \& drop and resizability.
 The four views of the widgets are also implemented by custom elements, namely $<$awall-widget-title$>$, $<$awall-widget-size-default$>$, $<$awall-widget-size-full$>$ and $<$awall-widget-editable$>$.
 Listing~\ref{lst:widget-elements} shows the pattern on how a widget is implemented using the aforementioned elements.
