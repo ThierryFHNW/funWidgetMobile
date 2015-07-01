@@ -130,8 +130,8 @@
 
 
 \begin{abstract}
-Agile software development, a highly collaborative and communication intensive project management approach, has become a predominant method in modern software development. A core mean for the collaboration and communication are task boards, typically large physical pin boards, which are used for the whole project planning.  The interaction with the task board is on team base and also individually to update and add new tasks to the board. Appropriate digital tools and infrastructures to support this intensive collaboration in the team are still missing. 
-We developed concepts and prototypes for a web based agile collaboration platform using a large multi-touch wall system, which supports both, team interaction on the wall, as well as direct individual interactions by multiple users using mobile devices like tablets. Combining these two interaction methods raises unique challenges with respect to how to represent the huge amount of information from the large wall system on small devise like tablets, on the user interface design and the flow of information.
+Agile software development, a highly collaborative and communication intensive project management approach, has become a predominant method in modern software development. A core implement for the collaboration and communication are task boards, typically large physical pin boards, which are used for the whole project planning.  The interaction with the task board is on team basis and also individually to update and add new tasks to the board. Appropriate digital tools and infrastructures to support this intensive collaboration in the team are still missing. 
+We developed concepts and prototypes for a web based agile collaboration platform using a large multi-touch wall system, which supports both, team interaction on the wall, as well as direct individual interactions by multiple users using mobile devices like tablets. Combining these two interaction methods raises unique challenges with respect to how to represent the huge amount of information from the large wall system on a small device like a tablet, on the user interface design and the flow of information.
 In this paper we present a responsive web design approach that supports application interaction as a team and as an individual using both the large multi-touch wall system as well as tablets.  We describe \textit{aWall}'s Web UI architecture and implementation to showcase the collaborative nature of the application with special focus on its responsive design approach, interaction and information dissemination in the multi-device environment.
 \end{abstract}
 
@@ -159,14 +159,14 @@ We developed a web-based solution for extra large digital multi-touch wall syste
 The system consists of two distinct device types: The wall, a 2x2 46"(2.13m x 1.24m) 4k high resolution screen system, as a direct replacement for the pin board (see Figure~\ref{fig:awall}) and tablets for more input-oriented and individual tasks.
 
 
-While the digital wall seems to be a very well suited platform for team oriented activities like discussions, management of cards, information dissemination, or common design meetings, the tablet is the a much better tool for adding text based information on individual basis, or adding new cards. It especially allows direct interaction of multiple users simultaneously. 
+While the digital wall seems to be a very well suited platform for team oriented activities like discussions, management of cards, information dissemination, or common design meetings, the tablet is the a much better tool for adding text based information on an individual basis, or adding new cards. It especially allows direct interaction of multiple users simultaneously. 
 Thus the two device types complement each other in terms of interaction capabilities and also ease of use. 
 However using these two different interaction devices also raises new challenges about how the team via the wall and the individuals with their tablets interact with the whole system. Those challenges include information dissemination, information representation, activity awareness, and information awareness, for example.
 
 % - structure of the paper
 The remainder of the paper is structured as follows.
-First, the \textit{aWall} web application is presented ,followed by  related work. The user interface design and the challenges we faced when adapting a web application designed for large screens to smaller tablet-sized screens is presented.
-The following section describes the implementation and in the end, we discuss the work and provide an outlook into our future work.
+First, the \textit{aWall} web application is presented, followed by related work. Then, the user interface design and the challenges we faced when adapting a web application designed for large screens to smaller tablet-sized screens is presented.
+Afterwards, the implementation is described and in the end, we discuss the work and provide an outlook into our future work.
 
 
 \section{aWall Web Application}
@@ -186,14 +186,27 @@ For some of the meetings a direct interaction with the wall, respectively with t
 The application offers multiple interaction possibilities, ranging from multiple people working on the wall simultaneously to people using the application with tablets and the wall together.
 With the server of the system offering real-time change notifications, all connected application instances receive the modifications made by other instances and are able to update the data in-place without reloading the website.
 
+\begin{figure}
+	\centering
+	\includegraphics[width=\columnwidth]{figures/systemoverview}
+	\caption{System overview.}
+	~\label{fig:systemoverview}
+\end{figure}
+
+The whole system consists of four components, as depicted in Figure~\ref{fig:systemoverview}.
+The \textit{aWall} application files are delivered by a web server.
+\textit{aWall} is a \gls{spa}, that means the whole application is retrieved in a single page load.
+The information about sprints, user stories and tasks is provided by an application server using a REST API and a WebSocket endpoint for real-time change notifications.
+The application server in turn retrieves the data from an JIRA~\cite{jira} server. JIRA is a bug, issue and project management software used by many software development teams around the world.
+
 Figure~\ref{fig:awall} shows our setup using 2x2 full-HD monitors forming a 4K display.
 Interactions can span monitors and are detected using an infra-red overlay in the frame around the four monitors.
 
-The system is designed meeting oriented. That means, it offers dedicated views for the different agile meetings, which each serves a different purpose with different goals and different artifacts. For example, the Daily Standup meeting is the daily micro planning of the team, mainly dealing with the individual task cards, while the Sprint planning 1 meeting, is the selection of the User Stiories for the next sprint(iteration).
-Each view is composed of one large main widget and several smaller widgets on top of the main widget.
+The system organized around the meetings. That means, it offers dedicated views for the different agile meetings, which each serves a different purpose with different goals and different artifacts. For example, the Daily Standup meeting is the daily micro planning of the team, mainly dealing with the individual task cards, while the Sprint planning 1 meeting, is the selection of the User Stiories for the next sprint (iteration).
+Each view is composed of one large main widget and several smaller widgets above the main widget.
 The main widget is always tailored to the a specific task that coincides with the corresponding meeting.
 The smaller widgets offer additional functionality and interaction possibilities and are highly configurable to the users needs.
-Figure~\ref{fig:awall} shows the view for the Daily Standup meeting with the extra information views on top of the main view.
+Figure~\ref{fig:awall} shows the view for the Daily Standup meeting with the extra information views above the main view.
 
 
 \section{Related Work}
@@ -216,10 +229,6 @@ The tablet is used for personal and private interaction with colleagues.
 Whereas the tabletop is a semi-private workspace for collaboration and the wall is a public information radiator, aggregating multiple data sources.
 The authors developed native applications for the wall, the tabletop and the tablet.
 Thus multiple independent applications were developed with different code bases using in part the same information provided by servers.
-% one web application to rule them (devices) all
-With \textit{aWall}, we do not want to maintain multiple code bases but one application to handle all the devices.
-This includes the viewing experience corresponding to the device type of what is shown and how it is presented.
-
 
 % Responsive design:
 One of the most significant challenges with the emergence of all the new devices like smartphones, tablets and phablets in the last years, is device and platform fragmentation.
@@ -260,7 +269,7 @@ Using one application to cover multiple devices with different dimensions presen
 \end{enumerate}
 
 Challenge \ref{itm:codeBase} is more a requirement than a challenge that \textit{aWall} already fulfills because its a web application and there is no server that detects the browser of the client and then renders the website for that device.
-\textit{aWall} is a \gls{spa}, that runs completely in the browser and only depends on a server for the data like sprints, user stories and tasks.
+\textit{aWall} is a \gls{spa}, that runs completely in the browser and only depends on a server for the data of the sprints, user stories and tasks.
 The following subsections are going to explain the aforementioned challenges in detail and how we solved them in \textit{aWall} using the \gls{sp2} meeting as an example.
 
 
@@ -363,7 +372,8 @@ Websites on the Internet we visit on a daily basis are content-oriented and we v
 % mobile-first and our interaction-oriented application
 In \gls{rwd}, the design of a website is optimized to the screen-size.
 This also means that the mobile site shows only the most important content, because the available space is very small.
-Additional content shown on the desktop website is hidden and only accessible though menus and functionality is sacrificed in order to  keep it organized and legible. This works in a content-oriented website, but not an interaction-oriented website.
+Additional content shown on the desktop website is hidden and only accessible through menus and functionality is sacrificed in order to  keep it organized and legible. 
+This works in a content-oriented website, but not an interaction-oriented website.
 Especially when the main goal is to provide the same functionality on the tablet as on the large wall (Challenge~\ref{itm:retainFunc}).
 The UI should still provide an appropriate viewing experience on the device (Challenge~\ref{itm:rwdViewingExp}).
 % we: wall -> tablet "wall-first": how to bring all this information to tablet
@@ -393,7 +403,7 @@ The number of widgets displayed is calculated by the application using a defined
 The broader the viewport, the more widgets can be displayed.
 Info-view widgets can be enabled or disabled.
 If a currently disabled widget is enabled and the info-view is full, the widget in the last position is replaced with the newly enabled widget.
-This ensures that only the calculated number of widgets is displayed which ensures that the widgets always have enough space.
+This ensures that only the calculated number of widgets are displayed which in turn ensures that the widgets always have enough space.
 Disabled widgets can be accessed by the workspace-menu, where each widget can be enabled or disabled. 
 
 % widget abilities (dock, resize etc)
@@ -411,7 +421,7 @@ On smaller screens like on a tablet, only the title of the widget is shown (Figu
 The default size with the same functionality as on larger screens is shown when it is undocked (Figure~\ref{fig:widget-default-undocked}).
 Besides the title-only and the default view, a widget can offer an additional full view (Figure~\ref{fig:widget-full}) and an edit mode (Figure~\ref{fig:widget-editmode}).
 The full view is intended to show more information on the widget's subject or offer additional interaction functionality.
-It is triggered by specifying the breakpoints for the width and height.
+It is triggered by specifying breakpoints for the width and height.
 Once the widget has exceeded both breakpoints while resizing, the full view is shown.
 % - buttons when undocked (dock, reset size, enter edit mode)
 Once a widget is in the undocked state, a small icon in the top-right corner appears (see Figure~\ref{fig:widget-default-undocked}), that docks the widget immediately when pressed.
@@ -420,7 +430,7 @@ If a widget has an edit mode, an 'edit' icon is displayed in the top-right corne
 
 % workspace menu
 % workspace menu: save/reset workspace, list of widgets with toggle to en/disable, list of available meeting workspaces
-The workspace-menu is the small button in the top right corner.
+The workspace-menu is the small button in the top right corner in Figure~\ref{fig:awall-layout}.
 It allows to control which widgets are enabled and disabled with toggles, to switch to the other workspaces of different meetings and to save or reset the current workspace configuration.
 As mentioned above, the widgets in the info-view can be rearranged.
 The new arrangement can be saved by the user or reset to the default.
@@ -475,6 +485,7 @@ When the user clicks, respectively selects a user story, the second view is show
 There, the selected user story is displayed with all its assigned tasks on the left side and the list of unassigned tasks on the right side.
 The back-arrow to the right of the user story brings the user back to the overview.
 
+
 \subsection{Information dissemination}
 The information about changes is propagated to all \textit{aWall} application instances in real-time.
 So, if someone on a tablet creates a new unassigned task, the new task is sent to all tablets and the wall where it automatically pops up.
@@ -489,15 +500,15 @@ For the Web UI in \textit{aWall} we follow the Web Components  \cite{webcomponen
 These four specifications offer the following features that can be used together or individually:
 \begin{itemize}
 	\item Custom Elements~\cite{CustomElements} Define and use new HTML elements. 
-	That ranges from simple format-elements to complex elements with functionality like, for example, the HTML5 video element.
+	That ranges from simple format-elements to complex elements with functionality like, for example, the HTML5 $<$video$>$ element.
 	
 	\item HTML Imports~\cite{HTMLImports}: Include and reuse HTML documents.
 	Allows to define custom elements in a separate file,  import it and then use those custom elements. 
 	Similar to how CSS and Javascript files can be imported.
 	
-	\item The template element~\cite{TemplateElement}: Declare inactive \gls{dom}-trees that can be reused to instantiate custom elements.
+	\item The $<$template$>$ element~\cite{TemplateElement}: Declare inactive \gls{dom}-trees that can be reused to instantiate custom elements.
 	
-	\item Shadow DOM~\cite{ShadowDOM}: Encapsulate functionality and style in \gls{dom}-trees.
+	\item Shadow DOM~\cite{ShadowDOM}: Encapsulates functionality and style in \gls{dom}-trees.
 	Normally CSS definitions are global no matter where they are defined.
 	By encapsulating the style definitions in a Shadow DOM, they become local and scoped and do not affect any other \gls{dom} elements outside of the Shadow DOM.
 \end{itemize}
@@ -508,11 +519,10 @@ This approach goes more in the direction of component-based software engineering
 The custom elements can be defined in separate HTML documents and be reused in multiple web applications by importing the document.
 This also means that the elements can be loosely-coupled and independent.
 
-\newpage
 
 %- Polymer, Interact.js
 \subsection{Frameworks}
-The \textit{aWall} web application uses Polymer~\cite{polymer}, a library that abstracts WebComponents and allows to define custom elements using declarative HTML tags instead of pure Javascript code.
+The \textit{aWall} web application uses Polymer~\cite{polymer}, a library that abstracts Web Components and allows to define custom elements using declarative HTML tags instead of pure Javascript code.
 This makes it easy to write new custom elements without the huge amount of boilerplate code that is required when using the native Javascript APIs directly.
 For multi-touch gestures like pinch-to-zoom, drag\&drop and resizability of elements, \textit{aWall} uses the interact.js~\cite{interactJs} library.
 
@@ -551,7 +561,7 @@ The edit mode is not shown automatically, but is represented by an edit button a
 
 % how the custom element awall-widget is implemented by the framework
 The $<$awall-widget$>$ custom element implements the features that all widgets have and controls when which view is displayed.
-Listing~\ref{lst:awall-widget} shows part of the template of the $<$awall-widget$>$ element.
+Listing~\ref{lst:awall-widget} shows a part of the template of the $<$awall-widget$>$ element definition.
 The $<$content$>$ element is used in Shadow DOM and represents an insertion point for \gls{dom}-trees.
 That means that everything between the start and end tag of $<$awall-widget-size-default$>$ in Listing~\ref{lst:widget-elements} is inserted in the position of the content tag that selects the $<$awall-widget-size-default$>$ in line 4 of Listing~\ref{lst:awall-widget}.
 
@@ -583,16 +593,16 @@ During resizing, the width and height of the widget are compared to the \textit{
 \end{code}
 
 \begin{code}[caption={How the \gls{sp2} main widget decides which view to show.},label=lst:sp2-template]
-	<h2>Sprintplanning 2</h2>
+<h2>Sprintplanning 2</h2>
 	
-	<template if="{{isSmallScreenHeight}}">
-	<awall-userstory-cardlist />
-	</template>
+<template if="{{isSmallScreenHeight}}">
+  <awall-userstory-cardlist />
+</template>
 	
-	<template if="{{!isSmallScreenHeight}}">
-	<awall-sprintbacklog />
-	<awall-temptasks />
-	</template>
+<template if="{{!isSmallScreenHeight}}">
+  <awall-sprintbacklog />
+  <awall-temptasks />
+</template>
 \end{code}
 
 \subsection{SP2 Widget}
