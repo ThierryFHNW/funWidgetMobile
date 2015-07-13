@@ -56,7 +56,7 @@
             }
 
         </style>
-        <core-menu-button>
+        <core-menu-button id="menuButton">
             <core-icon-button icon="menu" id="menu"></core-icon-button>
             <core-dropdown class="dropdown" halign="right" backdrop autoCloseDisabled closeSelector="#close">
                 <core-icon-button icon="close" id="close"></core-icon-button>
@@ -78,7 +78,7 @@
                         <h3>Workspaces</h3>
                         <ul>
                             <template repeat="{{workspace in $.globals.workspaces}}">
-                                <a href="{{workspace.parsedPath}}">
+                                <a href="{{workspace.parsedPath}}" on-click="{{onWorkspaceChange}}">
                                     <li>{{workspace.name}}</li>
                                 </a>
                             </template>
@@ -94,6 +94,10 @@
         Polymer(Polymer.mixin({
             domReady: function () {
                 this.workspaceSaved = this.core.isWorkspaceSaved();
+            },
+            onWorkspaceChange: function() {
+                // close the menu so the rest of the viewport is not backdropped on the next workspace.
+                this.$.menuButton.opened = false;
             },
             onSaveWorkspace: function () {
                 this.workspaceSaved = this.core.saveActiveWorkspace();

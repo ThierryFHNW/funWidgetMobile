@@ -123,9 +123,7 @@ window.appMixin = app;
         // defined as property so direct access from polymer is possible
         Object.defineProperty(this, 'parsedPath', {
             get: function () {
-                // create app-core element to access the global route parameters.
-                var appCoreElement = document.createElement('app-core');
-                return '#' + this.matcher.stringify(appCoreElement.routeParams);
+                return '#' + this.matcher.stringify(routeParams);
             }
         });
     }
