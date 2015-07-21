@@ -308,6 +308,9 @@
                 this.onDockAction();
                 this.hideRevertToDock = true;
 
+                // dock
+                // this.$.widget.widget is set by the dropzone manager in the workspace layout
+                this.core.activeWorkspace.layout.document.dock(this.$.widget.widget);
                 this.touch.resetDraggablePosition(this.$.widget);
             },
             onDockAction: function () {

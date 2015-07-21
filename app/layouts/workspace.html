@@ -238,9 +238,9 @@
                     if (newSumWidth <= maxWidth) {
                         sumWidgetWidth = newSumWidth;
                         dropzone.show();
-                        if(dropzone.hasWidget()) {
+                        if (dropzone.hasWidget()) {
                             this.lastVisibleDropzone = dropzone;
-                            if(widgetSizeChanged) {
+                            if (widgetSizeChanged) {
                                 dropzone.widget.hidden = false;
                             }
                         }
@@ -295,7 +295,7 @@
             DropzoneManager.prototype.dock = function (dropzonePosition, widget) {
                 var dropzone = this.dropzones[dropzonePosition - 1];
 
-                console.log('last visible at '  + this.lastVisibleDropzone.position + ' insert at ' + dropzonePosition);
+                console.log('last visible at ' + this.lastVisibleDropzone.position + ' insert at ' + dropzonePosition);
                 var inBetweenLower = this.lastVisibleDropzone.position;
                 var lastWidgetWidth = this.lastVisibleDropzone.hasWidget() ? this.lastVisibleDropzone.widget.width : 1;
                 var inBetweenHigher = inBetweenLower + lastWidgetWidth;
@@ -303,7 +303,6 @@
                     console.log('in between');
                     dropzone = this.lastVisibleDropzone;
                 }
-
 
 
                 if (dropzone.hasWidget() && dropzone.widget.id != widget.id) {
@@ -434,7 +433,7 @@
                         this.dropzoneManager.dock(e.data.position, e.draggableElement.widget);
                     }.bind(this);
 
-                    var ondrop = function(e) {
+                    var ondrop = function (e) {
                         this.dropzoneManager.evaluateWidgetsToShow();
                     }.bind(this);
 
@@ -490,6 +489,10 @@
                         return;
                     }
                     this.dropzoneManager.showWidget(widget);
+                },
+                dock: function(widget) {
+                    console.log('position: ' + widget.position);
+                    this.dropzoneManager.dock(widget.position - 10, widget);
                 }
             }, window.appMixin));
         })();

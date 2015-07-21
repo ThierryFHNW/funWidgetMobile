@@ -1074,6 +1074,10 @@ window.appMixin = app;
             target.style.transform =
                 'translate(' + 0 + 'px, ' + 0 + 'px)';
 
+        target.style.position = '';
+        target.style.top = '';
+        target.style.left = '';
+
         // update the position attributes
         target.setAttribute('data-x', 0);
         target.setAttribute('data-y', 0);
