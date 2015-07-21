@@ -297,7 +297,8 @@
 
                 console.log('last visible at '  + this.lastVisibleDropzone.position + ' insert at ' + dropzonePosition);
                 var inBetweenLower = this.lastVisibleDropzone.position;
-                var inBetweenHigher = inBetweenLower + this.lastVisibleDropzone.widget.width;
+                var lastWidgetWidth = this.lastVisibleDropzone.hasWidget() ? this.lastVisibleDropzone.widget.width : 1;
+                var inBetweenHigher = inBetweenLower + lastWidgetWidth;
                 if (dropzonePosition >= inBetweenLower && dropzonePosition < inBetweenHigher) {
                     console.log('in between');
                     dropzone = this.lastVisibleDropzone;
