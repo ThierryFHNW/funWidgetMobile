@@ -336,17 +336,18 @@
 
 <polymer-element name="awall-temptasks">
     <template>
-        <h3>Tasks</h3>
+        <h3>Unassigned Tasks</h3>
         <template repeat="{{task in tempTasks | orderBy('name')}}">
             <awall-temp-taskcard task="{{task}}"></awall-temp-taskcard>
         </template>
         <awall-form-temp-task id="taskForm"></awall-form-temp-task>
 
-        <core-icon-button icon="add" on-tap="{{onAddTempTaskTap}}">Add Temp Task</core-icon-button>
+        <core-icon-button icon="add" on-tap="{{onAddTempTaskTap}}">Add Unassigned Task</core-icon-button>
         <ads-rest-awall-sp2 tasks="{{tempTasks}}"></ads-rest-awall-sp2>
     </template>
     <script>
         Polymer({
+            tempTasks: [],
             onAddTempTaskTap: function () {
                 this.$.taskForm.open();
             }
