@@ -59,9 +59,8 @@
                             <awall-userstorycard userstory="{{userstory}}" noDrag></awall-userstorycard>
                         </td>
                         <template repeat="{{state in taskstates | sortStates}}">
-                            <td>
-                                <awall-tb-tasks taskstate="{{state}}" userstoryId="{{userstory.id}}"></awall-tb-tasks>
-                            </td>
+                            <td is="awall-tb-tasks" taskstate="{{state}}"
+                                userstoryId="{{userstory.id}}"></td>
                         </template>
                     </tr>
                 </template>
@@ -102,13 +101,32 @@
     </script>
 </polymer-element>
 
-<polymer-element name="awall-tb-tasks" attributes="taskstate userstoryId" noscript>
+<polymer-element name="awall-tb-tasks" extends="td">
     <template>
         <template repeat="{{task in tasks}}">
             <awall-taskcard task="{{task}}"></awall-taskcard>
         </template>
 
         <ads-rest-tasks userStoryId="{{userstoryId}}" stateId="{{taskstate.id}}" response="{{tasks}}"
-                          auto expand="all"></ads-rest-tasks>
+                        auto expand="all"></ads-rest-tasks>
+        <ads-rest-task id="rest"></ads-rest-task>
     </template>
+    <script>
+        Polymer(Polymer.mixin({
+            publish: {
+                taskstate: {},
+                userstoryId: 0
+            },
+            attached: function () {
+                this.touch.makeDropzone(this, {
+                    accept: '.taskcard',
+                    ondrop: function (e) {
+                        var task = e.draggableData;
+                        task.state = this.taskstate;
+                        this.$.rest.save(task);
+                    }.bind(this)
+                })
+            }
+        }, window.appMixin));
+    </script>
 </polymer-element>
