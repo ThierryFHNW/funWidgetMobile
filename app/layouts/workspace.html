@@ -122,6 +122,7 @@
                 this.position = position;
                 this.dropzoneElement = dropzoneElement;
                 this.widget = null;
+                this.flexBasisDefault = 10;
 
                 // create container for the active widget
                 this.container = document.createElement('div');
@@ -169,12 +170,16 @@
                 this.widget = widget;
                 // set position of widget
                 this.widget.position = this.position;
+            };
 
-
+            WidgetDropzone.prototype.adjustFlexBasis = function() {
                 // adjust the width of the widget
                 // widget may be max. 50% of width
-                var widgetWidth = widget.width > 5 ? 5 : widget.width;
-                this.dropzoneElement.style.flexBasis = (10 * widgetWidth) + '%';
+                var widgetWidth = 1;
+                if(this.hasWidget()) {
+                    widgetWidth = this.widget.width > 5 ? 5 : this.widget.width;
+                }
+                this.dropzoneElement.style.flexBasis = (this.flexBasisDefault * widgetWidth) + '%';
             };
 
             WidgetDropzone.prototype.hasWidget = function () {
@@ -183,6 +188,9 @@
 
             WidgetDropzone.prototype.remove = function () {
                 this.container.removeChild(this.container.children[0]);
+                // reset flexBasis to width of 1
+                this.dropzoneElement.style.flexBasis = this.flexBasisDefault + '%';
+
                 var returnValue = this.widget;
                 returnValue.position += 10;
                 this.widget = null;
@@ -224,7 +232,17 @@
                 var newVal = widgetsToDisplay;
                 this.widgetsToDisplay = widgetsToDisplay;
 
+
+
                 this.evaluateWidgetsToShow();
+            };
+
+            DropzoneManager.prototype.adjustFlexBasis = function() {
+                var flexBasis = 100 / this.widgetsToDisplay;
+                this.dropzones.forEach(function (dz) {
+                    dz.flexBasisDefault = flexBasis;
+                    dz.adjustFlexBasis();
+                });
             };
 
             DropzoneManager.prototype.evaluateWidgetsToShow = function (widgetSizeChanged) {
@@ -252,6 +270,8 @@
                     }
                 }
                 console.log('last visible at ' + this.lastVisibleDropzone.position);
+
+                this.adjustFlexBasis();
             };
 
             DropzoneManager.prototype.undock = function (dropzonePosition) {
@@ -317,6 +337,8 @@
 
                 this.removeFloating(widget);
                 dropzone.add(widget);
+
+                this.evaluateWidgetsToShow();
             };
 
             DropzoneManager.prototype.findFirstEmptyAndWithoutWidget = function (widget) {
@@ -434,7 +456,7 @@
                     }.bind(this);
 
                     var ondrop = function (e) {
-                        this.dropzoneManager.evaluateWidgetsToShow();
+//                        this.dropzoneManager.evaluateWidgetsToShow();
                     }.bind(this);
 
                     var dropzones = [];
@@ -490,7 +512,7 @@
                     }
                     this.dropzoneManager.showWidget(widget);
                 },
-                dock: function(widget) {
+                dock: function (widget) {
                     console.log('position: ' + widget.position);
                     this.dropzoneManager.dock(widget.position - 10, widget);
                 }

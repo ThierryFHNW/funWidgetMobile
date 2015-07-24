@@ -10,7 +10,7 @@
     },
     "teamview": {
       "position": 3,
-      "width": 2,
+      "width": 1.5,
       "hidden": false
     },
     "sprintinfo": {
