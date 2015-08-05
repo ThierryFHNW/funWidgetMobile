@@ -22,11 +22,11 @@
         <div id="content">
             <h1>Select workspace for {{sprint.name}}</h1>
             <ul>
-                <li><a href="#/project/{{$.globals.routeParams.projectId}}/sprint/{{sprint.id}}/taskboard">Taskboard for
-                    daily stand-up</a>
-                </li>
-                <li><a href="#/project/{{$.globals.routeParams.projectId}}/sprint/{{sprint.id}}/sp2">Sprint Planning
-                    2</a></li>
+                <template repeat="{{workspace in $.globals.workspaces}}">
+                    <a href="{{workspace.parsedPath}}" on-click="{{onWorkspaceChange}}">
+                        <li>{{workspace.name}}</li>
+                    </a>
+                </template>
             </ul>
         </div>
 
@@ -35,7 +35,7 @@
                          response="{{sprint}}"></ads-rest-sprint>
     </template>
     <script>
-        Polymer({
+        Polymer(Polymer.mixin({
             attached: function () {
                 this.$.rest.resourceId = this.$.globals.routeParams.sprintId;
                 this.$.rest.go();
@@ -43,6 +43,6 @@
             detached: function () {
                 this.sprint = null;
             }
-        });
+        }, window.appMixin));
     </script>
 </polymer-element>
