@@ -313,6 +313,7 @@
             };
 
             DropzoneManager.prototype.dock = function (dropzonePosition, widget) {
+                dropzonePosition = Math.max(1, dropzonePosition);
                 var dropzone = this.dropzones[dropzonePosition - 1];
 
                 console.log('last visible at ' + this.lastVisibleDropzone.position + ' insert at ' + dropzonePosition);
