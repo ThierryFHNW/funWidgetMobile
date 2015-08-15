@@ -95,14 +95,19 @@
             domReady: function () {
                 this.workspaceSaved = this.core.isWorkspaceSaved();
             },
-            onWorkspaceChange: function() {
+            closeMenu: function() {
                 // close the menu so the rest of the viewport is not backdropped on the next workspace.
                 this.$.menuButton.opened = false;
             },
+            onWorkspaceChange: function() {
+                this.closeMenu();
+            },
             onSaveWorkspace: function () {
+                this.closeMenu();
                 this.workspaceSaved = this.core.saveActiveWorkspace();
             },
             onResetWorkspace: function () {
+                this.closeMenu();
                 this.workspaceSaved = this.core.resetActiveWorkspace();
             }
         }, window.appMixin));
