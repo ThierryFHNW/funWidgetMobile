@@ -397,6 +397,10 @@
                             dzIndex = nextDzIndex;
                         }
                     }
+                    // round up the index because the width of widgets can be a float
+                    dzIndex = Math.ceil(dzIndex);
+                    // ensure index is at least 1 for the following array operation
+                    dzIndex = Math.max(1, dzIndex);
                     var showDropzone = this.dropzones[dzIndex - 1];
                     var emptyDropzone = this.findFirstEmptyAndWithoutWidget(widget);
                     if (emptyDropzone.position < showDropzone.position) {
