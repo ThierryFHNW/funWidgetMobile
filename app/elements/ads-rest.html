@@ -5,49 +5,49 @@
         (function () {
             // these variables are shared by all instances
             var awallUrl = 'wss://www.cs.technik.fhnw.ch/awall/';
-            var awallEndpoint = new WebSocket(awallUrl);
+            var awallEndpoint = null;
 
-
-            awallEndpoint.onopen = function () {
-                console.log('connected');
-            };
-            awallEndpoint.onmessage = function (evt) {
-                var message = JSON.parse(evt.data);
-                console.log('New WebSocket-message: ' + message.resourceType + ': ' + message.action);
-                console.dir(message);
-
-                var type = message.resourceType;
-                if (!observers.hasOwnProperty(type)) {
-                    console.log('No observers are listening for changes of type ' + type);
-                    return;
-                }
-                observers[type].forEach(function (observer) {
-                    observer(message);
-                });
-            };
-            awallEndpoint.onerror = function (evt) {
-                console.log(evt.message);
-            };
-            awallEndpoint.onclose = function () {
-                console.log('disconnected');
-                connect();
-            };
 
             function connect() {
                 awallEndpoint = new WebSocket(awallUrl);
+
+                awallEndpoint.onopen = function () {
+                    console.log('WebSocket connected');
+                };
+                awallEndpoint.onmessage = function (evt) {
+                    var message = JSON.parse(evt.data);
+                    console.log('New WebSocket-message: ' + message.resourceType + ': ' + message.action);
+                    console.dir(message);
+
+                    var type = message.resourceType;
+                    if (!observers.hasOwnProperty(type)) {
+                        console.log('No observers are listening for changes of type ' + type);
+                        return;
+                    }
+                    observers[type].forEach(function (observer) {
+                        observer(message);
+                    });
+                };
+                awallEndpoint.onerror = function (evt) {
+                    console.log(evt.message);
+                };
+                awallEndpoint.onclose = function () {
+                    console.log('WebSocket disconnected');
+                    connect();
+                };
             }
 
             function send(message) {
                 var wait = 100;
 
                 function doSend() {
-                    if (awallEndpoint.readyState == WebSocket.OPEN) {
+                    if (awallEndpoint !== null && awallEndpoint.readyState == WebSocket.OPEN) {
                         awallEndpoint.send(message);
                     } else {
                         console.log('Cannot send: Connection is closed. Trying again in ' + wait + 'ms.');
+                        connect();
                         setTimeout(doSend, wait);
                         wait += 250;
-                        connect();
                     }
                 }
 
@@ -572,7 +572,8 @@
 
 <polymer-element name="ads-rest-single" extends="ads-rest-base" hidden>
     <template>
-        <core-ajax id="ajax" url="https://www.cs.technik.fhnw.ch/agilewall/api/{{resource}}/{{resourceId}}" handleAs="json"
+        <core-ajax id="ajax" url="https://www.cs.technik.fhnw.ch/agilewall/api/{{resource}}/{{resourceId}}"
+                   handleAs="json"
                    params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
     </template>
     <script>
