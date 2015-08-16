@@ -9,6 +9,15 @@
 
 
             function connect() {
+                if(awallEndpoint !== null) {
+                    // unregister callbacks and close the previous connection
+                    awallEndpoint.onclose = null;
+                    awallEndpoint.onopen = null;
+                    awallEndpoint.onmessage = null;
+                    awallEndpoint.onerror = null;
+                    awallEndpoint.close();
+                }
+
                 awallEndpoint = new WebSocket(awallUrl);
 
                 awallEndpoint.onopen = function () {
