@@ -53,6 +53,7 @@
                     if (awallEndpoint !== null && awallEndpoint.readyState == WebSocket.OPEN) {
                         awallEndpoint.send(message);
                     } else {
+                        //TODO: Time out eventually
                         console.log('Cannot send: Connection is closed. Trying again in ' + wait + 'ms.');
                         connect();
                         setTimeout(doSend, wait);

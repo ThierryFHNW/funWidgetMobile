@@ -18,5 +18,8 @@
     "paper-toggle-button": "Polymer/paper-toggle-button#~0.5.5",
     "core-media-query": "Polymer/core-media-query#~0.5.5"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "resolutions": {
+    "webcomponentsjs": "0.7.14"
+  }
 }

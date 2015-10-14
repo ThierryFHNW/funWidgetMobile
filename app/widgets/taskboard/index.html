@@ -79,6 +79,9 @@
                 this.sprintId = this.$.globals.routeParams.sprintId;
                 this.$.usRest.go();
                 this.$.statesRest.go();
+                this.addEventListener('state changed', function(){
+                    this.$.usRest.go();
+                })
             },
             addUserStoryTabHandler: function () {
                 this.$.usForm.open();
@@ -121,6 +124,7 @@
                 this.touch.makeDropzone(this, {
                     accept: '.taskcard',
                     ondrop: function (e) {
+                        this.fire('state changed', {sender: e.draggableData});
                         var task = e.draggableData;
                         task.state = this.taskstate;
                         this.$.rest.save(task);
