@@ -12,12 +12,12 @@
       "width": 1,
       "hidden": false
     },
-    "dummy1": {
+    "sprintinfo": {
       "position": 2,
       "width": 1,
       "hidden": false
     },
-    "sprintinfo": {
+    "definitionofdone": {
       "position": 3,
       "width": 1,
       "hidden": false
