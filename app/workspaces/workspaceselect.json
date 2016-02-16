@@ -1,7 +1,7 @@
 {
   "name": "Workspace selector",
   "description": "Allows to select the workspace.",
-  "path": "/project/:projectId/sprint/:sprintId",
+  "path": "/project/:projectId/sprint/:sprintId?boardId=:boardId",
   "layout": "single",
   "widgets": {
     "workspaceselect": {

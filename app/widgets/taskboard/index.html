@@ -68,14 +68,16 @@
             </table>
         </awall-widget>
         <app-core id="globals"></app-core>
-        <ads-rest-userstories id="usRest" sprintId="{{sprintId}}"
+        <ads-rest-userstories id="usRest" sprintId="{{sprintId}}" boardId="{{boardId}}"
                               response="{{userstories}}"></ads-rest-userstories>
-        <ads-rest-taskstates id="statesRest" projectId="{{projectId}}" response="{{taskstates}}"></ads-rest-taskstates>
+        <ads-rest-taskstates id="statesRest" projectId="{{projectKey}}" response="{{taskstates}}"></ads-rest-taskstates>
+
     </template>
     <script>
         Polymer({
             ready: function () {
-                this.projectId = this.$.globals.routeParams.projectId;
+                this.boardId = this.$.globals.routeParams.boardId;
+                this.projectKey = this.$.globals.routeParams.projectId;
                 this.sprintId = this.$.globals.routeParams.sprintId;
                 this.$.usRest.go();
                 this.$.statesRest.go();
