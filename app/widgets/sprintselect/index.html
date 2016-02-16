@@ -14,7 +14,7 @@
         <div id="content">
             <h1>Sprints for {{project.name}}</h1>
             <template repeat="{{sprint in sprints}}">
-                <awall-sprintselect-item sprint="{{sprint}}" projectId="{{projectId}}"></awall-sprintselect-item>
+                <awall-sprintselect-item sprint="{{sprint}}" projectId="{{project.key}}"></awall-sprintselect-item>
             </template>
         </div>
 
