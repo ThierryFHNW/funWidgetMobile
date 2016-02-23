@@ -1,7 +1,7 @@
 {
   "name": "Taskboard Workspace",
   "description": "",
-  "path": "/project/:projectId/sprint/:sprintId/taskboard?boardId=:boardId",
+  "path": "/project/:projectId/sprint/:sprintId/taskboard",
   "layout": "workspace",
   "widgets": {
     "taskboard": {

@@ -14,7 +14,7 @@
         <div id="content">
             <h1>Sprints for {{project.name}}</h1>
             <template repeat="{{sprint in sprints}}">
-                <awall-sprintselect-item sprint="{{sprint}}" projectKey="{{project.key}}" projectId="{{project.id}}"></awall-sprintselect-item>
+                <awall-sprintselect-item sprint="{{sprint}}" projectId="{{project.key}}"></awall-sprintselect-item>
             </template>
         </div>
 
@@ -34,7 +34,7 @@
     </script>
 </polymer-element>
 
-<polymer-element name="awall-sprintselect-item" attributes="sprint projectKey projectId" noscript>
+<polymer-element name="awall-sprintselect-item" attributes="sprint projectId" noscript>
     <template>
         <style>
             a {
@@ -67,7 +67,7 @@
             }
         </style>
         <div class="box">
-            <a href="#/project/{{projectKey}}/sprint/{{sprint.id}}?boardId={{projectId}}">{{sprint.name}}</a>
+            <a href="#/project/{{projectId}}/sprint/{{sprint.id}}">{{sprint.name}}</a>
         </div>
     </template>
 </polymer-element>
