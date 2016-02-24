@@ -4,7 +4,7 @@
     <script>
         (function () {
             // these variables are shared by all instances
-            var awallUrl = 'wss://localhost:4625/';
+            var awallUrl = 'wss://www.cs.technik.fhnw.ch/awall/';
             var awallEndpoint = null;
 
 
@@ -279,7 +279,7 @@
 
 <polymer-element name="ads-rest-collection" extends="ads-rest-base" hidden>
     <template>
-        <core-ajax id="ajax" url="http://localhost:4625/{{resource}}" handleAs="json"
+        <core-ajax id="ajax" url="https://www.cs.technik.fhnw.ch/agilewall/api/{{resource}}" handleAs="json"
                    params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
     </template>
     <script>
@@ -586,7 +586,7 @@
 
 <polymer-element name="ads-rest-single" extends="ads-rest-base" hidden>
     <template>
-        <core-ajax id="ajax" url="http://localhost:4625/{{resource}}/{{resourceId}}"
+        <core-ajax id="ajax" url="https://www.cs.technik.fhnw.ch/agilewall/api/{{resource}}/{{resourceId}}"
                    handleAs="json"
                    params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
     </template>
