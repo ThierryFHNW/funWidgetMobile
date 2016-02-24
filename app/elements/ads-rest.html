@@ -4,7 +4,7 @@
     <script>
         (function () {
             // these variables are shared by all instances
-            var awallUrl = 'wss://www.cs.technik.fhnw.ch/awall/';
+            var awallUrl = 'wss://localhost:4625/';
             var awallEndpoint = null;
 
 
@@ -279,7 +279,7 @@
 
 <polymer-element name="ads-rest-collection" extends="ads-rest-base" hidden>
     <template>
-        <core-ajax id="ajax" url="https://www.cs.technik.fhnw.ch/agilewall/api/{{resource}}" handleAs="json"
+        <core-ajax id="ajax" url="http://localhost:4625/{{resource}}" handleAs="json"
                    params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
     </template>
     <script>
@@ -450,14 +450,16 @@
                 authorId: undefined,
                 ownerId: undefined,
                 sprintId: undefined,
-                stateId: undefined
+                stateId: undefined,
+                projectId: undefined
             },
             go: function () {
                 this.setParams({
                     author: this.authorId,
                     owner: this.ownerId,
                     sprint: this.sprintId,
-                    state: this.stateId
+                    state: this.stateId,
+                    projectId: this.projectId
                 });
                 this.super();
             },
@@ -474,7 +476,9 @@
                 if (this.stateId !== undefined && data.state.id != this.stateId) {
                     return false;
                 }
-                return true;
+                if (this.projectId !== undefined && data.project.id != this.projectId) {
+                    return true;
+                }
             },
             resource: 'userstories',
             resourceType: 'UserStory'
@@ -582,7 +586,7 @@
 
 <polymer-element name="ads-rest-single" extends="ads-rest-base" hidden>
     <template>
-        <core-ajax id="ajax" url="https://www.cs.technik.fhnw.ch/agilewall/api/{{resource}}/{{resourceId}}"
+        <core-ajax id="ajax" url="http://localhost:4625/{{resource}}/{{resourceId}}"
                    handleAs="json"
                    params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
     </template>
