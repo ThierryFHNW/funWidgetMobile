@@ -77,3 +77,60 @@ $app.controller('UploadCtrl', ['$scope', '$routeParams', function($scope, $route
 
     //takePicture();
 }]);
+
+$app.controller('SettingsCtrl', function($scope) {
+    $scope.configurations = [];
+    $scope.editing = undefined;
+    $scope.new = false;
+
+    //var demoSettings = [
+    //    {server: "server1095.cs.technik.fhnw.ch"},
+    //    {server: "server1096.cs.technik.fhnw.ch"},
+    //    {server: "server1097.cs.technik.fhnw.ch"}
+    //];
+    //window.localStorage.setItem("settings", JSON.stringify(demoSettings));
+
+
+    function loadSettings() {
+        $scope.configurations = JSON.parse(window.localStorage.getItem("settings"));
+        if (!$scope.configurations) {
+            $scope.configurations = [];
+        }
+    }
+    function saveSettings() {
+        window.localStorage.setItem("settings", JSON.stringify($scope.configurations));
+    }
+
+    var add = function add() {
+        $scope.editing = {};
+        $scope.new = true;
+    }
+    var edit = function edit(configuration) {
+        $scope.editing = configuration;
+        $scope.new = false;
+    };
+    var cancel = function cancel() {
+        loadSettings();
+        $scope.editing = undefined;
+    };
+    var save = function save() {
+        if ($scope.new) {
+            $scope.configurations.push($scope.editing);
+        }
+        saveSettings();
+        $scope.editing = undefined;
+    };
+    var remove = function remove() {
+        $scope.configurations.splice($scope.configurations.indexOf($scope.editing),1);
+        saveSettings();
+        $scope.editing = undefined;
+    };
+
+
+    loadSettings();
+    $scope.edit = edit;
+    $scope.cancel = cancel;
+    $scope.save = save;
+    $scope.add = add;
+    $scope.remove = remove;
+});
