@@ -1,0 +1,17 @@
+<div class="widget container">
+    <div class="widget-header">
+        <a href="#/"><i class="fa fa-close" ng-click="close()"></i></a>
+    </div>
+    <h2>Upload from {{source}}</h2>
+    <img id="picture" src="img/logo.png"/>
+    <textarea rows="3" ng-model="description" alt="Bildbeschreibung"></textarea>
+    <div class="buttons">
+        <button ng-click="retake('capture')">
+            <i class="fa fa-camera"></i>
+        </button>
+        <button ng-click="retake('gallery')">
+            <i class="fa fa-picture-o"></i>
+        </button>
+        <button class="green" ng-click="send()">Bild hochladen</button>
+    </div>
+</div>

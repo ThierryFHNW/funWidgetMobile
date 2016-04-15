@@ -1,0 +1,21 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {}
+    },
+    "installed_plugins": {
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "ch.fhnw.awall"
+        },
+        "org.jshybugger.cordova": {
+            "PACKAGE_NAME": "ch.fhnw.awall"
+        },
+        "cordova-plugin-camera": {
+            "PACKAGE_NAME": "ch.fhnw.awall"
+        }
+    },
+    "dependent_plugins": {}
+}

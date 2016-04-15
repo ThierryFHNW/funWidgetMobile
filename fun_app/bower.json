@@ -1,0 +1,10 @@
+{
+  "name": "fun-app",
+  "version": "0.0.1",
+  "dependencies": {
+    "angular": "1.4.x",
+    "jquery": "~2.2.1",
+    "angular-route": "1.4.x",
+    "components-font-awesome": "4.5.0"
+  }
+}
