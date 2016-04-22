@@ -1,0 +1,53 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\work\\nodejs\\\\node.exe',
+1 verbose cli   'C:\\work\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'install',
+1 verbose cli   '-g',
+1 verbose cli   'q' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.35
+4 verbose node symlink C:\work\nodejs\\node.exe
+5 verbose cache add [ 'q', null ]
+6 verbose cache add name=undefined spec="q" args=["q",null]
+7 verbose parsed url { protocol: null,
+7 verbose parsed url   slashes: null,
+7 verbose parsed url   auth: null,
+7 verbose parsed url   host: null,
+7 verbose parsed url   port: null,
+7 verbose parsed url   hostname: null,
+7 verbose parsed url   hash: null,
+7 verbose parsed url   search: null,
+7 verbose parsed url   query: null,
+7 verbose parsed url   pathname: 'q',
+7 verbose parsed url   path: 'q',
+7 verbose parsed url   href: 'q' }
+8 silly lockFile 22ea1c64-q q
+9 verbose lock q C:\Users\flofank\AppData\Roaming\npm-cache\22ea1c64-q.lock
+10 silly lockFile 22ea1c64-q q
+11 silly lockFile 22ea1c64-q q
+12 verbose addNamed [ 'q', '' ]
+13 verbose addNamed [ null, '*' ]
+14 silly lockFile f83edb5d-q q@
+15 verbose lock q@ C:\Users\flofank\AppData\Roaming\npm-cache\f83edb5d-q.lock
+16 silly addNameRange { name: 'q', range: '*', hasData: false }
+17 verbose registry.get https://registry.npmjs.org/q not expired, no request
+18 silly addNameRange number 2 { name: 'q', range: '*', hasData: true }
+19 silly addNameRange versions [ undefined, [] ]
+20 error TypeError: Cannot read property 'latest' of undefined
+20 error     at next (C:\work\nodejs\node_modules\npm\lib\cache\add-named.js:219:35)
+20 error     at C:\work\nodejs\node_modules\npm\lib\cache\add-named.js:207:5
+20 error     at RegClient.get_ (C:\work\nodejs\node_modules\npm\node_modules\npm-registry-client\lib\get.js:130:14)
+20 error     at RegClient.<anonymous> (C:\work\nodejs\node_modules\npm\node_modules\npm-registry-client\lib\get.js:49:12)
+20 error     at evalmachine.<anonymous>:272:14
+20 error     at C:\work\nodejs\node_modules\npm\node_modules\graceful-fs\graceful-fs.js:102:5
+20 error     at Object.oncomplete (evalmachine.<anonymous>:108:15)
+21 error If you need help, you may report this *entire* log,
+21 error including the npm and node versions, at:
+21 error     <http://github.com/npm/npm/issues>
+22 error System Windows_NT 6.2.9200
+23 error command "C:\\work\\nodejs\\\\node.exe" "C:\\work\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "install" "-g" "q"
+24 error cwd C:\work\git\calwa-ip6-fs16\fun_app
+25 error node -v v0.10.35
+26 error npm -v 1.4.28
+27 error type non_object_property_load
+28 verbose exit [ 1, true ]
