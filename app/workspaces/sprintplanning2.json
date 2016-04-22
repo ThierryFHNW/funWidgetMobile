@@ -18,6 +18,11 @@
       "width": 1,
       "hidden": false
     },
+    "fun": {
+      "position": 4,
+      "width": 1,
+      "hidden": false
+    },
     "dummy1": {
       "position": 4,
       "width": 3,

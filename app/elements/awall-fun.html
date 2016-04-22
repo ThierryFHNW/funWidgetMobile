@@ -25,19 +25,31 @@
 <polymer-element name="awall-fun-picture" attributes="picture">
     <template>
         <style>
-            #img {
+            #fun-picture {
                 max-height: 100%;
                 max-width: 100%;
                 margin: 0 auto;
                 display: block;
             }
         </style>
-        <img id="img" src="../images/golden_gate.jpg">
+        <img id="fun-picture" src="{{imageSrc}}">
+        <!--<img id="fun-picture" src="../images/golden_gate.jpg">-->
     </template>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <script>
-        Polymer(Polymer.mixin({
-            ready: function () {
+        Polymer({
+            imageSrc: "",
+            attached: function () {
+                var _this = this;
+                $.getJSON("http://server1095.cs.technik.fhnw.ch/api/pictures", function(data) {
+                    _this.imageSrc = data.items[0].content;
+                });
+//                        function(data) {
+//                    $("#fun-picture").hide();//.attr("src", data.items[0].content);
+//                    console.log(data);
+//                    this.data = "asdfa";
+//                });
             }
-        }, window.appMixin));
+        });
     </script>
 </polymer-element>

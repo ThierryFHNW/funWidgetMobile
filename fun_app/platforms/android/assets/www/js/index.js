@@ -32,25 +32,36 @@ $app.controller('HomeCtrl', function($scope) {
 });
 
 
-$app.controller('UploadCtrl', ['$scope', '$routeParams', function($scope, $routeParams) {
+$app.controller('UploadCtrl', ['$scope', '$routeParams', '$http', function($scope, $routeParams, $http) {
     $scope.source = $routeParams.source;
 
     var send = function send() {
-        alert("Bild hochgeladen \n " + $scope.description);
+        var picture = {
+            "content": $scope.image,
+            "user": "Flo"
+        };
+        $http({
+            method: "POST",
+            url: "http://server1095.cs.technik.fhnw.ch/api/pictures",
+            data: picture})
+            .then(function success() {
+                alert("image upload succeeded");
+            }, function error() {
+                alert("image upload failed");
+            });
     };
 
     var retake = function retake(source) {
         $scope.source = source;
         takePicture();
-    }
+    };
 
     $scope.send = send;
     $scope.retake = retake;
 
     function onCaptureSuccess(imageData) {
-        //$scope.imageBase64 = "data:image/jpeg;base64," + imageData;
-        $("#picture").attr("src", "data:image/jpeg;base64," + imageData);
-        //document.getElementById("picture").src = "data:image/jpeg;base64," + imageData
+        $scope.image = "data:image/jpeg;base64," + imageData;
+        $("#picture").attr("src", $scope.image);
     }
 
     function onGallerySuccess(imageURI) {
