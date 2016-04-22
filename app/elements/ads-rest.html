@@ -5,6 +5,7 @@
         (function () {
             // these variables are shared by all instances
             var awallUrl = 'wss://www.cs.technik.fhnw.ch/awall/';
+            awallUrl = 'wss://server1095.cs.technik.fhnw.ch/awall/';
             var awallEndpoint = null;
 
 
@@ -279,6 +280,8 @@
 
 <polymer-element name="ads-rest-collection" extends="ads-rest-base" hidden>
     <template>
+        <!--<core-ajax id="ajax" url="https://server1095.cs.technik.fhnw.ch/api/{{resource}}" handleAs="json"-->
+            <!--params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>-->
         <core-ajax id="ajax" url="https://www.cs.technik.fhnw.ch/agilewall/api/{{resource}}" handleAs="json"
                    params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
     </template>
@@ -409,6 +412,7 @@
                 projectId: undefined
             },
             go: function () {
+                console.log("QWER####################");
                 this.setParams({project: this.projectId});
                 this.super();
             },
@@ -584,8 +588,30 @@
     </script>
 </polymer-element>
 
+<polymer-element name="ads-rest-pictures" extends="ads-rest-collection">
+    <script>
+        Polymer({
+            publish: {
+                expand: undefined,
+                projectId: undefined
+            },
+            go: function () {
+                this.super();
+            },
+            isInTheSameCollection: function (data) {
+                return true;
+            },
+            resource: 'pictures',
+            resourceType: 'Picture'
+        });
+    </script>
+</polymer-element>
+
 <polymer-element name="ads-rest-single" extends="ads-rest-base" hidden>
     <template>
+        <!--<core-ajax id="ajax" url="https://server1095.cs.technik.fhnw.ch/api/{{resource}}/{{resourceId}}"-->
+                   <!--handleAs="json"-->
+                   <!--params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>-->
         <core-ajax id="ajax" url="https://www.cs.technik.fhnw.ch/agilewall/api/{{resource}}/{{resourceId}}"
                    handleAs="json"
                    params="{{params}}" on-core-response="{{onLoaded}}"></core-ajax>
