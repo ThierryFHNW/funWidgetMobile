@@ -1,0 +1,55 @@
+<polymer-element name="awall-fun-gallery">
+    <template>
+        <style>
+            div#gallery {
+                box-sizing: border-box;
+                width: 100%;
+                height: 12em;
+                display: block;
+                padding: 1em 0 0 0;
+            }
+        </style>
+        <div id="gallery">
+            <awall-fun-picture></awall-fun-picture>
+        </div>
+    </template>
+    <script>
+        Polymer(Polymer.mixin({
+            ready: function () {
+            }
+        }, window.appMixin));
+    </script>
+</polymer-element>
+
+
+<polymer-element name="awall-fun-picture" attributes="picture">
+    <template>
+        <style>
+            #fun-picture {
+                max-height: 100%;
+                max-width: 100%;
+                margin: 0 auto;
+                display: block;
+            }
+        </style>
+        <img id="fun-picture" src="{{imageSrc}}">
+        <!--<img id="fun-picture" src="../images/golden_gate.jpg">-->
+    </template>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script>
+        Polymer({
+            imageSrc: "",
+            attached: function () {
+                var _this = this;
+                $.getJSON("http://server1095.cs.technik.fhnw.ch/api/pictures", function(data) {
+                    _this.imageSrc = data.items[0].content;
+                });
+//                        function(data) {
+//                    $("#fun-picture").hide();//.attr("src", data.items[0].content);
+//                    console.log(data);
+//                    this.data = "asdfa";
+//                });
+            }
+        });
+    </script>
+</polymer-element>
