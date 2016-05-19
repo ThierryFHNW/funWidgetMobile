@@ -1,21 +1,10 @@
 {
-  "name": "Taskboard Workspace",
+  "name": "Fun-Prototype",
   "description": "",
-  "path": "/project/:projectId/sprint/:sprintId/taskboard",
+  "path": "/project/:projectId/sprint/:sprintId/fun-proto",
   "layout": "workspace",
   "widgets": {
-    "teamview": {
-      "position": 1,
-      "width": 1,
-      "hidden": true
-    },
-    "sprintinfo": {
-      "position": 2,
-      "width": 1,
-      "hidden": true
-    },
     "definitionofdone": {
-      "position": 3,
       "width": 1,
       "hidden": true,
       "position": "main"
