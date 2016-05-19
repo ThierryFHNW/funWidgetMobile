@@ -1,28 +1,48 @@
-<div class="widget container">
-    <div class="widget-header">
-        <a href="#/"><i class="fa fa-close" ng-click="close()"></i></a>
-    </div>
-    <h2>Settings</h2>
-    <div class="widget-body">
-        <div ng-if="!editing">
-            Server Konfigurationen
-            <div class="table-row" ng-repeat="configuration in configurations">
-                <span>{{configuration.server}}</span><span><i class="fa fa-pencil" ng-click="edit(configuration)"></i></span>
+<div class="widget-container">
+    <div class="widget">
+        <div class="widget-content">
+            <h2>Settings</h2>
+
+            <div ng-if="!editing">
+                <div class="form-row">
+                    <label>Default</label>
+                    <select name="default.server" ng-model="default.server" ng-options="server.server for (k, server) in servers" class="small">
+                    </select>
+                    <button class="green" ng-click="changeDefault()"><i class="fa fa-save"></i></button>
+                </div>
+                <h3>Server Konfigurationen</h3>
+                <div ng-repeat="server in servers">
+                    <div class="form-row">
+                        <label class="large">
+                            {{server.server}}
+                        </label>
+                        <button class="orange" ng-click="edit(server)"><i class="fa fa-pencil"/></button>
+                    </div>
+                </div>
+                <button class="green" ng-click="add()"><i class="fa fa-plus"/></button>
             </div>
-            <button class="green form-field small-2" ng-click="add()">Add</button>
-        </div>
-        <div ng-if="editing">
-            Server
-            <input class="form-field" type="text" ng-model="editing.server"/>
-            Projekt
-            <input class="form-field" type="text" ng-model="editing.project"/>
-            User
-            <input class="form-field" type="text" ng-model="editing.name"/>
-            Password
-            <input class="form-field" type="password" ng-model="editing.password"/>
-            <button class="green form-field" ng-click="save()">Save</button>
-            <button class="orange form-field" ng-click="cancel()">Cancel</button>
-            <button class="red form-field" ng-if="!new" ng-click="remove()">Delete</button>
+
+            <div ng-if="editing">
+                <div class="form-row">
+                    <label>Server</label>
+                    <input type="text" placeholder="Server" ng-model="editing.server"/>
+                </div>
+                <div class="form-row">
+                    <label>Project</label>
+                    <input type="text" placeholder="Project" ng-model="editing.project"/>
+                </div>
+                <div class="form-row">
+                    <label>User</label>
+                    <input type="text" placeholder="User" ng-model="editing.user"/>
+                </div>
+                <div class="form-row">
+                    <label>Password</label>
+                    <input type="password" placeholder="Password" ng-model="editing.password"/>
+                </div>
+                <button class="green" ng-click="save()"><i class="fa fa-save"/></button>
+                <button class="orange" ng-click="cancel()"><i class="fa fa-close"/></button>
+                <button class="red" ng-if="!new" ng-click="remove()"><i class="fa fa-eraser"/></button>
+            </div>
         </div>
     </div>
 </div>

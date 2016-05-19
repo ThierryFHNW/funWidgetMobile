@@ -1,3 +1,7 @@
-/**
- * Created by flofa_000 on 01.05.2016.
- */
+$app.controller('HomeCtrl', ['$scope', '$location', function($scope, $location) {
+    $scope.debugMessage = "Hello World";
+
+    $scope.go = function(path) {
+        $location.path(path);
+    }
+}]);
