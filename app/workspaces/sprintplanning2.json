@@ -16,9 +16,9 @@
     "sprintinfo": {
       "position": 1,
       "width": 1,
-      "hidden": false
+      "hidden": true
     },
-    "fun": {
+    "fun-proto": {
       "position": 4,
       "width": 1,
       "hidden": false

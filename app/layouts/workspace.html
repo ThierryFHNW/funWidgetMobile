@@ -252,7 +252,6 @@
                     var dropzone = this.dropzones[i];
                     var nextWidth = dropzone.hasWidget() ? dropzone.widget.width : 1;
                     var newSumWidth = nextWidth + sumWidgetWidth;
-                    console.log('current: ' + sumWidgetWidth + ' newSum: ' + newSumWidth);
                     if (newSumWidth <= maxWidth) {
                         sumWidgetWidth = newSumWidth;
                         dropzone.show();
