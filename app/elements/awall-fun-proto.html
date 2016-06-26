@@ -15,7 +15,7 @@
             }
             .fun-picture {
                 box-sizing: border-box;
-                height: 100%;
+                height: 90%;
                 border-style: solid;
                 border-width: 16px 2px;
                 border-color: #f2f2f2;
@@ -75,7 +75,7 @@
                 if (!this.picturess) {
                     this.addDemoImages();
                 }
-                window.setTimeout(function(gallery) {
+                this.runningTimeout = window.setTimeout(function(gallery) {
                     $(gallery).children().eq(5).click();
                 }, 5000, this["shadowRoot"]["querySelector"]("#gallery"));
             },
@@ -154,19 +154,42 @@
                 gallery.children().each(function(index) {
                     $(this).show();
                     if (index == selected.index()) {
-                        $(this).attr("id", "center")
+//                        $(this).attr("id", "center")
+                        $(this).css("z-index", 4);
+                        $(this).css("margin-left", "auto");
+                        $(this).css("margin-right", "auto");
+                        $(this).css("left", "0px");
+                        $(this).css("right", "0px");
                     } else if (index == selected.index() - 3 || index == (gallery.children().length - 1 + (selected.index() - 3))) {
-                        $(this).attr("id", "left1");
+//                        $(this).attr("id", "left1");
+                        $(this).css("z-index", 1);
+                        $(this).css("left", "0px");
+                        $(this).css("right", "auto");
                     } else if (index == selected.index() - 2 || index == (gallery.children().length - 1 + (selected.index() - 2))) {
-                        $(this).attr("id", "left2");
+//                        $(this).attr("id", "left2");
+                        $(this).css("z-index", 2);
+                        $(this).css("left", "50px");
+                        $(this).css("right", "auto");
                     } else if (index == selected.index() - 1 || index == (gallery.children().length - 1 + (selected.index() - 1))) {
-                        $(this).attr("id", "left3");
+//                        $(this).attr("id", "left3");
+                        $(this).css("z-index", 3);
+                        $(this).css("left", "100px");
+                        $(this).css("right", "auto");
                     } else if (index == selected.index() + 3 || index == selected.index() + 3 - (gallery.children().length - 1)) {
-                        $(this).attr("id", "right1");
+//                        $(this).attr("id", "right1");
+                        $(this).css("z-index", 1);
+                        $(this).css("left", "auto");
+                        $(this).css("right", "0px");
                     } else if (index == selected.index() + 2 || index == selected.index() + 2 - (gallery.children().length - 1)) {
-                        $(this).attr("id", "right2");
+//                        $(this).attr("id", "right2");
+                        $(this).css("z-index", 2);
+                        $(this).css("left", "auto");
+                        $(this).css("right", "50px");
                     } else if (index == selected.index() + 1 || index == selected.index() + 1 - (gallery.children().length - 1)) {
-                        $(this).attr("id", "right3");
+//                        $(this).attr("id", "right3");
+                        $(this).css("z-index", 3);
+                        $(this).css("left", "auto");
+                        $(this).css("right", "100px");
                     } else {
                         $(this).hide();
                     }
@@ -174,7 +197,8 @@
 
                 var nextIndex = selected.index() + 1;
                 nextIndex = nextIndex >= gallery.children().length ? 2 : nextIndex;
-                window.setTimeout(function(element) {
+                window.clearTimeout(this.runningTimeout);
+                this.runningTimeout = window.setTimeout(function(element) {
                     $(element).click();
                 }, 5000, gallery.children().eq(nextIndex));
             }
