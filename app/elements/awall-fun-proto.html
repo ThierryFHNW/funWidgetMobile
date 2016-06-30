@@ -3,24 +3,22 @@
         <style>
             div#gallery {
                 box-sizing: border-box;
-                width: 560px;
-                height: 180px;
                 display: block;
-                width: 95%;
+                width: 99%;
                 height: 100%;
-                padding: 0px 10px;
                 white-space: nowrap;
                 word-wrap: break-word;
                 overflow: hidden;
             }
             .fun-picture {
                 box-sizing: border-box;
-                height: 90%;
+                height: 60%;
                 border-style: solid;
-                border-width: 16px 2px;
+                border-width: 2px 2px;
                 border-color: #f2f2f2;
                 position: absolute;
                 transition: left 1s, right 1s;
+                /*margin: 10px;*/
             }
             .fun-picture:nth-of-type(1), #left1 {
                 z-index: 1;
@@ -62,22 +60,22 @@
             }
         </style>
         <div id="gallery">
-            <!--<img id="fun-picture" src="../images/golden_gate_small.jpg">-->
             <template repeat="{{picture in picturess}}">
-                <!--<img class="fun-picture" src="../images/golden_gate_small.jpg" on-click="{{changeSelected}}">-->
                 <img class="fun-picture" src="{{picture.content}}" on-click="{{changeSelected}}">
             </template>
         </div>
     </template>
     <script>
         Polymer(Polymer.mixin({
-            attached: function() {
+            ready: function() {
                 if (!this.picturess) {
                     this.addDemoImages();
                 }
                 this.runningTimeout = window.setTimeout(function(gallery) {
                     $(gallery).children().eq(5).click();
                 }, 5000, this["shadowRoot"]["querySelector"]("#gallery"));
+                this.parentNode.parentNode.addEventListener('dragEnded', function() {console.log("dragged")});
+                this.parentNode.parentNode.addEventListener('resizeEnded', this.placeImages.bind(this));
             },
             addDemoImages: function() {
                 console.log("Adding demo images");
@@ -144,54 +142,45 @@
                 }];
             },
             changeSelected: function(e) {
-                console.log("Selecting ------------------->");
-                window.stopRotation = true; // Cannot access this inside method called by setInterval()
-                this.stopRotation = true; // Cannot access this inside method called by setInterval()
                 var selected = $(e.srcElement);
                 var gallery = selected.parent();
-                console.log(selected.index());
+                var spacingUnit = (gallery.width() - selected.width()) / 6;
 
                 gallery.children().each(function(index) {
                     $(this).show();
-                    if (index == selected.index()) {
-//                        $(this).attr("id", "center")
+                    $(this).removeAttr("style");
+                    if (index == selected.index()) { // Center
                         $(this).css("z-index", 4);
-                        $(this).css("margin-left", "auto");
-                        $(this).css("margin-right", "auto");
-                        $(this).css("left", "0px");
-                        $(this).css("right", "0px");
-                    } else if (index == selected.index() - 3 || index == (gallery.children().length - 1 + (selected.index() - 3))) {
-//                        $(this).attr("id", "left1");
+                        $(this).css("left", (3 * spacingUnit) + "px");
+                        $(this).css("right", "auto");
+                    } else if (index == selected.index() - 3 || index == (gallery.children().length - 1 + (selected.index() - 3))) { // Left outer
                         $(this).css("z-index", 1);
                         $(this).css("left", "0px");
                         $(this).css("right", "auto");
-                    } else if (index == selected.index() - 2 || index == (gallery.children().length - 1 + (selected.index() - 2))) {
-//                        $(this).attr("id", "left2");
+                    } else if (index == selected.index() - 2 || index == (gallery.children().length - 1 + (selected.index() - 2))) { // Left center
                         $(this).css("z-index", 2);
-                        $(this).css("left", "50px");
+                        $(this).css("left", spacingUnit + "px");
                         $(this).css("right", "auto");
-                    } else if (index == selected.index() - 1 || index == (gallery.children().length - 1 + (selected.index() - 1))) {
-//                        $(this).attr("id", "left3");
+                    } else if (index == selected.index() - 1 || index == (gallery.children().length - 1 + (selected.index() - 1))) { // Left inner
                         $(this).css("z-index", 3);
-                        $(this).css("left", "100px");
+                        $(this).css("left", (2 * spacingUnit) + "px");
                         $(this).css("right", "auto");
-                    } else if (index == selected.index() + 3 || index == selected.index() + 3 - (gallery.children().length - 1)) {
-//                        $(this).attr("id", "right1");
+                    } else if (index == selected.index() + 3 || index == selected.index() + 3 - (gallery.children().length - 1)) { // Right outer
                         $(this).css("z-index", 1);
-                        $(this).css("left", "auto");
-                        $(this).css("right", "0px");
-                    } else if (index == selected.index() + 2 || index == selected.index() + 2 - (gallery.children().length - 1)) {
-//                        $(this).attr("id", "right2");
+                        $(this).css("left", (gallery.width() - $(this).width()) + "px");
+                        $(this).css("right", "auto");
+                    } else if (index == selected.index() + 2 || index == selected.index() + 2 - (gallery.children().length - 1)) {  // Right center
                         $(this).css("z-index", 2);
-                        $(this).css("left", "auto");
-                        $(this).css("right", "50px");
-                    } else if (index == selected.index() + 1 || index == selected.index() + 1 - (gallery.children().length - 1)) {
-//                        $(this).attr("id", "right3");
+                        $(this).css("left", (gallery.width() - $(this).width() - spacingUnit) + "px");
+                        $(this).css("right", "auto");
+                    } else if (index == selected.index() + 1 || index == selected.index() + 1 - (gallery.children().length - 1)) {  // Right inner
                         $(this).css("z-index", 3);
-                        $(this).css("left", "auto");
-                        $(this).css("right", "100px");
+                        $(this).css("left", (gallery.width() - $(this).width() - 2 * spacingUnit) + "px");
+                        $(this).css("right", "auto");
                     } else {
                         $(this).hide();
+                        $(this).css("left", "0px");
+                        $(this).css("right", "auto");
                     }
                 });
 
@@ -201,6 +190,20 @@
                 this.runningTimeout = window.setTimeout(function(element) {
                     $(element).click();
                 }, 5000, gallery.children().eq(nextIndex));
+            },
+            placeImages: function() {
+                console.log("placing images");
+                var gallery = this["shadowRoot"]["querySelector"]("#gallery");
+
+                $(gallery).children().each(function(index) {
+                    var height = (Math.random() * 30 + 20);
+                    var y = Math.random() * (100 - height);
+                    $(this).css("height", height + "%");
+                    $(this).css("top", y + "%");
+                    var x = Math.random() * ($(gallery).width() - $(this).width()) + 1;
+                    $(this).css("left", x + "px");
+                    console.log(x + ", " + y);
+                });
             }
         }, window.appMixin));
     </script>
