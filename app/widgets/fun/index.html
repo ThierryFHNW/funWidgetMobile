@@ -5,16 +5,21 @@
 <polymer-element name="awall-funwidget">
     <template>
         <awall-widget>
-            <awall-widget-size-default>
-                <awall-fun-gallery>
 
+            <awall-widget-size-default>
+                <awall-fun-gallery pictures="{{pictures}}">
                 </awall-fun-gallery>
             </awall-widget-size-default>
         </awall-widget>
+
+        <app-core id="globals"></app-core>
+        <ads-rest-pictures id="rest" response="{{pictures}}" projectId="{{projectId}}"></ads-rest-pictures>
     </template>
     <script>
         Polymer({
             attached: function () {
+                this.projectId = this.$.globals.routeParams.projectId;
+                this.$.rest.go();
             }
         });
     </script>

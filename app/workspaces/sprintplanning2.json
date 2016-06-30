@@ -18,9 +18,9 @@
       "width": 1,
       "hidden": true
     },
-    "fun-proto": {
+    "fun": {
       "position": 4,
-      "width": 1,
+      "width": 2,
       "hidden": false
     },
     "dummy1": {

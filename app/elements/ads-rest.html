@@ -412,7 +412,6 @@
                 projectId: undefined
             },
             go: function () {
-                console.log("QWER####################");
                 this.setParams({project: this.projectId});
                 this.super();
             },
@@ -596,10 +595,12 @@
                 projectId: undefined
             },
             go: function () {
+                this.setParams({project: this.projectId});
                 this.super();
             },
             isInTheSameCollection: function (data) {
-                return false;
+                return !(this.projectId !== undefined && data.project.id != this.projectId);
+
             },
             resource: 'pictures',
             resourceType: 'Picture'
