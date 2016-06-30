@@ -325,6 +325,7 @@
                     this.$.widget.style.height = '';
                     this.hideExtendedContent();
                 }
+                this.fire("docked");
             },
             widgetSizeChanged: function () {
                 this.activeElements.forEach(function (widget) {

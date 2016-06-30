@@ -12,12 +12,12 @@
             }
             .fun-picture {
                 box-sizing: border-box;
-                height: 60%;
+                height: 100%;
                 border-style: solid;
                 border-width: 2px 2px;
                 border-color: #f2f2f2;
                 position: absolute;
-                transition: left 1s, right 1s;
+                transition: left 1s, right 1s, width 1s, height 1s, transform 1s, z-index 1s;
                 /*margin: 10px;*/
             }
             .fun-picture:nth-of-type(1), #left1 {
@@ -71,11 +71,116 @@
                 if (!this.picturess) {
                     this.addDemoImages();
                 }
-                this.runningTimeout = window.setTimeout(function(gallery) {
-                    $(gallery).children().eq(5).click();
-                }, 5000, this["shadowRoot"]["querySelector"]("#gallery"));
-                this.parentNode.parentNode.addEventListener('dragEnded', function() {console.log("dragged")});
-                this.parentNode.parentNode.addEventListener('resizeEnded', this.placeImages.bind(this));
+                this.runningTimeout = window.setTimeout(this.showLayoutSmall.bind(this), 5000);
+//                this.runningTimeout = window.setTimeout(function(gallery) {
+//                    $(gallery).children().eq(5).click();
+//                }, 5000, this["shadowRoot"]["querySelector"]("#gallery"));
+                this.parentNode.parentNode.addEventListener('dragEnded', this.showLayoutLarge.bind(this));
+                this.parentNode.parentNode.addEventListener('resizeEnded', this.showLayoutLarge.bind(this));
+                this.parentNode.parentNode.addEventListener('docked', this.showLayoutSmall.bind(this));
+            },
+            showLayoutSmall: function() {
+                window.clearTimeout(this.runningTimeout);
+                this.rotateImages(5);
+            },
+            dragEnded: function() {
+                if (this.parentNode.parentNode.isDocked) {
+                    this.showLayoutSmall();
+                } else {
+                    this.showLayoutLarge();
+                }
+            },
+            rotateImages: function(selected) {
+//                var selected = $(e.srcElement);
+//                var gallery = selected.parent();
+                var gallery = $(this["shadowRoot"]["querySelector"]("#gallery"));
+                var selectedPicture = gallery.children().eq(selected);
+                var spacingUnit = (gallery.width() - selectedPicture.width()) / 6;
+
+                gallery.children().each(function(index) {
+                    $(this).show();
+                    $(this).removeAttr("style");
+                    if (index == selected) { // Center
+                        $(this).css("z-index", 4);
+                        $(this).css("left", (3 * spacingUnit) + "px");
+                        $(this).css("right", "auto");
+                    } else if (index == selected - 3 || index == (gallery.children().length - 1 + (selected - 3))) { // Left outer
+                        $(this).css("z-index", 1);
+                        $(this).css("left", "0px");
+                        $(this).css("right", "auto");
+                    } else if (index == selected - 2 || index == (gallery.children().length - 1 + (selected - 2))) { // Left center
+                        $(this).css("z-index", 2);
+                        $(this).css("left", spacingUnit + "px");
+                        $(this).css("right", "auto");
+                    } else if (index == selected - 1 || index == (gallery.children().length - 1 + (selected - 1))) { // Left inner
+                        $(this).css("z-index", 3);
+                        $(this).css("left", (2 * spacingUnit) + "px");
+                        $(this).css("right", "auto");
+                    } else if (index == selected + 3 || index == selected + 3 - (gallery.children().length - 1)) { // Right outer
+                        $(this).css("z-index", 1);
+                        $(this).css("left", (gallery.width() - $(this).width()) + "px");
+                        $(this).css("right", "auto");
+                    } else if (index == selected + 2 || index == selected + 2 - (gallery.children().length - 1)) {  // Right center
+                        $(this).css("z-index", 2);
+                        $(this).css("left", (gallery.width() - $(this).width() - spacingUnit) + "px");
+                        $(this).css("right", "auto");
+                    } else if (index == selected + 1 || index == selected + 1 - (gallery.children().length - 1)) {  // Right inner
+                        $(this).css("z-index", 3);
+                        $(this).css("left", (gallery.width() - $(this).width() - 2 * spacingUnit) + "px");
+                        $(this).css("right", "auto");
+                    } else {
+                        $(this).hide();
+                        $(this).css("left", "0px");
+                        $(this).css("right", "auto");
+                    }
+                });
+
+                var nextIndex = selected + 1;
+                nextIndex = nextIndex >= gallery.children().length ? 2 : nextIndex;
+                window.clearTimeout(this.runningTimeout);
+                this.runningTimeout = window.setTimeout(this.rotateImages.bind(this, nextIndex), 5000);
+            },
+            changeSelected: function(e) {
+                if (this.parentNode.parentNode.isDocked) {
+                    window.clearTimeout(this.runningTimeout);
+                    this.rotateImages($(e.srcElement).index());
+                } else {
+                    this.placeImages($(e.srcElement));
+                }
+            },
+            showLayoutLarge: function() {
+                if (!this.parentNode.parentNode.isDocked) {
+                    window.clearTimeout(this.runningTimeout);
+                    this.placeImages();
+                }
+            },
+            placeImages: function(selected) {
+                console.log("placing images");
+                var gallery = this["shadowRoot"]["querySelector"]("#gallery");
+                var widgetHeight = $(this.parentElement.parentElement.shadowRoot.querySelector("#widget")).height();
+
+                var count = $(gallery).children().length;
+                var sqrt = Math.sqrt(count);
+
+                $(gallery).children().each(function(index) {
+                    $(this).show();
+                    var height = (widgetHeight / (Math.floor(sqrt) + Math.random() * 0.5));
+                    var y = Math.random() * (widgetHeight - height);
+                    $(this).css("height", height + "px");
+                    $(this).css("top", y + "px");
+                    var x = Math.random() * ($(gallery).width() - $(this).width()) + 1;
+                    $(this).css("left", x + "px");
+                    console.log(x + ", " + y);
+                    $(this).css("z-index", Math.floor(Math.random() * 100 + 1));
+                    $(this).css("transform", "rotate(" + Math.floor(Math.random() * 30 - 15) + "deg)");
+                });
+                if (selected) {
+                    $(selected).css("height", (widgetHeight / 1.5) + "px");
+                    $(selected).css("top", (widgetHeight / 6) + "px");
+                    $(selected).css("left", ($(gallery).width() / 2 - $(selected).width() / 2) + "px");
+                    $(selected).css("z-index", 101);
+                    $(selected).css("transform", "none");
+                }
             },
             addDemoImages: function() {
                 console.log("Adding demo images");
@@ -140,70 +245,6 @@
                     "id": null,
                     "href": "http://server1095.cs.technik.fhnw.ch/api/pictures/"
                 }];
-            },
-            changeSelected: function(e) {
-                var selected = $(e.srcElement);
-                var gallery = selected.parent();
-                var spacingUnit = (gallery.width() - selected.width()) / 6;
-
-                gallery.children().each(function(index) {
-                    $(this).show();
-                    $(this).removeAttr("style");
-                    if (index == selected.index()) { // Center
-                        $(this).css("z-index", 4);
-                        $(this).css("left", (3 * spacingUnit) + "px");
-                        $(this).css("right", "auto");
-                    } else if (index == selected.index() - 3 || index == (gallery.children().length - 1 + (selected.index() - 3))) { // Left outer
-                        $(this).css("z-index", 1);
-                        $(this).css("left", "0px");
-                        $(this).css("right", "auto");
-                    } else if (index == selected.index() - 2 || index == (gallery.children().length - 1 + (selected.index() - 2))) { // Left center
-                        $(this).css("z-index", 2);
-                        $(this).css("left", spacingUnit + "px");
-                        $(this).css("right", "auto");
-                    } else if (index == selected.index() - 1 || index == (gallery.children().length - 1 + (selected.index() - 1))) { // Left inner
-                        $(this).css("z-index", 3);
-                        $(this).css("left", (2 * spacingUnit) + "px");
-                        $(this).css("right", "auto");
-                    } else if (index == selected.index() + 3 || index == selected.index() + 3 - (gallery.children().length - 1)) { // Right outer
-                        $(this).css("z-index", 1);
-                        $(this).css("left", (gallery.width() - $(this).width()) + "px");
-                        $(this).css("right", "auto");
-                    } else if (index == selected.index() + 2 || index == selected.index() + 2 - (gallery.children().length - 1)) {  // Right center
-                        $(this).css("z-index", 2);
-                        $(this).css("left", (gallery.width() - $(this).width() - spacingUnit) + "px");
-                        $(this).css("right", "auto");
-                    } else if (index == selected.index() + 1 || index == selected.index() + 1 - (gallery.children().length - 1)) {  // Right inner
-                        $(this).css("z-index", 3);
-                        $(this).css("left", (gallery.width() - $(this).width() - 2 * spacingUnit) + "px");
-                        $(this).css("right", "auto");
-                    } else {
-                        $(this).hide();
-                        $(this).css("left", "0px");
-                        $(this).css("right", "auto");
-                    }
-                });
-
-                var nextIndex = selected.index() + 1;
-                nextIndex = nextIndex >= gallery.children().length ? 2 : nextIndex;
-                window.clearTimeout(this.runningTimeout);
-                this.runningTimeout = window.setTimeout(function(element) {
-                    $(element).click();
-                }, 5000, gallery.children().eq(nextIndex));
-            },
-            placeImages: function() {
-                console.log("placing images");
-                var gallery = this["shadowRoot"]["querySelector"]("#gallery");
-
-                $(gallery).children().each(function(index) {
-                    var height = (Math.random() * 30 + 20);
-                    var y = Math.random() * (100 - height);
-                    $(this).css("height", height + "%");
-                    $(this).css("top", y + "%");
-                    var x = Math.random() * ($(gallery).width() - $(this).width()) + 1;
-                    $(this).css("left", x + "px");
-                    console.log(x + ", " + y);
-                });
             }
         }, window.appMixin));
     </script>
