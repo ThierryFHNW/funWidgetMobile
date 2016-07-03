@@ -1,18 +1,39 @@
-<h2>Upload from {{source}}</h2>
-
 <div class="widget container">
-    <div class="widget-header">
-        <a href="#/"><i class="fa fa-close" ng-click="close()"></i></a>
-    </div>
-    <img id="picture" src="img/logo.png"/>
-    <textarea rows="3" ng-model="description" alt="Bildbeschreibung"></textarea>
-    <div class="buttons">
-        <button ng-click="retake('capture')">
-            <i class="fa fa-camera"></i>
-        </button>
-        <button ng-click="retake('gallery')">
-            <i class="fa fa-picture-o"></i>
-        </button>
-        <button class="green" ng-click="send()">Bild hochladen</button>
+    <div class="widget">
+        <div class="widget-content">
+            <div class="widget-header">
+                <a href="#/"><i class="fa fa-close fa-2x" ng-click="close()"></i></a>
+            </div>
+            <h2>Upload from {{source}}</h2>
+            <div class="message" ng-class="{warn: message.isWarn}" ng-if="message">
+                <i class="fa fa-warning"/>
+                <i class="fa fa-info-circle"/>
+                {{message.text}}
+            </div>
+
+            <button ng-click="retake('capture')">
+                <i class="fa fa-camera"></i>
+            </button>
+            <button ng-click="retake('gallery')">
+                <i class="fa fa-picture-o"></i>
+            </button>
+            <img ng-src="{{image}}" src="img/placeholder.png"/>
+            <!--<img id="picture" src="img/logo.png"/>-->
+            <!--<select ng-model="server" ng-options="s.server for s in servers"></select>-->
+            <!--<textarea rows="3" ng-model="description" alt="Bildbeschreibung"></textarea>-->
+
+            <div class="form-row">
+                <label>Ziel-Server</label>
+                <!--<select name="default" ng-model="server" ng-options="k as c.server for (k, c) in servers" class="small">-->
+                <select ng-model="server" ng-options="server.server for (k, server) in servers" class="small">
+                    <option></option>
+                </select>
+                <button class="green" ng-click="send()"><i class="fa fa-cloud-upload"></i></button>
+            </div>
+
+            <!--<button class="green" ng-click="send()">-->
+                <!--<i class="fa fa-cloud-upload"></i>-->
+            <!--</button>-->
+        </div>
     </div>
 </div>

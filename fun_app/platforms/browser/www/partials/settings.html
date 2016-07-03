@@ -1,9 +1,56 @@
-<h2>Settings</h2>
+<div class="widget-container">
+    <div class="widget">
+        <div class="widget-content">
+            <div class="widget-header">
+                <a href="#/"><i class="fa fa-close fa-2x" ng-click="close()"></i></a>
+            </div>
+            <h2>Settings</h2>
+            <div class="message" ng-class="{warn: message.isWarn}" ng-if="message">
+                <i class="fa fa-warning"/>
+                <i class="fa fa-info-circle"/>
+                {{message.text}}
+            </div>
 
-<div class="widget container">
-    <div class="widget-header">
-        <a href="#/"><i class="fa fa-close" ng-click="close()"></i></a>
+            <div ng-if="!editing">
+                <div class="form-row">
+                    <label>Default</label>
+                    <select name="default.server" ng-model="default.server" ng-options="server.server for (k, server) in servers" class="small">
+                    </select>
+                    <button class="green" ng-click="changeDefault()"><i class="fa fa-save"></i></button>
+                </div>
+                <h3>Server Konfigurationen</h3>
+                <div ng-repeat="server in servers">
+                    <div class="form-row">
+                        <label class="large">
+                            {{server.server}}
+                        </label>
+                        <button class="orange" ng-click="edit(server)"><i class="fa fa-pencil"/></button>
+                    </div>
+                </div>
+                <button class="green" ng-click="add()"><i class="fa fa-plus"/></button>
+            </div>
+
+            <div ng-if="editing">
+                <div class="form-row">
+                    <label>Server</label>
+                    <input type="text" placeholder="Server" ng-model="editing.server"/>
+                </div>
+                <div class="form-row">
+                    <label>Project</label>
+                    <input type="text" placeholder="Project" ng-model="editing.project"/>
+                </div>
+                <div class="form-row">
+                    <label>User</label>
+                    <input type="text" placeholder="User" ng-model="editing.user"/>
+                </div>
+                <div class="form-row">
+                    <label>Password</label>
+                    <input type="password" placeholder="Password" ng-model="editing.password"/>
+                </div>
+                <button class="green" ng-click="save()"><i class="fa fa-save"/></button>
+                <button class="orange" ng-click="cancel()"><i class="fa fa-close"/></button>
+                <button class="red" ng-if="!new" ng-click="remove()"><i class="fa fa-eraser"/></button>
+            </div>
+        </div>
     </div>
-    <br/>
-    <br/>
 </div>

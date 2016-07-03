@@ -1,7 +1,15 @@
 <div class="widget container">
     <div class="widget">
         <div class="widget-content">
+            <div class="widget-header">
+                <a href="#/"><i class="fa fa-close fa-2x" ng-click="close()"></i></a>
+            </div>
             <h2>Upload from {{source}}</h2>
+            <div class="message" ng-class="{warn: message.isWarn}" ng-if="message">
+                <i class="fa fa-warning"/>
+                <i class="fa fa-info-circle"/>
+                {{message.text}}
+            </div>
 
             <button ng-click="retake('capture')">
                 <i class="fa fa-camera"></i>

@@ -46,6 +46,9 @@ div.widget-content {
     padding: 8px;
     margin: 4px;
 }
+div.widget-content h2 {
+    margin-top: 2px;
+}
 div.widget-content:after {
     display: block;
     clear: both;
@@ -56,6 +59,13 @@ div.widget.small div.widget-content {
     display: block;
     flex-direction: row;
     align-items: center;
+}
+div.widget-header {
+    position: absolute;
+    right: 15px;
+}
+div.widget-header a i {
+    color: #000;
 }
 div.widget.small div.widget-content div {
     display: table;
@@ -72,7 +82,34 @@ div.widget-content img {
     max-width: 100%;
     padding: 10px 0px;
 }
-
+div.widget-content div.message {
+    height: 3em;
+    border: 1px solid #CCC;
+    margin: 10px 0;
+    padding-left: 10px;
+    line-height: 3em;
+    color: #4B4;
+    background: rgba(128,255,128,0.3);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+div.widget-content div.message i {
+    margin-right: 8px;
+}
+div.widget-content div.message i.fa-warning {
+    display: none;
+}
+div.widget-content div.message.warn {
+    color: #B44;
+    background: rgba(255,128,128,0.3);
+}
+div.widget-content div.message.warn i.fa-warning {
+    display: inline;
+}
+div.widget-content div.message.warn i.fa-info-circle {
+    display: none;
+}
 
 /*
     Forms
