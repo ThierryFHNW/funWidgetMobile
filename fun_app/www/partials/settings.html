@@ -14,7 +14,7 @@
             <div ng-if="!editing">
                 <div class="form-row">
                     <label>Default</label>
-                    <select name="default.server" ng-model="default.server" ng-options="server.server for (k, server) in servers" class="small">
+                    <select name="default.server" ng-model="default.server" ng-options="server.project for (k, server) in servers" class="small">
                     </select>
                     <button class="green" ng-click="changeDefault()"><i class="fa fa-save"></i></button>
                 </div>
@@ -22,7 +22,7 @@
                 <div ng-repeat="server in servers">
                     <div class="form-row">
                         <label class="large">
-                            {{server.server}}
+                            {{server.project}}
                         </label>
                         <button class="orange" ng-click="edit(server)"><i class="fa fa-pencil"/></button>
                     </div>
@@ -42,10 +42,6 @@
                 <div class="form-row">
                     <label>User</label>
                     <input type="text" placeholder="User" ng-model="editing.user"/>
-                </div>
-                <div class="form-row">
-                    <label>Password</label>
-                    <input type="password" placeholder="Password" ng-model="editing.password"/>
                 </div>
                 <button class="green" ng-click="save()"><i class="fa fa-save"/></button>
                 <button class="orange" ng-click="cancel()"><i class="fa fa-close"/></button>

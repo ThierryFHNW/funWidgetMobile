@@ -1,4 +1,4 @@
-<div class="widget container">
+<div class="widget-container">
     <div class="widget">
         <div class="widget-content">
             <div class="widget-header">
@@ -25,7 +25,7 @@
             <div class="form-row">
                 <label>Ziel-Server</label>
                 <!--<select name="default" ng-model="server" ng-options="k as c.server for (k, c) in servers" class="small">-->
-                <select ng-model="server" ng-options="server.server for (k, server) in servers" class="small">
+                <select ng-model="server" ng-options="server.project for (k, server) in servers" class="small">
                     <option></option>
                 </select>
                 <button class="green" ng-click="send()"><i class="fa fa-cloud-upload"></i></button>

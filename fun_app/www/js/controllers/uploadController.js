@@ -12,7 +12,6 @@ $app.controller('UploadCtrl', ['$scope', '$routeParams', '$http', '$timeout', 's
         };
         $http({
             method: "POST",
-            //url: "http://server1095.cs.technik.fhnw.ch/api/pictures",
             url: $scope.server.server,
             data: picture})
             .then(function success() {
@@ -39,15 +38,7 @@ $app.controller('UploadCtrl', ['$scope', '$routeParams', '$http', '$timeout', 's
         $timeout(function() {
             $scope.image = "data:image/jpeg;base64," + imageData;
         });
-        //$("#picture").attr("src", $scope.image);
     }
-
-    //function onGallerySuccess(imageURI) {
-    //    alert(imageURI);
-    //    window.plugins.Base64.encodeFile(imageURI.split(":")[1], function(imageData){
-    //        $scope.image = "data:image/jpeg;base64," + imageData;
-    //    });
-    //}
 
     function onFail(message) {
         $scope.message = {
@@ -76,8 +67,6 @@ $app.controller('UploadCtrl', ['$scope', '$routeParams', '$http', '$timeout', 's
             }
         });
     }
-
-    console.log($routeParams.source);
 
     if (navigator.camera) {
         takePicture();

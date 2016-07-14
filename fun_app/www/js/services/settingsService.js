@@ -26,7 +26,6 @@ $app.service('settingsService', function() {
         conf.server = configuration.server;
         conf.project = configuration.project;
         conf.user = configuration.user;
-        conf.password = configuration.password;
         saveSettings();
     };
 
