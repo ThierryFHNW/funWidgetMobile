@@ -71,9 +71,6 @@
         Polymer(Polymer.mixin({
             ready: function() {
                 this.runningTimeout = window.setTimeout(this.showLayoutSmall.bind(this), 5000);
-//                this.runningTimeout = window.setTimeout(function(gallery) {
-//                    $(gallery).children().eq(5).click();
-//                }, 5000, this["shadowRoot"]["querySelector"]("#gallery"));
                 this.parentNode.parentNode.addEventListener('dragEnded', this.showLayoutLarge.bind(this));
                 this.parentNode.parentNode.addEventListener('resizeEnded', this.showLayoutLarge.bind(this));
                 this.parentNode.parentNode.addEventListener('docked', this.showLayoutSmall.bind(this));
@@ -90,11 +87,8 @@
                 }
             },
             rotateImages: function(selected) {
-//                var selected = $(e.srcElement);
-//                var gallery = selected.parent();
                 var gallery = $(this["shadowRoot"]["querySelector"]("#gallery"));
                 var selectedPicture = gallery.children().eq(selected);
-//                var showImages = gallery.children().length > 7 ? 7 : gallery.children.length - 1;
                 var spacingUnit = (gallery.width() - selectedPicture.width()) / (7 - 1 );
 
                 gallery.children().each(function(index) {
