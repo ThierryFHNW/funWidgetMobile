@@ -36,6 +36,7 @@ $app.controller('UploadCtrl', ['$scope', '$routeParams', '$http', '$timeout', 's
 
     function onCaptureSuccess(imageData) {
         $timeout(function() {
+            $scope.message = undefined;
             $scope.image = "data:image/jpeg;base64," + imageData;
         });
     }
