@@ -1,0 +1,12 @@
+Build:
+
+Um die App zum laufen zu bringen, lohnt es sich das Repository der FunApp unabhängig von den restlichen der aWall zu clonen.
+Dies schliesst aus, dass Versionisierungen sich überscheniden mit dem WebClient z.B.
+Dann kann der build durchgeführt werden wie in der Anleitung und nach Fehlern gegoogled werden falls es nicht klappt.
+Tipps: platform android muss in der Kommandozeile installiert sein.
+
+
+
+Ausserdem muss sichergesteltt werden, dass sich auf dem Smartphone noch keine apk Datei der funapp oder ältere Versionen befinden.
+
+Danach kann das Gerät angeschlossen werden, dabei muss man auf dem Smartphone noch die Freigabe genehmigen.
